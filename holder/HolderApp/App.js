@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -21,7 +21,26 @@ import {
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
 
+import { agent } from './setup'
+
 const App: () => React$Node = () => {
+  const [error, setError] = useState('')
+  const [identity, setIdentity] = useState('')
+
+  const catchError = error => { console.error(error); setError(error.message); return error }
+
+  useEffect(() => {
+    agent.identityManager.getIdentities()
+      .then(identities => {
+        console.log(identities)
+        if (identities.length) setIdentity(identities[0].did)
+      }).catch(catchError)
+  }, [])
+
+  const createIdentity = () => agent.identityManager.identityProviders[0].createIdentity()
+    .then(({ did }) => setIdentity(did))
+    .catch(catchError)
+
   return (
     <>
       <StatusBar barStyle="dark-content" />
@@ -30,6 +49,16 @@ const App: () => React$Node = () => {
           <View style={styles.body}>
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionTitle}>Holder app</Text>
+            </View>
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionDescription}>
+                Create your identity!
+              </Text>
+              {
+                identity
+                  ? <Text style={styles.sectionDescription}>Identity: {identity}</Text>
+                  : <Button title="Create identity" onPress={createIdentity} />
+              }
             </View>
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionDescription}>
@@ -70,6 +99,14 @@ const App: () => React$Node = () => {
               <Button title="Recover"></Button>
             </View>
           </View>
+          {!!error &&
+            <View style={styles.body}>
+              <View style={styles.sectionContainer}>
+                <Text style={styles.sectionDescription}>Error:</Text>
+                <Text style={styles.sectionDescription}>{error}</Text>
+              </View>
+            </View>
+          }
         </ScrollView>
       </SafeAreaView>
     </>
