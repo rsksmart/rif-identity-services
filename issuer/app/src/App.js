@@ -6,9 +6,11 @@ const backOfficeUrl = `http://localhost:${process.env.REACT_APP_BACKOFFICE_PORT}
 function App() {
   const [identity, setIdentity] = useState('')
 
+  const getIdentity = () => axios.get(backOfficeUrl + '/identity').then(res => setIdentity(res.data))
+
   useEffect(() => {
-    axios.get(backOfficeUrl + '/identity').then(res => setIdentity(res.data))
-  }, [identity])
+    getIdentity()
+  }, [])
 
   return (
     <div>
