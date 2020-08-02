@@ -3,16 +3,17 @@ const { Entities } = require('daf-core')
 const debug = require('debug')('rif-id:setup:db')
 
 function setupDB(database) {
-  return createConnection({
+  const connection = createConnection({
     type: 'sqlite',
     database,
     synchronize: true,
     logging: false,
     entities: Entities,
-  }).then(connection => {
-    debug(`DB Connection: ${connection.name}`)
-    return connection
   })
+
+  debug('DB Connection established')
+
+  return connection
 }
 
 module.exports = setupDB
