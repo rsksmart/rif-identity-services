@@ -1,16 +1,15 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const debug = require('debug')('rif-id:services:credentialRequests')
 
-const credentialRequestService = () => {
+function credentialRequestService() {
   const app = express()
 
   app.post('/requestCredential', bodyParser.json(), function(req, res) {
-    console.log(req.body)
+    debug(req.body)
   })
 
-  const PORT = 3000
-
-  app.listen(PORT, () => console.log(`Issuer app started on port ${PORT}`))
+  app.listen(process.env.CREDENTIAL_REQUESTS_PORT, () => debug(`Issuer app started on port ${process.env.CREDENTIAL_REQUESTS_PORT}`))
 }
 
 module.exports = {
