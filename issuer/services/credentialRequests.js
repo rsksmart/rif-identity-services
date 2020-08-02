@@ -7,6 +7,7 @@ function credentialRequestService(port) {
 
   app.post('/requestCredential', bodyParser.json(), function(req, res) {
     debug(req.body)
+    res.status(200).send({})
   })
 
   app.listen(port, () => debug(`Credential requests service started on port ${port}`))
