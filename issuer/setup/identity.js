@@ -9,9 +9,7 @@ async function setupIdentity(agent) {
    ?  await agent.identityManager.createIdentity()
    : identities[0]
 
-   debug(`Identity: ${identity.did}`)
-
-   return identity
+  debug(`Identity: ${identity.did}`)
 }
 
 module.exports = setupIdentity

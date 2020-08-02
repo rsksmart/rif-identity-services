@@ -1,31 +1,36 @@
 require('dotenv').config()
 const Debug = require('debug')
-const debug = Debug('rif-id')
 
 const setupDb = require('./setup/db')
 const setupAgent = require('./setup/agent')
 const setupIdentity = require('./setup/identity')
 
-const { credentialRequestService } = require('./services/credentialRequests')
+const credentialRequestService = require('./services/credentialRequests')
+const backOffice = require('./services/backOffice')
+
+const debug = Debug('rif-id:main')
+
 
 /* debugger from .env */
 if (process.env.DEBUG) {
   Debug.enable(process.env.DEBUG)
 }
 
-async function main() {
-  /* setup */
+debug('Setting up')
+
+async function main () {
   const dbConnection = setupDb('./issuer.sqlite')
   const agent = setupAgent(dbConnection)
-  const identity = await setupIdentity(agent)
+  await setupIdentity(agent)
 
-  /* services */
-  credentialRequestService()
+  debug('Set up')
+
+  debug('Starting services')
+
+  credentialRequestService(process.env.CREDENTIAL_REQUESTS_PORT)
+  backOffice(process.env.REACT_APP_BACKOFFICE_PORT, agent)
+
+  debug('Services started')
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch(err => {
-    debug(err)
-    process.exit(1)
-  })
+main().catch(e => { debug(e); process.exit(1) })

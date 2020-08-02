@@ -5,13 +5,20 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev:back": "nodemon index.js",
+    "dev:front": "cd app && npm run start",
+    "dev": "concurrently --kill-others-on-fail \"npm run dev:back\" \"npm run dev:front\"",
+    "start:services": "node index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "axios": "^0.19.2",
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "daf-core": "^6.1.1",
     "daf-did-comm": "^6.1.1",
     "daf-did-jwt": "^6.1.1",
@@ -22,10 +29,14 @@
     "debug": "^4.1.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-scripts": "3.4.1",
     "sqlite3": "^5.0.0",
     "typeorm": "^0.2.25"
   },
   "devDependencies": {
+    "concurrently": "^5.2.0",
     "nodemon": "^2.0.4"
   }
 }
