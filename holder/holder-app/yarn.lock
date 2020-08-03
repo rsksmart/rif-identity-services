@@ -3609,6 +3609,16 @@ daf-core@^6.0.0, daf-core@^6.1.1:
     typeorm "^0.2.24"
     uuid "^7.0.2"
 
+daf-did-comm@^6.1.1:
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/daf-did-comm/-/daf-did-comm-6.1.1.tgz#7508fc04b0fdb0daac0811d6d300eb918e693051"
+  integrity sha512-cGEKT2apoeLrFR8Q5sMQ0POIyv8RjAFiSi9H2DPIy1pb/D+1WFiZqLTYz/9WQpJZBUP1sgI6/R/ipq1gr6Tm8A==
+  dependencies:
+    cross-fetch "^3.0.4"
+    daf-core "^6.1.1"
+    debug "^4.1.1"
+    uuid "^3.3.3"
+
 daf-did-jwt@^6.0.0, daf-did-jwt@^6.1.1:
   version "6.1.1"
   resolved "https://registry.yarnpkg.com/daf-did-jwt/-/daf-did-jwt-6.1.1.tgz#f03c70cd6cac3e0bf8fb76452560e496102fe419"
@@ -3661,6 +3671,18 @@ daf-resolver@^6.0.0:
     ethr-did-resolver "2.2.0"
     nacl-did "^1.0.0"
     web-did-resolver "^1.2.0"
+
+daf-selective-disclosure@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/daf-selective-disclosure/-/daf-selective-disclosure-6.0.0.tgz#d58801c06d5227570752ed287fa911ab30a72650"
+  integrity sha512-A+wdcF/RcXRIgsB12bjAOjEezQnPTEHSgtVG3xJnDwNz8180WT1hAi5jGiyNonHLs3Bgqu+N7uHecuHv5U5KEA==
+  dependencies:
+    blakejs "^1.1.0"
+    daf-core "^6.0.0"
+    daf-did-jwt "^6.0.0"
+    debug "^4.1.1"
+    did-jwt "^4.3.2"
+    typeorm "^0.2.24"
 
 daf-w3c@^6.0.0:
   version "6.0.0"
@@ -10981,7 +11003,7 @@ utils-merge@1.0.1:
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
 
-uuid@^3.0.1, uuid@^3.3.2:
+uuid@^3.0.1, uuid@^3.3.2, uuid@^3.3.3:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==

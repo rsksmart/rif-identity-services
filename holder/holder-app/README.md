@@ -1,5 +1,13 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+**After `yarn`, remove failing line:
+
+```
+sed -i '' '/import { AuroraDataApiPostgresDriver }/d' ./node_modules/typeorm/browser/driver/DriverFactory.js
+```
+
+You must do this before installing dependencies or adding a new one, before running `yarn start`
+
 ## Available Scripts
 
 In the project directory, you can run:
