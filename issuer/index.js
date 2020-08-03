@@ -27,7 +27,7 @@ async function main () {
 
   debug('Starting services')
 
-  credentialRequestService(process.env.CREDENTIAL_REQUESTS_PORT)
+  credentialRequestService(process.env.CREDENTIAL_REQUESTS_PORT, agent)
   backOffice(process.env.REACT_APP_BACKOFFICE_PORT, agent)
 
   debug('Services started')

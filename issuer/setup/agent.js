@@ -1,10 +1,13 @@
 const { KeyStore, IdentityStore, Agent } = require('daf-core')
 const { SecretBox, KeyManagementSystem } = require('daf-libsodium')
 const { IdentityProvider } = require('daf-ethr-did')
-const { DIDCommMessageHandler, DIDCommActionHandler } = require('daf-did-comm')
-const { JwtMessageHandler } = require('daf-did-jwt')
-const { W3cMessageHandler, W3cActionHandler } = require('daf-w3c')
 const { DafResolver } = require('daf-resolver')
+
+const DIDComm = require('daf-did-comm')
+const DidJwt = require('daf-did-jwt')
+const W3c = require('daf-w3c')
+const Sdr = require('daf-selective-disclosure')
+
 const debug = require('debug')('rif-id:setup:agent')
 
 const infuraProjectId = process.env.INFURA_PROJECT_ID
@@ -37,14 +40,20 @@ function createResolver() {
 }
 
 function createMessageHandler() {
-  return new DIDCommMessageHandler()
-    .setNext(new JwtMessageHandler())
-    .setNext(new W3cMessageHandler())
+  const messageHandler = new DIDComm.DIDCommMessageHandler()
+  messageHandler
+    .setNext(new DidJwt.JwtMessageHandler())
+    .setNext(new W3c.W3cMessageHandler())
+    .setNext(new Sdr.SdrMessageHandler())
+  return messageHandler
 }
 
 function createActionHandler() {
-  return new DIDCommActionHandler()
-    .setNext(new W3cActionHandler)
+  const actionHandler = new W3c.W3cActionHandler()
+  actionHandler
+    .setNext(new Sdr.SdrActionHandler())
+    .setNext(new DIDComm.DIDCommActionHandler())
+  return actionHandler
 }
 
 function setupAgent(dbConnection) {
@@ -55,6 +64,7 @@ function setupAgent(dbConnection) {
   const actionHandler = createActionHandler()
 
   const agent = new Agent({
+    dbConnection,
     identityProviders,
     serviceControllers,
     didResolver,

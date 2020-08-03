@@ -4,6 +4,9 @@ import { agent } from './setup'
 
 type Request = { sdrJwt: string, message: string }
 
+const issuer = `did:ethr:rinkeby:0xc623b302b62d2d40e2637521f66f855b37ffd5ce`
+const issuerUrl = 'http://localhost:5000/requestCredential'
+
 function App() {
   const [error, setError] = useState('')
   const [identity, setIdentity] = useState('')
@@ -28,9 +31,21 @@ function App() {
       issuer: identity,
       claims: [
         {
-          reason: 'Reason',
+          claimType: 'credentialRequest',
+          claimValue: 'cred1'
+        },
+        {
           claimType: 'name',
+          claimValue: 'Alan Turing',
           essential: true,
+        },
+        {
+          claimType: 'age',
+          claimValue: 35
+        },
+        {
+          claimType: 'status',
+          claimValue: 'coding...'
         },
       ],
       credentials: [],
@@ -43,7 +58,7 @@ function App() {
 
     const didCommData = {
       from: identity,
-      to: 'did:ethr:rinkeby:0xb5e2f33b9137e63b6f42cce446fd501e6ed7ac05', // backoffice -- need to setup did doc to avoid url
+      to: issuer,
       type: 'jwt',
       body: sdrJwt,
     }
@@ -51,7 +66,7 @@ function App() {
     const message = await agent.handleAction({
       type: 'send.message.didcomm-alpha-1',
       data: didCommData,
-      url: 'http://localhost:5000/requestCredential',
+      url: issuerUrl, // need to setup did doc to avoid url
       save: false
     } as ActionSendDIDComm)
 
@@ -59,8 +74,8 @@ function App() {
   }
 
   return (
-    <div>
-      <h1>RIF Identity POC</h1>
+    <div style={ { padding:10 } }>
+      <h1>Holder app</h1>
       {error && <p>Error: {error}</p>}
       <h2>Create identity</h2>
       {
@@ -70,6 +85,7 @@ function App() {
       }
       <hr />
       <h2>Request credential</h2>
+      <p>Issuer: {issuer}</p>
       {
         !requestJwt
           ? <button onClick={requestCredential}>Request</button>

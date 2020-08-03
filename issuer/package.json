@@ -25,6 +25,7 @@
     "daf-ethr-did": "^6.1.1",
     "daf-libsodium": "^6.1.1",
     "daf-resolver": "^6.0.0",
+    "daf-selective-disclosure": "^6.0.0",
     "daf-w3c": "^6.0.0",
     "debug": "^4.1.1",
     "dotenv": "^8.2.0",
