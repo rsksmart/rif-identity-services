@@ -15,9 +15,40 @@ const EthrDID = require('ethr-did')
 const { createVerifiableCredentialJwt } = require('did-jwt-vc')
 const { verifyJWT } = require('did-jwt')
 
+/* Data vault */
+const { DataVaultProviderIPFS } = require('./lib/DataVaultProviderIPFS')
+
 /* debugger */
 const Debug = require('debug')
 const debug = Debug('rif-id:data-vault')
+
+/*
+User                                     Data Vault
+ |                 Store cred.                |
+ |                                            |
+ | ----------- POST /auth { did } ----------> |---┐
+ |                                            |  resolves did
+ | <--------------- jwt(token) -------------- |<--┘
+ |                                            |
+ | -- POST /save jwt(payload, did, token) --> |---┐
+ |                                            |  verify jwt
+ |                                            |  verify token
+ |                                            |  store { did, payload }
+ | <------------------ cid -------------- |<--┘
+ |                                            |
+ |                                            |
+ |               Recover creds.               |
+ |                                            |
+ | ----------- POST /auth { did } ----------> |---┐
+ |                                            |  resolves did
+ | <--------------- jwt(token) -------------- |<--┘
+ |                                            |
+ | ----- POST /recover jwt(did, token) -----> |---┐
+ |                                            |  verify jwt
+ |                                            |  verify token
+ |                                            |  retrieve { did }
+ | <----------------- cids ------------------ |<--┘
+*/
 
 Debug.enable('*')
 
@@ -35,40 +66,18 @@ const identity = new EthrDID({
   address: process.env.ADDRESS
 })
 
-/*
-User                                     Data Vault
- |                 Store cred.                |
- |                                            |
- | ----------- POST /auth { did } ----------> |---┐
- |                                            |  resolves did
- | <--------------- jwt(token) -------------- |<--┘
- |                                            |
- | -- POST /save jwt(payload, did, token) --> |---┐
- |                                            |  verify jwt
- |                                            |  verify token
- |                                            |  store { did, payload }
- | <------------- success/error ------------- |<--┘
- |                                            |
- |                                            |
- |               Recover creds.               |
- |                                            |
- | ----------- POST /auth { did } ----------> |---┐
- |                                            |  resolves did
- | <--------------- jwt(token) -------------- |<--┘
- |                                            |
- | ----- POST /recover jwt(did, token) -----> |---┐
- |                                            |  verify jwt
- |                                            |  verify token
- |                                            |  retrieve { did }
- | <------------------ creds. --------------- |<--┘
-*/
+/* setup auth */
+const authDictionary = {} // stores tokens and expiration time for given did
+
+/* setup data vault */
+const dataVaultProvider = new DataVaultProviderIPFS({ host: 'localhost', port: process.env.IPFS_PORT, protocol: 'http' })
+
 
 app.get('/identity', function(req, res) {
   debug(`Requested identity`)
   res.status(200).send(identity.did)
 })
 
-const authDictionary = {} // stores tokens and expiration time for given did
 
 const authenticate = (jwt) => verifyJWT(jwt, {
   issuer: identity,
@@ -77,6 +86,7 @@ const authenticate = (jwt) => verifyJWT(jwt, {
 }).then(({ payload, issuer }) => {
   if (authDictionary[issuer].token !== payload.claims.find(claim => claim.claimType === 'token').claimValue) throw new Error('Invalid token')
   if (authDictionary[issuer].exp < Math.floor(+new Date() / 1000)) throw new Error('Token expired')
+  return { payload, issuer }
 })
 
 app.post('/auth', bodyParser.json(), function(req, res) {
@@ -112,6 +122,27 @@ app.post('/testAuth', bodyParser.json(), function(req, res) {
   authenticate(jwt)
     .then(() => res.status(200).send('Authenticated'))
     .catch(() => res.status(200).send('Not authenticated'))
+})
+
+const authenticateAndFindClaim = (jwt) => (claimType) => authenticate(jwt)
+  .then(({ issuer, payload }) => ({ issuer, content: payload.claims.find(claim => claim.claimType === claimType).claimValue }))
+
+app.post('/put', bodyParser.json(), function (req, res) {
+  debug(`Put`)
+  const { jwt } = req.body
+
+  authenticateAndFindClaim(jwt)('content')
+    .then(({ issuer, content }) => dataVaultProvider.put(issuer, Buffer.from(content)))
+    .then(cid => res.status(200).send(cid))
+})
+
+app.post('/get', bodyParser.json(), function (req, res) {
+  debug(`Get`)
+  const { jwt } = req.body
+
+  authenticate(jwt)
+    .then(({ issuer }) => dataVaultProvider.get(issuer))
+    .then(cids => res.status(200).send(JSON.stringify(cids)))
 })
 
 app.listen(process.env.PORT)

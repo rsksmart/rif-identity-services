@@ -20,14 +20,12 @@ function App() {
   const [credential, setCredential] = useState(null)
   const [dataVaultIdentity, setDataVaultIdentity] = useState('')
   const [authTryResult, setAuthTryResult] = useState('')
+  const [credentialCID, setCredentialCID] = useState('')
+  const [credentialCIDsRecovered, setCredentialCIDsRecovered] = useState('')
 
   const _credential = credential as any
 
   const handleCatch = (error: Error) => { setError(error.message); console.error(error); return error }
-
-  const getDataVaultIdentity = () => axios.get(dataVaultUrl + '/identity')
-    .then(res => res.status === 200 && res.data)
-    .then(setDataVaultIdentity)
 
   useEffect(() => {
     Promise.all([
@@ -36,16 +34,19 @@ function App() {
           if (identities.length) setIdentity(identities[0].did)
         })
         .catch(handleCatch),
-
-      getDataVaultIdentity()
+      axios.get(dataVaultUrl + '/identity')
+        .then(res => res.status === 200 && res.data)
+        .then(setDataVaultIdentity)
         //.catch(handleCatch)
     ])
   }, [])
 
+  /** identity operations */
   const createIdentity = () => agent.identityManager.createIdentity()
     .then(({ did }) => setIdentity(did))
     .catch(handleCatch)
 
+  /** request operations */
   const requestCredential = async () => {
     const sdrData = {
       issuer: identity,
@@ -104,20 +105,31 @@ function App() {
     .then(m => setCredential(m.data))
     .catch(handleCatch)
 
-  const tryDataVaultAuth = () => axios.post(dataVaultUrl + '/auth', { did: identity })
-    .then(res => agent.handleMessage({ raw: res.data, save: false, metaData: [] }))
+  /** data vault operations */
+  const login = () => axios.post(dataVaultUrl + '/auth', { did: identity })
+    .then(res => res.status === 200 && res.data)
+    .then(data => agent.handleMessage({ raw: data, save: false, metaData: [] }))
     .then(message => (message.credentials[0].credentialSubject as any).token)
+
+  const loginAndSendClaimWithToken = (claim: any, method: string, setResult: ((data: any) => any)) => login()
     .then(token => agent.handleAction({
       type: 'sign.sdr.jwt',
       data: {
         issuer: identity,
-        claims: [{ claimType: 'token', claimValue: token }]
+        claims: [{ claimType: 'token', claimValue: token }, claim]
       }
     }))
-    .then(jwt => axios.post(dataVaultUrl + '/testAuth', { jwt }))
+    .then(jwt => axios.post(dataVaultUrl + method, { jwt }))
     .then(res => res.status === 200 && res.data)
-    .then(console.log)
-    .catch(handleCatch)
+    .then(setResult)
+
+  const tryDataVaultAuth = () => loginAndSendClaimWithToken(null, '/testAuth', setAuthTryResult).catch(handleCatch)
+  const storeCredential = () => loginAndSendClaimWithToken({ claimType: 'content', claimValue: credentialJWT }, '/put', setCredentialCID).catch(handleCatch)
+  const getCredentials = () => loginAndSendClaimWithToken(
+    null,
+    '/get',
+    (data: string[]) => setCredentialCIDsRecovered(data.reduce((a, c) => c + ' - ' + a, ''))
+  ).catch(handleCatch)
 
   return (
     <div style={ { padding:10 } }>
@@ -159,7 +171,13 @@ function App() {
       DV Identity: {dataVaultIdentity}
       <h3>Try auth</h3>
       <button onClick={tryDataVaultAuth}>Try</button>
-      {authTryResult}
+      <p>{authTryResult}</p>
+      <h3>Store in data vault</h3>
+      <button onClick={storeCredential}>Store</button>
+      <p>{credentialCID}</p>
+      <h3>Restore backup</h3>
+      <button onClick={getCredentials}>Recover</button>
+      <p>{credentialCIDsRecovered}</p>
     </div>
   );
 }

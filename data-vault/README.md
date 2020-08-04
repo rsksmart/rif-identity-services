@@ -13,8 +13,10 @@ User                                     Data Vault
  | -- POST /save jwt(payload, did, token) --> |---┐
  |                                            |  verify jwt
  |                                            |  verify token
- |                                            |  store { did, payload }
- | <------------- success/error ------------- |<--┘
+ |                                            |  ipfs put payload
+ |                                            |  ipfs pin cid
+ |                                            |  store { did, cid }
+ | <------------------ cid -------------- |<--┘
  |                                            |
  |                                            |
  |               Recover creds.               |
@@ -27,33 +29,40 @@ User                                     Data Vault
  |                                            |  verify jwt
  |                                            |  verify token
  |                                            |  retrieve { did }
- | <------------------ creds. --------------- |<--┘
+ | <----------------- cids ------------------ |<--┘
 ```
 
-Install:
+1. Install deps
 
-```
-npm i
-```
+  ```
+  npm i
+  ```
 
-Config: create a `.env` file with
+2. Install IPFS CLI. Find your option: http://localhost:8080/ipns/docs.ipfs.io/how-to/command-line-quick-start/#install-ipfs
 
-```
-PRIVATE_KEY= private key
-ADDRESS= matching address
-AUTH_EXPIRATION_TIME= fixed time for auth tokens to expire in
-INFURA_KEY= infura key for rinkeby
-PORT= to run the data vault
-```
+3. Start IPFS Daemon
 
-Run:
+  ```
+  ipfs daemon
+  ```
 
-```
-npm run start
-```
+  > Ensure it is running on port 5001
 
-Develop:
+4. Configure: create a `.env` file with
 
-```
-npm run dev
-```
+  ```
+  PRIVATE_KEY= private key
+  ADDRESS= matching address
+  AUTH_EXPIRATION_TIME= fixed time for auth tokens to expire in
+  INFURA_KEY= infura key for rinkeby
+  PORT= to run the data vault
+  IPFS_PORT= port of a local http IPFS gateway
+  ```
+
+5. Start data-vault:
+
+  ```
+  npm run dev
+  ```
+
+  > Use `npm run start` for no `nodemon`

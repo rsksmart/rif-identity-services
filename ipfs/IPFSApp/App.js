@@ -27,9 +27,16 @@ import {
 
 const App: () => React$Node = () => {
   const [hash, setHash] = useState('')
+  const [getting, setGetting] = useState('')
   const [content, setContent] = useState('')
 
-  const get = () => axios.get('https://ipfs.io/ipfs/' + hash).then(res => res.status === 200 && res.data).then(setContent) //axios.get('https://ipfs.io/ipfs/' + hash).then(console.log).catch(console.error)
+  const get = () => {
+    setGetting(true)
+    axios.get('https://ipfs.io/ipfs/' + hash)
+      .then(res => res.status === 200 && res.data)
+      .then(setContent)
+      .then(() => setGetting(false))
+  }
 
   return (
     <>
@@ -50,7 +57,7 @@ const App: () => React$Node = () => {
               <TextInput style={{ height: 40, borderColor: 'gray', borderWidth: 1 }} onChangeText={setHash} value={hash} />
               <Button onPress={get} title="Get" />
               <Text style={styles.sectionDescription}>
-                {content}
+                {getting ? 'getting...' : content}
               </Text>
             </View>
           </View>
