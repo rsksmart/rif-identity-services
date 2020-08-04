@@ -7,6 +7,7 @@ const setupIdentity = require('./setup/identity')
 
 const credentialRequestService = require('./services/credentialRequests')
 const backOffice = require('./services/backOffice')
+const tinyQr = require('./services/tinyQr')
 
 const debug = Debug('rif-id:main')
 
@@ -29,6 +30,7 @@ async function main () {
 
   credentialRequestService(process.env.CREDENTIAL_REQUESTS_PORT, agent)
   backOffice(process.env.REACT_APP_BACKOFFICE_PORT, agent)
+  tinyQr(process.env.TINY_QR_PORT, process.env.TINY_QR_URL)
 
   debug('Services started')
 }
