@@ -11,19 +11,25 @@ To start the POC:
 
 Usage:
 
-1. Create identity
+- Create identity
+
   1. Create an identity in the holder app
   2. You will see your DID
-2. Request a credential
+
+- Request a credential
+
   1. Click on request and wait until a JWT shows up
   2. Reload the issuer app and see a new entry for the requested credential
   3. Back in the holder app, click receive the credential and wait until the payload is decoded
-3. Store credential in data vault
+
+- Store credential in data vault
+
   1. Click try auth to check authentication flow
   2. Click on store to store the credential
   3. Click on retrieve to retrieve all stored credentials
-4. Verify content hashes
+
+- Verify content hashes
+
   1. Open the IPFS app
   2. Paste a hash
   3. Click on get and wait - it can take a while
-
