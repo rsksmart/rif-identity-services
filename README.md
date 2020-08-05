@@ -33,3 +33,9 @@ Usage:
   1. Open the IPFS app
   2. Paste a hash
   3. Click on get and wait - it can take a while
+
+- Present credential
+
+  1. After issuing a credential (not necessarily synced to the data vault), click on present
+  2. A QR will be displayed
+  3. You can read
