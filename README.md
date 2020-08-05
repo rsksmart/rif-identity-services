@@ -39,3 +39,9 @@ Usage:
   1. After issuing a credential (not necessarily synced to the data vault), click on present
   2. A QR will be displayed
   3. You can read
+
+- Verify a presentation
+
+  1. Scan the QR and get its JSON data - you can use a tool like [this one](https://www.ginifab.com/feeds/qr_code/qr_code_scanner.html)
+  2. Copy the fields values and paste them in the text boxes
+  3. Click on verify - it will show 'Ok' or 'Error'

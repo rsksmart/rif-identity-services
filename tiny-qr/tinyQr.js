@@ -1,8 +1,12 @@
 const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
-const debug = require('debug')('rif-id:services:tinyQr')
+const Debug = require('debug')
 const crypto = require('crypto')
+
+
+const debug = Debug('rif-id:services:tiny-qr')
+Debug.enable('*')
 
 function tinyQr(port, serviceUrl) {
   const app = express()
@@ -31,11 +35,11 @@ function tinyQr(port, serviceUrl) {
     res.json(response).end()
   })
 
-  app.get('/jwt/:id', function(req, res) {
+  app.post('/jwt/:id', function(req, res) {
     const { id } = req.params
     const { pwd } = req.body
 
-    debug(`Incoming JWT request with id ${id}`)
+    debug(`Incoming JWT request with id ${id} - pwd ${pwd}`)
 
     const presentation = presentations[id]
 
