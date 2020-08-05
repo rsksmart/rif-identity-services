@@ -4,12 +4,12 @@ import axios from 'axios'
 import keccak256 from 'keccak256'
 import { agent } from './setup'
 
-type Request = { sdrJwt: string, message: string }
-
 const issuer = `did:ethr:rinkeby:0xc623b302b62d2d40e2637521f66f855b37ffd5ce`
-const issuerUrl = 'http://localhost:5000'
+const verifier = `did:ethr:rinkeby:0xf93cc6465ca4dead223756481da777be08da24a1`
 
+const issuerUrl = 'http://localhost:5000'
 const dataVaultUrl = 'http://localhost:5002'
+const tinyQRUrl = 'http://localhost:5010'
 
 function App() {
   const [error, setError] = useState('')
@@ -22,6 +22,7 @@ function App() {
   const [authTryResult, setAuthTryResult] = useState('')
   const [credentialCID, setCredentialCID] = useState('')
   const [credentialCIDsRecovered, setCredentialCIDsRecovered] = useState('')
+  const [qrData, setQrData] = useState({})
 
   const _credential = credential as any
 
@@ -131,6 +132,24 @@ function App() {
     (data: string[]) => setCredentialCIDsRecovered(data.reduce((a, c) => c + ' - ' + a, ''))
   ).catch(handleCatch)
 
+  const present = () => agent.handleAction({
+    type: 'sign.w3c.vp.jwt',
+    save: false,
+    data: {
+      issuer: identity,
+      subject: verifier,
+      '@context': ['https://www.w3.org/2018/credentials/v1'],
+      type: ['VerifiablePresentation'],
+      verifiableCredential: [credentialJWT],
+    },
+  } as any)
+    .then(vp => {
+      axios.post(tinyQRUrl + '/presentation', { jwt: vp.raw })
+        .then(res => res.status === 200 && res.data)
+        .then(data => { console.log(data); return ({ vpHash: keccak256(vp.raw).toString('hex'), ...data }) })
+        .then(setQrData)
+    })
+
   return (
     <div style={ { padding:10 } }>
       <h1>Holder app</h1>
@@ -168,7 +187,7 @@ function App() {
       }
       <hr />
       <h2>Data vault</h2>
-      DV Identity: {dataVaultIdentity}
+      <p>DV Identity: {dataVaultIdentity}</p>
       <h3>Try auth</h3>
       <button onClick={tryDataVaultAuth}>Try</button>
       <p>{authTryResult}</p>
@@ -178,6 +197,12 @@ function App() {
       <h3>Restore backup</h3>
       <button onClick={getCredentials}>Recover</button>
       <p>{credentialCIDsRecovered}</p>
+      <hr />
+      <h2>Presentation</h2>
+      <button onClick={present}>Present</button>
+      {
+        (qrData as any).url && <img src={`https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${JSON.stringify(qrData)}&choe=UTF-8`} />
+      }
     </div>
   );
 }
