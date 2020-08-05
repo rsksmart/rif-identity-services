@@ -13,16 +13,25 @@ const tinyQRUrl = 'http://localhost:5010'
 
 function App() {
   const [error, setError] = useState('')
+
   const [identity, setIdentity] = useState('')
+
   const [requestJwt, setRequestJwt] = useState('')
   const [requestHash, setRequestHash] = useState('')
   const [credentialJWT, setCredentialJWT] = useState('')
   const [credential, setCredential] = useState(null)
+
   const [dataVaultIdentity, setDataVaultIdentity] = useState('')
   const [authTryResult, setAuthTryResult] = useState('')
   const [credentialCID, setCredentialCID] = useState('')
   const [credentialCIDsRecovered, setCredentialCIDsRecovered] = useState('')
+
   const [qrData, setQrData] = useState({})
+  const [presentationJWT, setPresentationJWT] = useState('')
+  const [verifyUrl, setVerifyUrl] = useState('')
+  const [verifyPwd, setVerifyPwd] = useState('')
+  const [verifyHash, setVerifyHash] = useState('')
+  const [verification, setVerification] = useState(0)
 
   const _credential = credential as any
 
@@ -143,12 +152,22 @@ function App() {
       verifiableCredential: [credentialJWT],
     },
   } as any)
-    .then(vp => {
-      axios.post(tinyQRUrl + '/presentation', { jwt: vp.raw })
-        .then(res => res.status === 200 && res.data)
-        .then(data => { console.log(data); return ({ vpHash: keccak256(vp.raw).toString('hex'), ...data }) })
-        .then(setQrData)
-    })
+    .then(presentation => setPresentationJWT(presentation.raw))
+    .then(() => axios.post(tinyQRUrl + '/presentation', { jwt: presentationJWT }))
+    .then(res => res.status === 200 && res.data)
+    .then(data => ({ vpHash: keccak256(presentationJWT).toString('hex'), ...data }))
+    .then(setQrData)
+
+  const getQRUrl = () => `https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${JSON.stringify(qrData)}&choe=UTF-8`
+
+  const verify = () => axios.post(verifyUrl, { pwd: verifyPwd })
+    .then(res => res.status === 200 && res.data)
+    .then(data => data.jwt)
+    .then(jwt => keccak256(jwt).toString('hex') !== verifyHash ? (() => { throw new Error('Invalid response') })() : jwt)
+    .then(jwt => agent.handleMessage({ raw: jwt, save: false }))
+    .then(message => message?.getLastMetaData()?.type === 'JWT' ? 1 : -1)
+    .catch(() => -1)
+    .then(setVerification)
 
   return (
     <div style={ { padding:10 } }>
@@ -199,10 +218,20 @@ function App() {
       <p>{credentialCIDsRecovered}</p>
       <hr />
       <h2>Presentation</h2>
+      <h3>Create presentation</h3>
       <button onClick={present}>Present</button>
       {
-        (qrData as any).url && <img src={`https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${JSON.stringify(qrData)}&choe=UTF-8`} />
+        (qrData as any).url && <img src={getQRUrl()} />
       }
+      <hr />
+      <h1>Verifier app</h1>
+      <p>Identity: ${verifier}</p>
+      <h2>Verify presentation</h2>
+      <input type="text" placeholder="url" value={verifyUrl} onChange={e => setVerifyUrl(e.target.value)} />
+      <input type="text" placeholder="pwd" value={verifyPwd} onChange={e => setVerifyPwd(e.target.value)} />
+      <input type="text" placeholder="hash" value={verifyHash} onChange={e => setVerifyHash(e.target.value)} />
+      <button onClick={verify}>Verify</button>
+      <p>{verification > 0 ? 'Ok' : (verification < 0 ? 'Error' : '')}</p>
     </div>
   );
 }
