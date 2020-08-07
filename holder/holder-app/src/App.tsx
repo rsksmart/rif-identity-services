@@ -110,7 +110,7 @@ function App() {
 
   const receiveCredential = async () => axios.get(issuerUrl + `/receiveCredential/?hash=${requestHash}`)
     .then(res => res.status === 200 && res.data)
-    .then(vc => { setCredentialJWT(vc); return vc })
+    .then(vc => { console.log(vc); setCredentialJWT(vc); return vc })
     .then(vc => agent.handleMessage({ raw: vc, save: false, metaData: [] }))
     .then(m => setCredential(m.data))
     .catch(handleCatch)

@@ -1,15 +1,15 @@
-require('dotenv').config()
-const Debug = require('debug')
+import dotenv from 'dotenv'
+import Debug from 'debug'
 
-const setupDb = require('./setup/db')
-const setupAgent = require('./setup/agent')
-const setupIdentity = require('./setup/identity')
+import setupDb from './setup/db'
+import setupAgent from './setup/agent'
+import setupIdentity from './setup/identity'
 
-const credentialRequestService = require('./services/credentialRequests')
-const backOffice = require('./services/backOffice')
+import credentialRequestService from './services/credentialRequests'
+import backOffice from './services/backOffice'
 
 const debug = Debug('rif-id:main')
-
+dotenv.config()
 
 /* debugger from .env */
 if (process.env.DEBUG) {

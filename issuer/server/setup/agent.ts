@@ -1,20 +1,22 @@
-const { KeyStore, IdentityStore, Agent } = require('daf-core')
-const { SecretBox, KeyManagementSystem } = require('daf-libsodium')
-const { IdentityProvider } = require('daf-ethr-did')
-const { DafResolver } = require('daf-resolver')
+import { KeyStore, IdentityStore, Agent } from 'daf-core'
+import { SecretBox, KeyManagementSystem } from 'daf-libsodium'
+import { IdentityProvider } from 'daf-ethr-did'
+import { DafResolver } from 'daf-resolver'
 
-const DIDComm = require('daf-did-comm')
-const DidJwt = require('daf-did-jwt')
-const W3c = require('daf-w3c')
-const Sdr = require('daf-selective-disclosure')
+import * as DIDComm from 'daf-did-comm'
+import * as DidJwt from 'daf-did-jwt'
+import * as W3c from 'daf-w3c'
+import * as Sdr from 'daf-selective-disclosure'
+import Debug from 'debug'
 
-const debug = require('debug')('rif-id:setup:agent')
+const debug = Debug('rif-id:setup:agent')
 
 const rpcUrl = process.env.RPC_URL
 
 function createIdentityProviders(dbConnection) {
   const secretBox = new SecretBox(process.env.SECRET_BOX_KEY)
   const keyStore = new KeyStore(dbConnection, secretBox)
+  const infuraProjectId = process.env.INFURA_PROJECT_ID
 
   const kms = new KeyManagementSystem(keyStore)
   const identityStore = new IdentityStore('issuer-ethr', dbConnection)
@@ -57,7 +59,7 @@ function createActionHandler() {
   return actionHandler
 }
 
-function setupAgent(dbConnection) {
+export default function setupAgent(dbConnection) {
   const identityProviders = createIdentityProviders(dbConnection)
   const serviceControllers = createServiceControllers()
   const didResolver = createResolver()
@@ -77,5 +79,3 @@ function setupAgent(dbConnection) {
 
   return agent
 }
-
-module.exports = setupAgent
