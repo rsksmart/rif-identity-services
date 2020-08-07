@@ -17,6 +17,13 @@ The project has different modules that run together form the RIF Identity main f
 
 > For development, commands appended with `:dev` run a watch mode
 
+There are also two apps to test the flow:
+
+- `holder/holder-app` is a react app that allows to fulfill the whole flow but retrieve from IPFS
+- `ipfs/IPFSApp` is a react native app that uses a gateway to retrieve a file from IPFS
+
+Both can be run following its readmes.
+
 After starting all services you should get something like this
 
 ![run-all](./img/run-all.png)
