@@ -7,9 +7,9 @@ import { agent } from './setup'
 const issuer = `did:ethr:rsk:testnet:0xc253a4d5653ea8b1b288a4b45ba67e9a4be865fc`
 const verifier = `did:ethr:rinkeby:0xf93cc6465ca4dead223756481da777be08da24a1`
 
-const issuerUrl = 'http://localhost:5000'
-const dataVaultUrl = 'http://localhost:5002'
-const tinyQRUrl = 'http://localhost:5010'
+const issuerUrl = 'http://localhost:5100'
+const dataVaultUrl = 'http://localhost:5102'
+const tinyQRUrl = 'http://localhost:5103'
 
 function App() {
   const [error, setError] = useState('')
