@@ -1,6 +1,8 @@
-const debug = require('debug')('rif-id:setup:identity')
+import Debug from 'debug'
 
-async function setupIdentity(agent) {
+const debug = Debug('rif-id:setup:identity')
+
+export default async function setupIdentity(agent) {
   const identities = await agent.identityManager.getIdentities()
 
   debug(`Identity count: ${identities.length}`)
@@ -11,5 +13,3 @@ async function setupIdentity(agent) {
 
   debug(`Identity: ${identity.did}`)
 }
-
-module.exports = setupIdentity

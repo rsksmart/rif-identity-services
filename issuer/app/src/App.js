@@ -12,6 +12,9 @@ function App() {
   const getIdentity = () => axios.get(backOfficeUrl + '/identity').then(res => res.data).then(setIdentity)
   const getMessagesSince = () => axios.get(`${backOfficeUrl}/requests`).then(res => res.data).then(setRequests)
 
+  const grantCredential = (hash) => axios.put(`${backOfficeUrl}/request/${hash}/grant`).then(res => res.data).then(setRequests)
+  const denyCredential = (hash) => axios.put(`${backOfficeUrl}/request/${hash}/deny`).then(res => res.data).then(setRequests)
+
   useEffect(() => {
     getIdentity()
     getMessagesSince()
@@ -29,6 +32,7 @@ function App() {
             <th>Name</th>
             <th>Selective disclosure request</th>
             <th>JWT status</th>
+            <th>Request status</th>
             <th></th>
             <th></th>
           </tr>
@@ -36,13 +40,14 @@ function App() {
         <tbody>
           {requests.map((request, i) => (
             <tr key={i}>
-              <td>{i}</td>
+              <td>{request.id}</td>
               <td>{request.from}</td>
               <td>{request.name}</td>
               <td>{`[`} {request.sdr.map(claim => `{ ${claim.claimType}: ${claim.claimValue}}`)} {`]`}</td>
               <td>{request.isValid ? 'valid' : 'invalid'}</td>
-              <td>request</td>
-              <td>deny</td>
+              <td>{request.status}</td>
+              <td><button onClick={() => grantCredential(request.id)}>Grant</button></td>
+              <td><button onClick={() => denyCredential(request.id)}>Deny</button></td>
             </tr>
           ))}
         </tbody>
