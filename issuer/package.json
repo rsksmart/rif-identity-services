@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev:back": "nodemon index.js",
-    "dev:front": "cd app && npm run start",
-    "dev": "concurrently --kill-others-on-fail \"npm run dev:back\" \"npm run dev:front\"",
-    "start:services": "node index.js"
+    "back": "node index.js",
+    "back:dev": "nodemon index.js",
+    "front:build": "cd app && npm run build && cd ..",
+    "front": "npm run front:build && serve -s app/build",
+    "front:dev": "cd app && npm run start"
   },
   "author": "",
   "license": "ISC",
@@ -39,6 +40,7 @@
   },
   "devDependencies": {
     "concurrently": "^5.2.0",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "serve": "^11.3.2"
   }
 }

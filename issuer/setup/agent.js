@@ -10,7 +10,7 @@ const Sdr = require('daf-selective-disclosure')
 
 const debug = require('debug')('rif-id:setup:agent')
 
-const infuraProjectId = process.env.INFURA_PROJECT_ID
+const rpcUrl = process.env.RPC_URL
 
 function createIdentityProviders(dbConnection) {
   const secretBox = new SecretBox(process.env.SECRET_BOX_KEY)
@@ -19,7 +19,6 @@ function createIdentityProviders(dbConnection) {
   const kms = new KeyManagementSystem(keyStore)
   const identityStore = new IdentityStore('issuer-ethr', dbConnection)
   const network = 'rinkeby'
-  const rpcUrl = 'https://rinkeby.infura.io/v3/' + infuraProjectId
 
   const identityProvider = new IdentityProvider({
     kms,
@@ -36,7 +35,9 @@ function createServiceControllers() {
 }
 
 function createResolver() {
-  return new DafResolver({ infuraProjectId })
+  return new DafResolver({ networks: [
+    { name: "rsk:testnet", registry: "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", rpcUrl },
+  ]})
 }
 
 function createMessageHandler() {

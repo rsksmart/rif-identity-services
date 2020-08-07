@@ -31,6 +31,8 @@ async function main () {
   backOffice(process.env.REACT_APP_BACKOFFICE_PORT, agent)
 
   debug('Services started')
+  debug('Requests at port' + process.env.CREDENTIAL_REQUESTS_PORT)
+  debug('Back office at port' + process.env.REACT_APP_BACKOFFICE_PORT)
 }
 
 main().catch(e => { debug(e); process.exit(1) })
