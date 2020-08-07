@@ -13,7 +13,7 @@ import Debug from 'debug'
 
 const debug = Debug('rif-id:setup:agent')
 
-const rskTestnetRpcUrl = 'https://public-node.rsk.co'
+const rskTestnetRpcUrl = "https://did.testnet.rsk.co:4444"
 
 function createIdentityProviders(secretBoxKey: string, dbConnection: Promise<Connection>) {
   const secretBox = new SecretBox(secretBoxKey)
@@ -38,9 +38,9 @@ function createServiceControllers() {
   return []
 }
 
-function createResolver(infuraProjectId: string) {
+function createResolver() {
   return new DafResolver({ networks: [
-    { name: 'mainnet', rpcUrl: rskTestnetRpcUrl },
+    { name: "rsk:testnet", registry: "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", rpcUrl: rskTestnetRpcUrl },
   ]})
 }
 
@@ -61,10 +61,10 @@ function createActionHandler() {
   return actionHandler
 }
 
-export function setupAgent(secretBoxKey: string, infuraProjectId: string, dbConnection: Promise<Connection>) {
+export function setupAgent(secretBoxKey: string, dbConnection: Promise<Connection>) {
   const identityProviders = createIdentityProviders(secretBoxKey, dbConnection)
   const serviceControllers = createServiceControllers()
-  const didResolver = createResolver(infuraProjectId)
+  const didResolver = createResolver()
   const messageHandler = createMessageHandler()
   const actionHandler = createActionHandler()
 

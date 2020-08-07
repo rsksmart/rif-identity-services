@@ -1,12 +1,13 @@
 import { Agent } from 'daf-core'
-import { operationsFactory } from '../operations'
+import { identityOperationsFactory } from '../operations'
 import { selectIdentities } from '../selectors'
 
 export class Identity {
-  protected agent: Agent
-  protected operations: ReturnType<typeof operationsFactory>
+  private store: any
 
-  public store: any
+  protected identityOperations: ReturnType<typeof identityOperationsFactory>
+
+  public agent: Agent
   public dataVault: any
 
   constructor(agent: Agent, dataVault: any, store: any) {
@@ -14,22 +15,26 @@ export class Identity {
     this.dataVault = dataVault
     this.store = store
 
-    this.operations = operationsFactory(this.agent)
+    this.identityOperations = identityOperationsFactory(this.agent)
   }
 
   protected get state() {
     return this.store.getState()
   }
 
-  async init() {
-    return this.operations.initIdentity()(this.store.dispatch)
+  protected dispatch(action: any) {
+    this.store.dispatch(action)
   }
 
-  get identities() {
+  async init() {
+    return this.identityOperations.initIdentity()(this.store.dispatch)
+  }
+
+  public get identities() {
     return selectIdentities(this.state)
   }
 
   public createIdentity() {
-    return this.operations.createIdentity()(this.store.dispatch)
+    return this.identityOperations.createIdentity()(this.store.dispatch)
   }
 }

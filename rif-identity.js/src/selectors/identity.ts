@@ -1,3 +1,4 @@
-import { RootIdentityState } from '../store/identity'
+import { IdentityState } from '../store/identity'
 
-export const selectIdentitiesReducer = (state: RootIdentityState) => state.identity
+
+export const selectIdentities = (state: IdentityState) => state.identities
