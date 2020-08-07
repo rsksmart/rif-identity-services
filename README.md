@@ -1,15 +1,31 @@
 # RIF Identity POC
 
-To start the POC:
+The project has different modules that run together form the RIF Identity main flow:
 
-1. Start issuer backend
-2. Start issuer front end
-3. Start the ipfs node
-4. Start the data vault
-5. Start the holder app (web)
-6. Extra: run the IPFS react native app
+1. Holder requests a credential
+2. Issuer issues that credential
+3. Holder retrieves the credential
+4. Holder stores it in the data-vault
+5. Holder presents a QR code using tiny-QR service
+6. Verifier validates presentation retrieving from tiny-QR service
 
-Usage:
+## Run
+
+1. Start the Issuer. Go to `./issuer` and follow the instructions
+2. Start the Data Vault. Go to `./data-vault` and follow the instructions
+3. Start the tiny-QR service. Go to `./tiny-qr` and follow the instructions
+
+> For development, commands appended with `:dev` run a watch mode
+
+After starting all services you should get something like this
+
+![run-all](./img/run-all.png)
+
+If you started the front end apps you should get this
+
+![run-all-front](./img/run-all-front.png)
+
+## Usage
 
 - Create identity
 
