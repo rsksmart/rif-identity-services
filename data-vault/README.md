@@ -1,6 +1,8 @@
 # Data vault
 
-A data vault first approach
+A data vault first approach. This service uses an IPFS node to pin files.
+
+Alert: anyone in possession of a DID can used the server to upload files, now it has now file-size restrictions
 
 ```
 User                                     Data Vault
@@ -15,8 +17,8 @@ User                                     Data Vault
  |                                            |  verify token
  |                                            |  ipfs put payload
  |                                            |  ipfs pin cid
- |                                            |  store { did, cid }
- | <------------------ cid -------------- |<--┘
+ |                                            |  store db { did, cid }
+ | <------------------ cid ------------------ |<--┘
  |                                            |
  |                                            |
  |               Recover creds.               |
@@ -28,9 +30,13 @@ User                                     Data Vault
  | ----- POST /recover jwt(did, token) -----> |---┐
  |                                            |  verify jwt
  |                                            |  verify token
- |                                            |  retrieve { did }
+ |                                            |  retrieve db { did }
  | <----------------- cids ------------------ |<--┘
 ```
+
+After the _store_ process the holder can verify the file was uploaded accessing to IPFS. When a recovery is required, the server will response all the CIDs of the files that were ever stored by the DID, the DID holder can then retrieve the files from IPFS. To maintain this flow a local DB maps DIDs to CIDs.
+
+## Run
 
 1. Install deps
 
@@ -46,23 +52,43 @@ User                                     Data Vault
   ipfs daemon
   ```
 
-  > Ensure it is running on port 5001
-
 4. Configure: create a `.env` file with
 
   ```
   PRIVATE_KEY= private key
   ADDRESS= matching address
   AUTH_EXPIRATION_TIME= fixed time for auth tokens to expire in
-  INFURA_KEY= infura key for rinkeby
+  RPC_URL= rsk testnet rpc url
   PORT= to run the data vault
   IPFS_PORT= port of a local http IPFS gateway
   ```
 
-5. Start data-vault:
+  Example
 
   ```
-  npm run dev
+  PRIVATE_KEY=c0d0bafd577fe198158270925613affc27b7aff9e8b7a7050b2b65f6eefd3083
+  ADDRESS=0x4a795ab98dc3732d1123c6133d3efdc76d4c91f8
+  AUTH_EXPIRATION_TIME=300000
+  RPC_URL=https://did.testnet.rsk.co:4444
+  PORT=5102
+  IPFS_PORT=5001
+  ```
+
+5. Fix a bug :/ - go to `node_modules/ethr-did/lib/index.js` and find `"did:ethr:"`. Prepend `"rsk:testnet"`
+
+  ![fix](./img/fix.png)
+
+  You can also copy paste the file in `./lib/ethrDID-copy.js`
+
+6. Start data-vault:
+
+  ```
+  npm run start
+  # or npm run start:dev
   ```
 
   > Use `npm run start` for no `nodemon`
+
+You should now see
+
+![dv](dv.png)

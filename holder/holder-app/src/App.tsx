@@ -4,7 +4,7 @@ import axios from 'axios'
 import keccak256 from 'keccak256'
 import { agent } from './setup'
 
-const issuer = `did:ethr:rinkeby:0xc623b302b62d2d40e2637521f66f855b37ffd5ce`
+const issuer = `did:ethr:rsk:testnet:0xc253a4d5653ea8b1b288a4b45ba67e9a4be865fc`
 const verifier = `did:ethr:rinkeby:0xf93cc6465ca4dead223756481da777be08da24a1`
 
 const issuerUrl = 'http://localhost:5000'

@@ -18,7 +18,7 @@ function createIdentityProviders(dbConnection) {
 
   const kms = new KeyManagementSystem(keyStore)
   const identityStore = new IdentityStore('issuer-ethr', dbConnection)
-  const network = 'rinkeby'
+  const network = 'rsk:testnet'
 
   const identityProvider = new IdentityProvider({
     kms,

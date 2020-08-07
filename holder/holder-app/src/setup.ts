@@ -12,13 +12,11 @@ import * as Sdr from 'daf-selective-disclosure'
 import Debug from 'debug'
 Debug.enable('*')
 
-const infuraProjectId = '5ffc47f65c4042ce847ef66a3fa70d4c'
-
 const keyStore = new KeyStore('localKeys')
 const kms = new KeyManagementSystem(keyStore)
 const identityStore = new IdentityStore('localIdentities')
-const network = 'rinkeby'
-const rpcUrl = 'https://rinkeby.infura.io/v3/' + infuraProjectId
+const network = 'rsk:testnet'
+const rpcUrl = 'https://did.testnet.rsk.co:4444'
 
 const identityProvider = new IdentityProvider({
   kms,
@@ -31,7 +29,9 @@ const identityProviders = [identityProvider]
 
 const serviceControllers: any = []
 
-const didResolver = new DafResolver({ infuraProjectId })
+const didResolver = new DafResolver({ networks: [
+  { name: "rsk:testnet", registry: "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", rpcUrl },
+]})
 
 const messageHandler = new DIDComm.DIDCommMessageHandler()
 messageHandler

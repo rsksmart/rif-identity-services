@@ -22,8 +22,8 @@ The issuer has 2 processes running:
   Example
 
   ```
-  CREDENTIAL_REQUESTS_PORT=5000
-  REACT_APP_BACKOFFICE_PORT=5001
+  CREDENTIAL_REQUESTS_PORT=5100
+  REACT_APP_BACKOFFICE_PORT=5101
   SECRET_BOX_KEY=29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c
   RPC_URL=https://did.testnet.rsk.co:4444
   DEBUG=rif-id:*
@@ -59,7 +59,7 @@ Also a database file will be created. `issuer.sqlite`
 2. Please fill the back office service port again :/, crate a `.env` file
 
   ```
-  REACT_APP_BACKOFFICE_PORT=5001
+  REACT_APP_BACKOFFICE_PORT=5101
   ```
 
   or the port you used.

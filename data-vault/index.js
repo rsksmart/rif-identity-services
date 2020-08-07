@@ -22,34 +22,6 @@ const { DataVaultProviderIPFS } = require('./lib/DataVaultProviderIPFS')
 const Debug = require('debug')
 const debug = Debug('rif-id:data-vault')
 
-/*
-User                                     Data Vault
- |                 Store cred.                |
- |                                            |
- | ----------- POST /auth { did } ----------> |---┐
- |                                            |  resolves did
- | <--------------- jwt(token) -------------- |<--┘
- |                                            |
- | -- POST /save jwt(payload, did, token) --> |---┐
- |                                            |  verify jwt
- |                                            |  verify token
- |                                            |  store { did, payload }
- | <------------------ cid -------------- |<--┘
- |                                            |
- |                                            |
- |               Recover creds.               |
- |                                            |
- | ----------- POST /auth { did } ----------> |---┐
- |                                            |  resolves did
- | <--------------- jwt(token) -------------- |<--┘
- |                                            |
- | ----- POST /recover jwt(did, token) -----> |---┐
- |                                            |  verify jwt
- |                                            |  verify token
- |                                            |  retrieve { did }
- | <----------------- cids ------------------ |<--┘
-*/
-
 Debug.enable('*')
 
 /* setup app */
@@ -57,7 +29,7 @@ const app = express()
 app.use(cors())
 
 /* setup did resolver */
-const providerConfig = { networks: [{ rpcUrl: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`, registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', name: 'rinkeby' }] }
+const providerConfig = { networks: [{ name: "rsk:testnet", registry: "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", rpcUrl: 'https://did.testnet.rsk.co:4444' }] }
 const ethrDidResolver = getResolver(providerConfig)
 const didResolver = new Resolver(ethrDidResolver)
 
@@ -71,6 +43,9 @@ const authDictionary = {} // stores tokens and expiration time for given did
 
 /* setup data vault */
 const dataVaultProvider = new DataVaultProviderIPFS({ host: 'localhost', port: process.env.IPFS_PORT, protocol: 'http' })
+
+debug(`Identity: ${identity.did}`)
+dataVaultProvider.get('did:ethr:0x4a795ab98dc3732d1123c6133d3efdc76d4c91f8')
 
 
 app.get('/identity', function(req, res) {
@@ -145,4 +120,4 @@ app.post('/get', bodyParser.json(), function (req, res) {
     .then(cids => res.status(200).send(JSON.stringify(cids)))
 })
 
-app.listen(process.env.PORT)
+app.listen(process.env.PORT, () => debug(`Data vault started on port ${process.env.PORT}`))
