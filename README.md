@@ -68,3 +68,12 @@ If you started the front end apps you should get this
   1. Scan the QR and get its JSON data - you can use a tool like [this one](https://www.ginifab.com/feeds/qr_code/qr_code_scanner.html)
   2. Copy the fields values and paste them in the text boxes
   3. Click on verify - it will show 'Ok' or 'Error'
+
+## Start over
+
+The modules store content in databases, such as DIDs and credentials. To clean the storage:
+
+- Issuer: delete `issuer.sqlite`
+- Holder: delete browser local storage
+- Data vault: -
+- Tiny QR: -
