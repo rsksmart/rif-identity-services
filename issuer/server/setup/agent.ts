@@ -11,12 +11,11 @@ import Debug from 'debug'
 
 const debug = Debug('rif-id:setup:agent')
 
-const rpcUrl = process.env.RPC_URL
 
 function createIdentityProviders(dbConnection) {
   const secretBox = new SecretBox(process.env.SECRET_BOX_KEY)
   const keyStore = new KeyStore(dbConnection, secretBox)
-  const infuraProjectId = process.env.INFURA_PROJECT_ID
+  const rpcUrl = process.env.RPC_URL
 
   const kms = new KeyManagementSystem(keyStore)
   const identityStore = new IdentityStore('issuer-ethr', dbConnection)
@@ -37,6 +36,8 @@ function createServiceControllers() {
 }
 
 function createResolver() {
+  const rpcUrl = process.env.RPC_URL
+
   return new DafResolver({ networks: [
     { name: "rsk:testnet", registry: "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", rpcUrl },
   ]})
