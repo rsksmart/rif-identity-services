@@ -33,30 +33,23 @@ export default function backOffice(port, agent) {
     getAllRequests().then(requests => res.status(200).send(JSON.stringify(requests)))
   })
 
-  app.put('/request/:action/:id', function(req, res) {
-    const { action, id } = req.params
-    debug(`${action} credential request ${id}`)
+  app.put('/request/:id/status/:status', function(req, res) {
+    const { status, id } = req.params
+    debug(`PUT status ${status} for credential request ${id}`)
 
-    let status
-    if (action === 'grant') status = 'granted'
-    else if (action === 'deny') status = 'denied'
-    else res.status(500).send('Invalid action')
+    if (status !== 'granted' && status !== 'denied') res.status(500).send('Invalid action')
 
-    let connection
     agent.dbConnection
-      .then(conn => {
-        connection = conn;
+      .then(connection => {
         return connection.getRepository(CredentialRequest).findOne({
-          relations: ['message'],
-          where: { id }
-        })
+          where: { id },
+          relations: ['message']
+        }).then(cr => {
+          cr.status = status
+          return connection.getRepository(CredentialRequest).save(cr)
+        }).then(messageToRequest)
+          .then(cr => { debug(cr); res.status(200).send(JSON.stringify(cr)) })
       })
-      .then(cr => {
-        cr.status = status
-        return connection.getRepository(CredentialRequest).save(cr)
-      })
-      .then(getAllRequests)
-      .then(requests => res.status(200).send(JSON.stringify(requests)))
   })
 
   app.listen(port, () => debug(`Back office service started on port ${port}`))
