@@ -33,42 +33,26 @@ export default function backOffice(port, agent) {
     getAllRequests().then(requests => res.status(200).send(JSON.stringify(requests)))
   })
 
-  app.put('/request/grant/:id', function(req, res) {
-    const { id } = req.params
-    debug(`Grant credential request ${id}`)
+  app.put('/request/:action/:id', function(req, res) {
+    const { action, id } = req.params
+    debug(`${action} credential request ${id}`)
+
+    let status
+    if (action === 'grant') status = 'granted'
+    else if (action === 'deny') status = 'denied'
+    else res.status(500).send('Invalid action')
 
     let connection
     agent.dbConnection
       .then(conn => {
         connection = conn;
-        return connection.getRepository(CredentialRequest).findOne(      { 
+        return connection.getRepository(CredentialRequest).findOne({
           relations: ['message'],
           where: { id }
         })
       })
       .then(cr => {
-        cr.status = 'granted'
-        return connection.getRepository(CredentialRequest).save(cr)
-      })
-      .then(getAllRequests)
-      .then(requests => res.status(200).send(JSON.stringify(requests)))
-  })
-
-  app.put('/request/deny/:id', function(req, res) {
-    const { id } = req.params
-    debug(`Deny credential request ${id}`)
-
-    let connection
-    agent.dbConnection
-      .then(conn => {
-        connection = conn;
-        return connection.getRepository(CredentialRequest).findOne(      { 
-          relations: ['message'],
-          where: { id }
-        })
-      })
-      .then(cr => {
-        cr.status = 'denied'
+        cr.status = status
         return connection.getRepository(CredentialRequest).save(cr)
       })
       .then(getAllRequests)
