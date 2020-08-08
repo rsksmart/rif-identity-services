@@ -33,7 +33,7 @@ export default function backOffice(port, agent) {
     getAllRequests().then(requests => res.status(200).send(JSON.stringify(requests)))
   })
 
-  app.put('/request/:id/grant', function(req, res) {
+  app.put('/request/grant/:id', function(req, res) {
     const { id } = req.params
     debug(`Grant credential request ${id}`)
 
@@ -54,7 +54,7 @@ export default function backOffice(port, agent) {
       .then(requests => res.status(200).send(JSON.stringify(requests)))
   })
 
-  app.put('/request/:id/deny', function(req, res) {
+  app.put('/request/deny/:id', function(req, res) {
     const { id } = req.params
     debug(`Deny credential request ${id}`)
 

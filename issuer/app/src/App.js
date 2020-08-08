@@ -12,8 +12,8 @@ function App() {
   const getIdentity = () => axios.get(backOfficeUrl + '/identity').then(res => res.data).then(setIdentity)
   const getMessagesSince = () => axios.get(`${backOfficeUrl}/requests`).then(res => res.data).then(setRequests)
 
-  const grantCredential = (hash) => axios.put(`${backOfficeUrl}/request/${hash}/grant`).then(res => res.data).then(setRequests)
-  const denyCredential = (hash) => axios.put(`${backOfficeUrl}/request/${hash}/deny`).then(res => res.data).then(setRequests)
+  const grantCredential = (hash) => axios.put(`${backOfficeUrl}/request/grant/${hash}`).then(res => res.data).then(setRequests)
+  const denyCredential = (hash) => axios.put(`${backOfficeUrl}/request/deny/${hash}`).then(res => res.data).then(setRequests)
 
   useEffect(() => {
     getIdentity()
