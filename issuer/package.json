@@ -5,11 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "back": "node index.js",
-    "back:dev": "nodemon index.js",
+    "back:build": "tsc",
+    "back": "npm run back:build && node server/build/index.js",
+    "back:dev": "concurrently \"tsc --watch\" \"nodemon ./server/build/index.js\"",
     "front:build": "cd app && npm run build && cd ..",
     "front": "npm run front:build && serve -s app/build",
-    "front:dev": "cd app && npm run start"
+    "front:dev": "cd app && npm run start",
+    "all": "concurrently \"npm run back\" \"npm run front\"",
+    "all:dev": "concurrently \"npm run back:dev\" \"npm run front:dev\""
   },
   "author": "",
   "license": "ISC",
@@ -41,7 +44,7 @@
     "typescript": "^3.9.7"
   },
   "devDependencies": {
-    "concurrently": "^5.2.0",
+    "concurrently": "^5.3.0",
     "nodemon": "^2.0.4",
     "serve": "^11.3.2"
   }
