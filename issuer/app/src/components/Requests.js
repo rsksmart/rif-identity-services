@@ -3,12 +3,10 @@ import axios from 'axios'
 
 const backOfficeUrl = `http://localhost:${process.env.REACT_APP_BACKOFFICE_PORT}`
 
-function App() {
+function Requests() {
   const [error, setError] = useState('')
   const [identity, setIdentity] = useState('')
   const [requests, setRequests] = useState([])
-
-  console.log(requests)
 
   const getIdentity = () => axios.get(backOfficeUrl + '/identity').then(res => res.data).then(setIdentity)
   const getMessagesSince = () => axios.get(`${backOfficeUrl}/requests`).then(res => res.data).then(setRequests)
@@ -32,8 +30,9 @@ function App() {
   return (
     <div style={ { padding:10 } }>
       <h1>Issuer app</h1>
-      Identity: {identity}
+      <h3>Identity: {identity}</h3>
       {error && <p> Error: {error}</p>}
+      <button onClick={getMessagesSince}>reload</button>
       <table>
         <thead>
           <tr>
@@ -66,4 +65,4 @@ function App() {
   );
 }
 
-export default App;
+export default Requests;
