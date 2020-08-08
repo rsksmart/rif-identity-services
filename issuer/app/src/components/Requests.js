@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-
-const backOfficeUrl = `http://localhost:${process.env.REACT_APP_BACKOFFICE_PORT}`
+import { backOfficeUrl } from '../adapters'
 
 function Requests() {
   const [error, setError] = useState('')
-  const [identity, setIdentity] = useState('')
   const [requests, setRequests] = useState([])
 
-  const getIdentity = () => axios.get(backOfficeUrl + '/identity').then(res => res.data).then(setIdentity)
   const getMessagesSince = () => axios.get(`${backOfficeUrl}/requests`).then(res => res.data).then(setRequests)
 
   const putActionFactory = (status) => (id) => axios.put(`${backOfficeUrl}/request/${id}/status/${status}`)
@@ -23,14 +20,12 @@ function Requests() {
   const denyCredential = putActionFactory('denied')
 
   useEffect(() => {
-    getIdentity()
     getMessagesSince()
   }, [])
 
   return (
     <div style={ { padding:10 } }>
       <h1>Issuer app</h1>
-      <h3>Identity: {identity}</h3>
       {error && <p> Error: {error}</p>}
       <button onClick={getMessagesSince}>reload</button>
       <table>
