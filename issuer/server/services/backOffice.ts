@@ -6,6 +6,7 @@ import Debug from 'debug'
 import CredentialRequest from '../lib/CredentialRequest'
 
 const debug = Debug('rif-id:services:backOffice')
+const trace = v => { debug(v); return v }
 
 export default function backOffice(port, agent) {
   const app = express()
@@ -48,7 +49,8 @@ export default function backOffice(port, agent) {
           cr.status = status
           return connection.getRepository(CredentialRequest).save(cr)
         }).then(messageToRequest)
-          .then(cr => { debug(cr); res.status(200).send(JSON.stringify(cr)) })
+          .then(trace)
+          .then(cr => res.status(200).send(JSON.stringify(cr)))
       })
   })
 
