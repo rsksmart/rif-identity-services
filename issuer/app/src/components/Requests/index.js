@@ -32,19 +32,25 @@ function Requests() {
       <h3 className="reply-title">Credential requests</h3>
       {error && <div className="alert alert-danger"><p> Error: {error}</p></div>}
 
-      <div className="row reply-table-header">
-        <div className="col">Id</div>
-        <div className="col">From</div>
-        <div className="col">Name</div>
-        <div className="col">SDR</div>
-        <div className="col">Valid</div>
-        <div className="col">Status</div>
-        <div className="col"></div>
-        <div className="col"></div>
-      </div>
-      {requests.map((request) => (
+      <table className="table reply-table">
+        <thead className="reply-table-header">
+          <tr>
+            <th>Id</th>
+            <th>From</th>
+            <th>Name</th>
+            <th>Valid</th>
+            <th>Status</th>
+            <th></th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {requests.map((request) => (
             <Row key={request.id} request={request} grantCredential={grantCredential} denyCredential={denyCredential} />
           ))}
+        </tbody>
+      </table>
       <button onClick={getMessagesSince} className="btn btn-link">reload</button>
     </div>
   );

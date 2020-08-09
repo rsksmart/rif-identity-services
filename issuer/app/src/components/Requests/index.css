@@ -13,6 +13,10 @@
   font-size: 16px;
   line-height: 19px;
   text-align: center;
-
   color: #CCCACD;
+}
+
+.row-more-info td {
+  padding: 2px 40px;
+  border: 0;
 }
