@@ -13,6 +13,8 @@ Application that allows receiving credential issuance requests and approving the
 - **Request credentials service**: receives Selective disclosure requests with simple key-value claims. This is a public service.
 - **Back office**: now it requires a simple HTTP login to access a dashboard to allow or deny credentials
 
+> **Use HTTPS (TLS)!** This server uses Basic HTTP auth now - see [RFC-7617](https://tools.ietf.org/html/rfc7617)
+
 ## Run
 
 The issuer has 2 processes running:
