@@ -1,4 +1,19 @@
-# Issuer
+<p align="middle">
+    <img src="https://www.rifos.org/assets/img/logo.svg" alt="logo" height="100" >
+</p>
+<h3 align="middle">W3C Verifiable Credential Issuer app</h3>
+<p align="middle">
+    RIF Self-sovereign identity
+</p>
+
+Application that allows receiving credential issuance requests and approving them manually.
+
+## Features
+
+- **Request credentials service**: receives Selective disclosure requests with simple key-value claims. This is a public service.
+- **Back office**: now it requires a simple HTTP login to access a dashboard to allow or deny credentials
+
+## Run
 
 The issuer has 2 processes running:
 
@@ -7,7 +22,7 @@ The issuer has 2 processes running:
 
 > All commands can be run prepending  `:dev` for watch mode
 
-## Back end
+### Back end
 
 1. Setup: create a `.env` file with
 
@@ -50,7 +65,7 @@ You should see the terminal running like this
 
 Also a database file will be created. `issuer.sqlite`
 
-## Front end
+### Front end
 
 1. It is a react app, browse into it
 
@@ -81,7 +96,7 @@ Also a database file will be created. `issuer.sqlite`
 
 ![front](./img/front.png)
 
-## All together
+### All together
 
 ```
 npm run all
