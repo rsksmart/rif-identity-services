@@ -1,28 +1,37 @@
-require('dotenv').config()
+/* env */
+import dotenv from 'dotenv'
+import Debug from 'debug'
 
 /* server deps */
-const express = require('express')
-const cors = require('cors')
-const bodyParser = require('body-parser')
+import express from 'express'
+import cors from 'cors'
+import bodyParser from 'body-parser'
 
 /* token gen */
-const { randomBytes } = require('crypto')
+import { randomBytes } from 'crypto'
 
 /* W3C */
-const { getResolver } = require('ethr-did-resolver')
-const { Resolver } = require('did-resolver')
-const EthrDID = require('ethr-did')
-const { createVerifiableCredentialJwt } = require('did-jwt-vc')
-const { verifyJWT } = require('did-jwt')
+import { getResolver } from 'ethr-did-resolver'
+import { Resolver } from 'did-resolver'
+import EthrDID from 'ethr-did'
+import { createVerifiableCredentialJwt } from 'did-jwt-vc'
+import { verifyJWT } from 'did-jwt'
 
 /* Data vault */
-const { DataVaultProviderIPFS } = require('./lib/DataVaultProviderIPFS')
+import { DataVaultProviderIPFS } from './lib/DataVaultProviderIPFS'
 
-/* debugger */
-const Debug = require('debug')
+/* env */
+dotenv.config()
 const debug = Debug('rif-id:data-vault')
-
 Debug.enable('*')
+
+const env = {
+  privateKey: process.env.PRIVATE_KEY,
+  address: process.env.ADDRESS,
+  ipfsPort: process.env.IPFS_PORT ?? '',
+  authExpirationTime: process.env.AUTH_EXPIRATION_TIME ?? '',
+  port: process.env.PORT
+}
 
 /* setup app */
 const app = express()
@@ -34,15 +43,18 @@ const ethrDidResolver = getResolver(providerConfig)
 const didResolver = new Resolver(ethrDidResolver)
 
 const identity = new EthrDID({
-  privateKey: process.env.PRIVATE_KEY,
-  address: process.env.ADDRESS
+  privateKey: env.privateKey,
+  address: env.address
 })
 
 /* setup auth */
-const authDictionary = {} // stores tokens and expiration time for given did
+const authDictionary: any = {} // stores tokens and expiration time for given did
 
 /* setup data vault */
-const dataVaultProvider = new DataVaultProviderIPFS({ host: 'localhost', port: process.env.IPFS_PORT, protocol: 'http' })
+const dataVaultProvider = new DataVaultProviderIPFS(
+  { host: 'localhost', port: env.ipfsPort, protocol: 'http' },
+  {}
+)
 
 debug(`Identity: ${identity.did}`)
 dataVaultProvider.get('did:ethr:0x4a795ab98dc3732d1123c6133d3efdc76d4c91f8')
@@ -54,12 +66,10 @@ app.get('/identity', function(req, res) {
 })
 
 
-const authenticate = (jwt) => verifyJWT(jwt, {
-  issuer: identity,
-  signer: identity.signer,
+const authenticate = (jwt: string) => verifyJWT(jwt, {
   resolver: didResolver
 }).then(({ payload, issuer }) => {
-  if (authDictionary[issuer].token !== payload.claims.find(claim => claim.claimType === 'token').claimValue) throw new Error('Invalid token')
+  if (authDictionary[issuer].token !== payload.claims.find((claim: any) => claim.claimType === 'token').claimValue) throw new Error('Invalid token')
   if (authDictionary[issuer].exp < Math.floor(+new Date() / 1000)) throw new Error('Token expired')
   return { payload, issuer }
 })
@@ -72,7 +82,7 @@ app.post('/auth', bodyParser.json(), function(req, res) {
   const sub = did
   const iss = identity.did
   const nbf = Math.round((+Date.now()) / 1000)
-  const exp = Math.round((+Date.now() + parseInt(process.env.AUTH_EXPIRATION_TIME)) / 1000)
+  const exp = Math.round((+Date.now() + parseInt(env.authExpirationTime)) / 1000)
   const credentialSubject = { token }
 
   authDictionary[did] = { token, exp }
@@ -99,8 +109,8 @@ app.post('/testAuth', bodyParser.json(), function(req, res) {
     .catch(() => res.status(200).send('Not authenticated'))
 })
 
-const authenticateAndFindClaim = (jwt) => (claimType) => authenticate(jwt)
-  .then(({ issuer, payload }) => ({ issuer, content: payload.claims.find(claim => claim.claimType === claimType).claimValue }))
+const authenticateAndFindClaim = (jwt: string) => (claimType: any) => authenticate(jwt)
+  .then(({ issuer, payload }) => ({ issuer, content: payload.claims.find((claim: any) => claim.claimType === claimType).claimValue }))
 
 app.post('/put', bodyParser.json(), function (req, res) {
   debug(`Put`)
@@ -120,4 +130,4 @@ app.post('/get', bodyParser.json(), function (req, res) {
     .then(cids => res.status(200).send(JSON.stringify(cids)))
 })
 
-app.listen(process.env.PORT, () => debug(`Data vault started on port ${process.env.PORT}`))
+app.listen(env.port, () => debug(`Data vault started on port ${env.port}`))
