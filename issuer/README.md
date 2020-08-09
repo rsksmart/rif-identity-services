@@ -17,6 +17,7 @@ The issuer has 2 processes running:
   SECRET_BOX_KEY= 32 random bytes in hex representation - encryption key
   RPC_URL= rsk testnet rpc url - the one in the example was tested and works
   DEBUG= regexp for debugging logs
+  ADMIN_PASS= a secure password for admin user - used for basic http auth
   ```
 
   Example
@@ -27,6 +28,7 @@ The issuer has 2 processes running:
   SECRET_BOX_KEY=29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c
   RPC_URL=https://did.testnet.rsk.co:4444
   DEBUG=rif-id:*
+  ADMIN_PASS=admin
   ```
 
 2. Install:

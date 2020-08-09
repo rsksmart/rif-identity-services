@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import './index.css'
 import { backOfficeUrl } from '../../adapters'
 import Row from './Row'
 
-function Requests() {
+function Requests({ auth }) {
   const [error, setError] = useState('')
   const [requests, setRequests] = useState([])
 
   const handleCatch = e => setError(e.message)
 
-  const getMessagesSince = () => axios.get(`${backOfficeUrl}/requests`).then(res => res.data).then(setRequests).catch(handleCatch)
+  const getMessagesSince = useCallback(
+    () => axios.get(`${backOfficeUrl}/requests`, { auth }).then(res => res.data).then(setRequests).catch(handleCatch),
+    [auth]
+  )
 
-  const putActionFactory = (status) => (id) => axios.put(`${backOfficeUrl}/request/${id}/status/${status}`)
+  const putActionFactory = (status) => (id) => axios.put(`${backOfficeUrl}/request/${id}/status`, { status }, { auth })
     .then(res => {
       if (res.status !== 200) throw new Error(res.data)
       return res.data
@@ -25,7 +28,7 @@ function Requests() {
 
   useEffect(() => {
     getMessagesSince()
-  }, [])
+  }, [getMessagesSince])
 
   return (
     <div className="container">

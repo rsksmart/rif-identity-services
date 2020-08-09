@@ -1,8 +1,9 @@
 import express from 'express'
 import cors from 'cors'
-import { Message } from 'daf-core'
-import { messageToRequest } from '../lib/messageToRequest'
+import basicAuth from 'express-basic-auth'
+import bodyParser from 'body-parser'
 import Debug from 'debug'
+import { messageToRequest } from '../lib/messageToRequest'
 import CredentialRequest from '../lib/CredentialRequest'
 
 const debug = Debug('rif-id:services:backOffice')
@@ -11,12 +12,19 @@ const trace = v => { debug(v); return v }
 export default function backOffice(port, agent) {
   const app = express()
   app.use(cors())
+  app.use(basicAuth({
+    users: { 'admin': process.env.ADMIN_PASS }
+  }))
 
   const getAllRequests = () => {
     return agent.dbConnection
       .then(connection => connection.getRepository(CredentialRequest).find({ relations: ['message'] }))
       .then(messages => messages.map(messageToRequest))
   }
+
+  app.post('/auth', function (req, res) {
+    res.status(200).send()
+  })
 
   app.get('/identity', function(req, res) {
     debug('Identity requested')
@@ -34,8 +42,9 @@ export default function backOffice(port, agent) {
     getAllRequests().then(requests => res.status(200).send(JSON.stringify(requests)))
   })
 
-  app.put('/request/:id/status/:status', function(req, res) {
-    const { status, id } = req.params
+  app.put('/request/:id/status', bodyParser.json(), function(req, res) {
+    const { id } = req.params
+    const { status } = req.body
     debug(`PUT status ${status} for credential request ${id}`)
 
     if (status !== 'granted' && status !== 'denied') res.status(500).send('Invalid action')

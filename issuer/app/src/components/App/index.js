@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import './index.css'
 import Login from '../Login'
@@ -7,32 +7,33 @@ import { backOfficeUrl } from '../../adapters'
 import { transformDID } from '../../transformers'
 
 function App() {
-  const [isLoggedIn, setLogin] = useState('')
+  const [{ isLoggedIn, auth }, setUser] = useState({ isLoggedIn: false, auth: { username: '', password: '' } })
   const [identity, setIdentity] = useState('')
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      getIdentity()
-    }
-  }, [isLoggedIn])
+  const getIdentity = useCallback(
+    () => axios.get(backOfficeUrl + '/identity', { auth }).then(res => res.data).then(setIdentity),
+    [auth]
+  )
 
-  const login = () => {
-    setLogin('login')
+  useEffect(() => {
+    if (isLoggedIn) getIdentity()
+  }, [isLoggedIn, getIdentity])
+
+  const login = (auth) => {
+    setUser({ isLoggedIn: true, auth })
   }
 
   if (!isLoggedIn) {
     return <Login login={login} />
   }
 
-  const getIdentity = () => axios.get(backOfficeUrl + '/identity').then(res => res.data).then(setIdentity)
-
   return (
     <>
-      <nav class="navbar navbar-light navbar app-navbar">
-        <span class="navbar-brand">
+      <nav className="navbar navbar-light navbar app-navbar">
+        <span className="navbar-brand">
           RIF Identity
         </span>
-        <span class="navbar-brand">
+        <span className="navbar-brand">
           <div className="did-container">
             {transformDID(identity)}
           </div>
@@ -41,14 +42,14 @@ function App() {
       <div className="container">
         <div className="row menu">
           <div className="col"><label className="menu-item menu-item-disabled">Home</label></div>
-          <div className="col"><label className="menu-item menu-item-disabled">Issue</label></div>
-          <div className="col"><label className="menu-item menu-item-selected">Issue credentials</label></div>
+          <div className="col"><label className="menu-item menu-item-disabled">Issue credentials</label></div>
+          <div className="col"><label className="menu-item menu-item-selected">Grant credentials</label></div>
           <div className="col"><label className="menu-item menu-item-disabled">History</label></div>
           <div className="col"><label className="menu-item menu-item-disabled">Settings</label></div>
         </div>
         <div className="row">
           <div className="col">
-            <Requests />
+            <Requests auth={auth} />
           </div>
         </div>
       </div>
