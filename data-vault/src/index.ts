@@ -67,7 +67,6 @@ createConnection({
     connection,
     { host: 'localhost', port: env.ipfsPort, protocol: 'http' }
   )
-  // here you can start to work with your entities
 
   app.get('/identity', function(req, res) {
     debug(`Requested identity`)
