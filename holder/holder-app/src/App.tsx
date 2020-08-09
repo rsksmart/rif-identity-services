@@ -20,6 +20,7 @@ function App() {
   const [requestHash, setRequestHash] = useState('')
   const [credentialJWT, setCredentialJWT] = useState('')
   const [credential, setCredential] = useState(null)
+  const [credentialReceiveError, setCredentialReceiveError] = useState('')
 
   const [dataVaultIdentity, setDataVaultIdentity] = useState('')
   const [authTryResult, setAuthTryResult] = useState('')
@@ -110,9 +111,13 @@ function App() {
 
   const receiveCredential = async () => axios.get(issuerUrl + `/receiveCredential/?hash=${requestHash}`)
     .then(res => res.status === 200 && res.data)
-    .then(vc => { console.log(vc); setCredentialJWT(vc); return vc })
-    .then(vc => agent.handleMessage({ raw: vc, save: false, metaData: [] }))
-    .then(m => setCredential(m.data))
+    .then(({ status, payload: { raw } }) => {
+      if (status === 'SUCCESS') {
+        setCredentialJWT(raw)
+        agent.handleMessage({ raw, save: false, metaData: [] }).then(m => setCredential(m.data))
+      }
+      else setCredentialReceiveError(`Response with status ${status} - raw message: ${raw}`)
+    })
     .catch(handleCatch)
 
   /** data vault operations */
@@ -194,6 +199,7 @@ function App() {
           ? <button onClick={receiveCredential}>Receive</button>
           : <p>JWT: {credentialJWT}</p>
       }
+      {credentialReceiveError}
       {
         _credential && <>
           iat: {_credential.iat}<br />

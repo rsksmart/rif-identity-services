@@ -23,6 +23,10 @@ const makeCredential = (issuer, request) => ({
 // dangerous !
 const messageHashDictionary = {}
 
+type CredentialRequestResponseStatus = 'PENDING' | 'DENIED' | 'SUCCESS'
+
+const credentialRequestResponsePayload = (status: CredentialRequestResponseStatus, raw: string) => ({ status, payload: { raw } })
+
 export default function credentialRequestService(port, agent) {
   const app = express()
   app.use(cors())
@@ -67,23 +71,22 @@ export default function credentialRequestService(port, agent) {
     ))
       .then((cr: CredentialRequest) => {
         if (cr.status === 'denied') {
-          res.status(200).send({ status: 'DENIED', payload: { raw: cr.message.raw }})
+          res.status(200).send(credentialRequestResponsePayload('DENIED', cr.message.raw))
         } else if (cr.status === 'pending') {
-          res.status(200).send({ status: 'PENDING', payload: { raw: cr.message.raw }})
+          res.status(200).send(credentialRequestResponsePayload('PENDING', cr.message.raw))
         } else {
-          const request = messageToRequest(cr)          
-            
+          const request = messageToRequest(cr)
+
           agent.identityManager.getIdentities()
             .then(identities => {
               agent.handleAction({
                 type: 'sign.w3c.vc.jwt',
                 save: true,
                 data: makeCredential(identities[0].did, request),
-              }).then(vc => res.status(200).send(vc.raw))
+              }).then(vc => res.status(200).send(credentialRequestResponsePayload('SUCCESS', vc.raw)))
             })
         }
       })
-      
   })
 
   app.listen(port, () => debug(`Credential requests service started on port ${port}`))
