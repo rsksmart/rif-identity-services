@@ -1,5 +1,7 @@
-const RifStorage = require('@rsksmart/rif-storage')
-const debug = require('debug')('rif-id:data-vault:ipfs-provider')
+import RifStorage, { Provider } from '@rsksmart/rif-storage'
+import Debug from 'debug'
+
+const debug = Debug('rif-id:data-vault:ipfs-provider')
 
 interface IDataVaultProviderIPFS {
   put: (did: string, content: Buffer) => Promise<string>
@@ -11,7 +13,7 @@ const DataVaultProviderIPFS = (function (
   ipfsOptions = { host: 'localhost', port: '8080', protocol: 'http' },
   dbOptions = {}
 ) {
-  const storage = RifStorage.default(RifStorage.Provider.IPFS, ipfsOptions)
+  const storage = RifStorage(Provider.IPFS, ipfsOptions)
 
   /** TODO: use DB */
   const hashDictionary: any = {}
