@@ -4,6 +4,7 @@ import './index.css'
 import Login from '../Login'
 import Requests from '../Requests'
 import { backOfficeUrl } from '../../adapters'
+import { transformDID } from '../../transformers'
 
 function App() {
   const [isLoggedIn, setLogin] = useState('')
@@ -33,12 +34,24 @@ function App() {
         </span>
         <span class="navbar-brand">
           <div className="did-container">
-            {identity.slice(0, 30) + '...' + identity.slice(-4)}
+            {transformDID(identity)}
           </div>
         </span>
       </nav>
-    <Requests />
-    <footer className="footer"></footer>
+      <div className="container">
+        <div className="row menu">
+          <div className="col"><label className="menu-item menu-item-disabled">Home</label></div>
+          <div className="col"><label className="menu-item menu-item-disabled">Issue</label></div>
+          <div className="col"><label className="menu-item menu-item-selected">Issue credentials</label></div>
+          <div className="col"><label className="menu-item menu-item-disabled">History</label></div>
+          <div className="col"><label className="menu-item menu-item-disabled">Settings</label></div>
+        </div>
+        <div className="row">
+          <div className="col">
+            <Requests />
+          </div>
+        </div>
+      </div>
     </>
   )
 }
