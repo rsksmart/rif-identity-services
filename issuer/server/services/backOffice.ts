@@ -47,7 +47,7 @@ export default function backOffice(port, agent) {
     const { status } = req.body
     debug(`PUT status ${status} for credential request ${id}`)
 
-    if (status !== 'granted' && status !== 'denied') res.status(500).send('Invalid action')
+    if (status !== 'granted' && status !== 'denied') res.status(400).send('Invalid action')
 
     agent.dbConnection
       .then(connection => {
