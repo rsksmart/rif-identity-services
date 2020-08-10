@@ -1,4 +1,21 @@
-# Issuer
+<p align="middle">
+    <img src="https://www.rifos.org/assets/img/logo.svg" alt="logo" height="100" >
+</p>
+<h3 align="middle">W3C Verifiable Credential Issuer app</h3>
+<p align="middle">
+    RIF Self-sovereign identity
+</p>
+
+Application that allows receiving credential issuance requests and approving them manually.
+
+## Features
+
+- **Request credentials service**: receives Selective disclosure requests with simple key-value claims. This is a public service.
+- **Back office**: now it requires a simple HTTP login to access a dashboard to allow or deny credentials
+
+> **Use HTTPS (TLS)!** This server uses Basic HTTP auth now - see [RFC-7617](https://tools.ietf.org/html/rfc7617)
+
+## Run
 
 The issuer has 2 processes running:
 
@@ -7,7 +24,7 @@ The issuer has 2 processes running:
 
 > All commands can be run prepending  `:dev` for watch mode
 
-## Back end
+### Back end
 
 1. Setup: create a `.env` file with
 
@@ -17,6 +34,7 @@ The issuer has 2 processes running:
   SECRET_BOX_KEY= 32 random bytes in hex representation - encryption key
   RPC_URL= rsk testnet rpc url - the one in the example was tested and works
   DEBUG= regexp for debugging logs
+  ADMIN_PASS= a secure password for admin user - used for basic http auth
   ```
 
   Example
@@ -27,6 +45,7 @@ The issuer has 2 processes running:
   SECRET_BOX_KEY=29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c
   RPC_URL=https://did.testnet.rsk.co:4444
   DEBUG=rif-id:*
+  ADMIN_PASS=admin
   ```
 
 2. Install:
@@ -48,7 +67,7 @@ You should see the terminal running like this
 
 Also a database file will be created. `issuer.sqlite`
 
-## Front end
+### Front end
 
 1. It is a react app, browse into it
 
@@ -79,7 +98,7 @@ Also a database file will be created. `issuer.sqlite`
 
 ![front](./img/front.png)
 
-## All together
+### All together
 
 ```
 npm run all
