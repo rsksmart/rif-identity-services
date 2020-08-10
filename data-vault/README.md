@@ -44,15 +44,21 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   npm i
   ```
 
-2. Install IPFS CLI. Find your option: http://localhost:8080/ipns/docs.ipfs.io/how-to/command-line-quick-start/#install-ipfs
+2. Install IPFS CLI. Find your option: https://docs.ipfs.io/how-to/command-line-quick-start/.
 
-3. Start IPFS Daemon
+3. Init IPFS
+
+  ```
+  ipfs init
+  ```
+
+4. Start IPFS Daemon
 
   ```
   ipfs daemon
   ```
 
-4. Configure: create a `.env` file with
+5. Configure: create a `.env` file with
 
   ```
   PRIVATE_KEY= private key
@@ -74,13 +80,13 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   IPFS_PORT=5001
   ```
 
-5. Fix a bug :/ - go to `node_modules/ethr-did/lib/index.js` and find `"did:ethr:"`. Prepend `"rsk:testnet"`
+6. Fix a bug :/ - go to `node_modules/ethr-did/lib/index.js` and find `"did:ethr:"`. Prepend `"rsk:testnet"`
 
   ![fix](./img/fix.png)
 
   You can also copy paste the file in `./lib/ethrDID-copy.js`
 
-6. Start data-vault:
+7. In another terminal, start data-vault:
 
   ```
   npm run start
