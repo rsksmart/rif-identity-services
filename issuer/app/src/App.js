@@ -4,6 +4,7 @@ import axios from 'axios'
 const backOfficeUrl = `http://localhost:${process.env.REACT_APP_BACKOFFICE_PORT}`
 
 function App() {
+  const [error, setError] = useState('')
   const [identity, setIdentity] = useState('')
   const [requests, setRequests] = useState([])
 
@@ -12,8 +13,16 @@ function App() {
   const getIdentity = () => axios.get(backOfficeUrl + '/identity').then(res => res.data).then(setIdentity)
   const getMessagesSince = () => axios.get(`${backOfficeUrl}/requests`).then(res => res.data).then(setRequests)
 
-  const grantCredential = (hash) => axios.put(`${backOfficeUrl}/request/${hash}/grant`).then(res => res.data).then(setRequests)
-  const denyCredential = (hash) => axios.put(`${backOfficeUrl}/request/${hash}/deny`).then(res => res.data).then(setRequests)
+  const putActionFactory = (status) => (id) => axios.put(`${backOfficeUrl}/request/${id}/status/${status}`)
+    .then(res => {
+      if (res.status !== 200) throw new Error(res.data)
+      return res.data
+    })
+    .then(cr => setRequests(requests.map(request => request.id === cr.id ? cr : request)))
+    .catch(error => setError(error.message))
+
+  const grantCredential = putActionFactory('granted')
+  const denyCredential = putActionFactory('denied')
 
   useEffect(() => {
     getIdentity()
@@ -24,6 +33,7 @@ function App() {
     <div style={ { padding:10 } }>
       <h1>Issuer app</h1>
       Identity: {identity}
+      {error && <p> Error: {error}</p>}
       <table>
         <thead>
           <tr>

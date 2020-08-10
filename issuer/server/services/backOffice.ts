@@ -6,6 +6,7 @@ import Debug from 'debug'
 import CredentialRequest from '../lib/CredentialRequest'
 
 const debug = Debug('rif-id:services:backOffice')
+const trace = v => { debug(v); return v }
 
 export default function backOffice(port, agent) {
   const app = express()
@@ -33,46 +34,24 @@ export default function backOffice(port, agent) {
     getAllRequests().then(requests => res.status(200).send(JSON.stringify(requests)))
   })
 
-  app.put('/request/:id/grant', function(req, res) {
-    const { id } = req.params
-    debug(`Grant credential request ${id}`)
+  app.put('/request/:id/status/:status', function(req, res) {
+    const { status, id } = req.params
+    debug(`PUT status ${status} for credential request ${id}`)
 
-    let connection
+    if (status !== 'granted' && status !== 'denied') res.status(500).send('Invalid action')
+
     agent.dbConnection
-      .then(conn => {
-        connection = conn;
-        return connection.getRepository(CredentialRequest).findOne(      { 
-          relations: ['message'],
-          where: { id }
-        })
+      .then(connection => {
+        return connection.getRepository(CredentialRequest).findOne({
+          where: { id },
+          relations: ['message']
+        }).then(cr => {
+          cr.status = status
+          return connection.getRepository(CredentialRequest).save(cr)
+        }).then(messageToRequest)
+          .then(trace)
+          .then(cr => res.status(200).send(JSON.stringify(cr)))
       })
-      .then(cr => {
-        cr.status = 'granted'
-        return connection.getRepository(CredentialRequest).save(cr)
-      })
-      .then(getAllRequests)
-      .then(requests => res.status(200).send(JSON.stringify(requests)))
-  })
-
-  app.put('/request/:id/deny', function(req, res) {
-    const { id } = req.params
-    debug(`Deny credential request ${id}`)
-
-    let connection
-    agent.dbConnection
-      .then(conn => {
-        connection = conn;
-        return connection.getRepository(CredentialRequest).findOne(      { 
-          relations: ['message'],
-          where: { id }
-        })
-      })
-      .then(cr => {
-        cr.status = 'denied'
-        return connection.getRepository(CredentialRequest).save(cr)
-      })
-      .then(getAllRequests)
-      .then(requests => res.status(200).send(JSON.stringify(requests)))
   })
 
   app.listen(port, () => debug(`Back office service started on port ${port}`))

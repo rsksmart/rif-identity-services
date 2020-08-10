@@ -78,3 +78,10 @@ Also a database file will be created. `issuer.sqlite`
   ```
 
 ![front](./img/front.png)
+
+## All together
+
+```
+npm run all
+npm run all:dev
+```
