@@ -44,6 +44,12 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   npm i
   ```
 
+  `postinstall` is running a script to append `"rsk:testnet"` to `"did:ethr:"` methods name
+
+  To do it manually, remove `postinstall` script before running installing, then find this in `node_modules/ethr-did/lib//index.js`
+
+  ![fix](./img/fix.png)
+
 2. Install IPFS CLI. Find your option: https://docs.ipfs.io/how-to/command-line-quick-start/.
 
 3. Init IPFS
@@ -94,13 +100,7 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   IPFS_PORT=5001
   ```
 
-6. Fix a bug :/ - go to `node_modules/ethr-did/lib/index.js` and find `"did:ethr:"`. Prepend `"rsk:testnet"`
-
-  ![fix](./img/fix.png)
-
-  You can also copy paste the file in `./lib/ethrDID-copy.js`
-
-7. In another terminal, start data-vault:
+6. In another terminal, start data-vault:
 
   ```
   npm run start
