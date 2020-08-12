@@ -29,23 +29,37 @@ The issuer has 2 processes running:
 1. Setup: create a `.env` file with
 
   ```
+  SECRET_BOX_KEY= 32 random bytes in hex representation - encryption key
+  ADMIN_PASS= a secure password for admin user - used for basic http auth
+  ```
+
+  Or choose more parameters:
+
+  ```
   DEBUG= rif-id:* for app logging - * for all logs
   CREDENTIAL_REQUESTS_PORT= port to run credential requests service
   SECRET_BOX_KEY= 32 random bytes in hex representation - encryption key
   RPC_URL= rsk testnet rpc url - the one in the example was tested and works
   DEBUG= regexp for debugging logs
-  ADMIN_PASS= a secure password for admin user - used for basic http auth
   ```
 
   Example
 
   ```
+  SECRET_BOX_KEY=29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c
   CREDENTIAL_REQUESTS_PORT=5100
   REACT_APP_BACKOFFICE_PORT=5101
-  SECRET_BOX_KEY=29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c
   RPC_URL=https://did.testnet.rsk.co:4444
   DEBUG=rif-id:*
   ADMIN_PASS=admin
+  ```
+
+  Defaults
+
+  ```
+  CREDENTIAL_REQUESTS_PORT=5100
+  REACT_APP_BACKOFFICE_PORT=5101
+  RPC_URL=https://did.testnet.rsk.co:4444
   ```
 
 2. Install:
@@ -75,10 +89,10 @@ Also a database file will be created. `issuer.sqlite`
   cd app
   ```
 
-2. Please fill the back office service port again :/, crate a `.env` file
+2. (if the default issuer back office service port was changed) Please fill the back office service port again :/, crate a `.env` file
 
   ```
-  REACT_APP_BACKOFFICE_PORT=5101
+  REACT_APP_BACKOFFICE_PORT=back office service port
   ```
 
   or the port you used.

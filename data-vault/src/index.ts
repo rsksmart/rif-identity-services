@@ -31,9 +31,10 @@ Debug.enable('*')
 const env = {
   privateKey: process.env.PRIVATE_KEY,
   address: process.env.ADDRESS,
-  ipfsPort: process.env.IPFS_PORT ?? '',
-  authExpirationTime: process.env.AUTH_EXPIRATION_TIME ?? '',
-  port: process.env.PORT
+  ipfsPort: process.env.IPFS_PORT || '5001',
+  authExpirationTime: process.env.AUTH_EXPIRATION_TIME || '300000',
+  port: process.env.PORT || '5102',
+  rpcUrl: process.env.RPC_URL || 'https://did.testnet.rsk.co:4444'
 }
 
 /* setup app */
@@ -41,7 +42,7 @@ const app = express()
 app.use(cors())
 
 /* setup did resolver */
-const providerConfig = { networks: [{ name: "rsk:testnet", registry: "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", rpcUrl: 'https://did.testnet.rsk.co:4444' }] }
+const providerConfig = { networks: [{ name: "rsk:testnet", registry: "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", rpcUrl: env.rpcUrl }] }
 const ethrDidResolver = getResolver(providerConfig)
 const didResolver = new Resolver(ethrDidResolver)
 

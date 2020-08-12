@@ -9,11 +9,11 @@ import CredentialRequest from '../lib/CredentialRequest'
 const debug = Debug('rif-id:services:backOffice')
 const trace = v => { debug(v); return v }
 
-export default function backOffice(port, agent) {
+export default function backOffice(port, agent, adminPass) {
   const app = express()
   app.use(cors())
   app.use(basicAuth({
-    users: { 'admin': process.env.ADMIN_PASS }
+    users: { 'admin': adminPass }
   }))
 
   const getAllRequests = () => {

@@ -63,6 +63,11 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   ```
   PRIVATE_KEY= private key
   ADDRESS= matching address
+  ```
+
+  Optional parameters
+
+  ```
   AUTH_EXPIRATION_TIME= fixed time for auth tokens to expire in
   RPC_URL= rsk testnet rpc url
   PORT= to run the data vault
@@ -74,6 +79,15 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   ```
   PRIVATE_KEY=c0d0bafd577fe198158270925613affc27b7aff9e8b7a7050b2b65f6eefd3083
   ADDRESS=0x4a795ab98dc3732d1123c6133d3efdc76d4c91f8
+  AUTH_EXPIRATION_TIME=300000
+  RPC_URL=https://did.testnet.rsk.co:4444
+  PORT=5102
+  IPFS_PORT=5001
+  ```
+
+  Defaults
+
+  ```
   AUTH_EXPIRATION_TIME=300000
   RPC_URL=https://did.testnet.rsk.co:4444
   PORT=5102
