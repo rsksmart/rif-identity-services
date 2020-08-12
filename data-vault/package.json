@@ -6,7 +6,7 @@
   "scripts": {
     "start:build": "tsc",
     "start": "npm run start:build && node build/index.js",
-    "start:dev": "concurrently \"tsc --watch\" \"nodemon ./build/index.js\"",
+    "start:dev": "concurrently \"tsc --watch\" \"nodemon ./build/scripts/index.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

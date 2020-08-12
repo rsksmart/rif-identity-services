@@ -21,7 +21,7 @@ import { createVerifiableCredentialJwt } from 'did-jwt-vc'
 import { verifyJWT } from 'did-jwt'
 
 /* Data vault */
-import { DataVaultProviderIPFS, Entities } from './lib/DataVaultProviderIPFS'
+import { DataVaultProviderIPFS, Entities } from '../lib/DataVaultProviderIPFS'
 
 /* env */
 dotenv.config()
@@ -140,4 +140,4 @@ createConnection({
   })
 
   app.listen(env.port, () => debug(`Data vault started on port ${env.port}`))
-}).catch(error => console.log(error));
+});
