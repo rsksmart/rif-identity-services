@@ -1,4 +1,10 @@
-# RIF Identity POC
+<p align="middle">
+    <img src="https://www.rifos.org/assets/img/logo.svg" alt="logo" height="100" >
+</p>
+<h3 align="middle"><code>rif-identity-services</code></h3>
+<p align="middle">
+    Services enabling RIF Self-sovereign.
+</p>
 
 The project has different modules that run together form the RIF Identity main flow:
 
