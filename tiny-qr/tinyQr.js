@@ -1,21 +1,15 @@
-const express = require('express')
-const cors = require('cors')
 const bodyParser = require('body-parser')
 const Debug = require('debug')
 const crypto = require('crypto')
 
-
 const debug = Debug('rif-id:services:tiny-qr')
-Debug.enable('*')
 
-function tinyQr(port, serviceUrl) {
-  const app = express()
-  app.use(cors())
+function tinyQr(app, serviceUrl, suffix = '') {
   app.use(bodyParser.json())
 
   let presentations = {};
 
-  app.post('/presentation', async function(req, res) {
+  app.post(suffix + '/presentation', async function(req, res) {
     const { jwt } = req.body
 
     debug(`Incoming presentation JWT ${jwt}`)
@@ -28,14 +22,14 @@ function tinyQr(port, serviceUrl) {
     presentations[id] = presentation;
 
     const response = {
-      url: `${serviceUrl}/jwt/${id}`,
+      url: `${serviceUrl}${suffix}/jwt/${id}`,
       pwd
     }
 
     res.json(response).end()
   })
 
-  app.post('/jwt/:id', function(req, res) {
+  app.post(suffix + '/jwt/:id', function(req, res) {
     const { id } = req.params
     const { pwd } = req.body
 
@@ -49,8 +43,6 @@ function tinyQr(port, serviceUrl) {
       res.status(404).end()
     }
   })
-
-  app.listen(port, () => debug(`Tiny QR service started on port ${port}`))
 }
 
 module.exports = tinyQr;

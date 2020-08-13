@@ -5,6 +5,7 @@ import express from 'express'
 import cors from 'cors'
 import { setupCentralizedIPFSPinner } from '../../data-vault/build/services/centralizedIPFSPinner'
 import { runIssuer } from '../../issuer/server/build/issuer'
+const tinyQr = require('../../tiny-qr/tinyQr')
 
 /* env */
 dotenv.config()
@@ -35,18 +36,22 @@ const dataVaultOptions = {
 
 const issuerOptions = {
   secretBoxKey: process.env.ISSUER_SECRET_BOX_KEY,
+  adminPass: process.env.ISSUER_ADMIN_PASS,
   rpcUrl: process.env.ISSUER_RPC_URL || 'https://did.testnet.rsk.co:4444',
   debuggerOptions: '*',
-  adminPass: process.env.ISSUER_ADMIN_PASS,
   apps: [app],
   backOfficePrefix: '/issuer-back-office',
   credentialRequestServicePrefix: '/issuer-credential-requests'
 }
 
+const tinyQrOptions = process.env.TINY_QR_URL
+
 setupCentralizedIPFSPinner(app, dataVaultOptions, '/data-vault')
+  .then(() => tinyQr(app, tinyQrOptions, '/tiny-qr'))
   .then(() => runIssuer(issuerOptions))
   .then(() => app.listen(port, () => {
     debug(`Data vault started on http://localhost:${port}/data-vault`)
     debug(`Back office service started on http://localhost:${port}'/issuer-back-office'`)
     debug(`Credential request service started on http://localhost:${port}/issuer-credential-requests`)
+    debug(`Tiny QR started on http://localhost:${port}/tiny-qr`)
   }))
