@@ -41,7 +41,10 @@ const issuerOptions = {
   debuggerOptions: '*',
   apps: [app],
   backOfficePrefix: '/issuer-back-office',
-  credentialRequestServicePrefix: '/issuer-credential-requests'
+  credentialRequestServicePrefix: '/issuer-credential-requests',
+  launchCredentialRequestService: true,
+  launchBackOffice: true,
+  database: './issuer.sqlite'
 }
 
 const tinyQrOptions = process.env.TINY_QR_URL

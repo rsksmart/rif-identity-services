@@ -32,7 +32,7 @@ export default function credentialRequestService(app, agent, credentialRequestSe
 
     agent.handleMessage({ raw: message.body, meta: [] })
       .then(message => {
-        const hash = keccak256(message.raw).toString('hex')
+        const hash = (keccak256(message.raw) as any).toString('hex')
 
         const credRequest = {
           status: 'pending',

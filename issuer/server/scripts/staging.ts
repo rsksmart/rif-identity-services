@@ -3,7 +3,7 @@ import Debug from 'debug'
 import express from 'express'
 import cors from 'cors'
 
-import { runIssuer } from './issuer'
+import { runIssuer } from '../issuer'
 
 const debug = Debug('rif-id:main')
 dotenv.config()
@@ -24,11 +24,14 @@ async function main () {
     adminPass: process.env.ADMIN_PASS,
     apps: [appCredentialRequests, appBackOffice],
     backOfficePrefix: '',
-    credentialRequestServicePrefix: ''
+    credentialRequestServicePrefix: '',
+    launchCredentialRequestService: false,
+    launchBackOffice: true,
+    database: '../staging/issuer.sqlite'
   })
 
   const credentialRequestsPort = process.env.CREDENTIAL_REQUESTS_PORT || 5100
-  const backOfficePort = process.env.CREDENTIAL_REQUESTS_PORT || 5101
+  const backOfficePort = process.env.CREDENTIAL_REQUESTS_PORT || 5200
 
   appCredentialRequests.listen(credentialRequestsPort, () => debug('Request credential service started at port' + credentialRequestsPort))
   appBackOffice.listen(backOfficePort, () => debug('Back office service started at port' + backOfficePort))

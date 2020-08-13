@@ -20,19 +20,22 @@ export async function runIssuer ({
   adminPass,
   apps,
   credentialRequestServicePrefix,
-  backOfficePrefix
+  backOfficePrefix,
+  launchCredentialRequestService,
+  launchBackOffice,
+  database
 }) {
   /* debugger from .env */
   if (debuggerOptions) {
     Debug.enable(debuggerOptions)
   }
 
-  const dbConnection = setupDb('./issuer.sqlite')
+  const dbConnection = setupDb(database)
   const agent = setupAgent(dbConnection, secretBoxKey, rpcUrl)
   await setupIdentity(agent)
 
   debug('Setting up services')
-  credentialRequestService(apps[0], agent, credentialRequestServicePrefix)
-  backOffice(apps.length > 1 ? apps[1] : apps[0], agent, adminPass, backOfficePrefix)
+  if (launchCredentialRequestService) credentialRequestService(apps[0], agent, credentialRequestServicePrefix)
+  if (launchBackOffice) backOffice(apps.length > 1 ? apps[1] : apps[0], agent, adminPass, backOfficePrefix)
   debug('Services set up')
 }

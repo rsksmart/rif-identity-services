@@ -6,13 +6,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "back:build": "tsc",
-    "back": "npm run back:build && node server/build/index.js",
-    "back:dev": "concurrently \"tsc --watch\" \"nodemon ./server/build/index.js\"",
+    "back": "npm run back:build && node server/build/scripts/all.js",
+    "back:dev": "concurrently \"tsc --watch\" \"nodemon ./server/build/scripts/all.js\"",
     "front:build": "cd app && npm run build && cd ..",
     "front": "npm run front:build && serve -s app/build",
     "front:dev": "cd app && npm run start",
     "all": "concurrently \"npm run back\" \"npm run front\"",
-    "all:dev": "concurrently \"npm run back:dev\" \"npm run front:dev\""
+    "all:dev": "concurrently \"npm run back:dev\" \"npm run front:dev\"",
+    "staging:bo": "npm run back:build && node server/build/scripts/staging.js"
   },
   "author": "",
   "license": "ISC",
