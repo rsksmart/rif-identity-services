@@ -14,8 +14,9 @@ const makeCredential = (issuer, request) => ({
   issuer,
   credentialSubject: {
     id: request.from,
-    name: request.name,
-    otherClaims: request.sdr
+    fullName: request.fullName,
+    type: request.type,
+    otherClaims: [...request.sdr]
   }
 })
 
