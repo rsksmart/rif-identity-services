@@ -1,5 +1,7 @@
 import dotenv from 'dotenv'
 import Debug from 'debug'
+import express from 'express'
+import cors from 'cors'
 
 import { runIssuer } from './issuer'
 
@@ -9,14 +11,27 @@ dotenv.config()
 debug('Setting up')
 
 async function main () {
+  const appCredentialRequests = express()
+  appCredentialRequests.use(cors())
+
+  const appBackOffice = express()
+  appBackOffice.use(cors())
+
   await runIssuer({
     secretBoxKey: process.env.SECRET_BOX_KEY,
     rpcUrl: process.env.RPC_URL || 'https://did.testnet.rsk.co:4444',
-    credentialRequestsPort: process.env.CREDENTIAL_REQUESTS_PORT || '5100',
-    backOfficePort: process.env.REACT_APP_BACKOFFICE_PORT || '5101',
     debuggerOptions: process.env.DEBUG,
-    adminPass: process.env.ADMIN_PASS
+    adminPass: process.env.ADMIN_PASS,
+    apps: [appCredentialRequests, appBackOffice],
+    backOfficePrefix: '',
+    credentialRequestServicePrefix: ''
   })
+
+  const credentialRequestsPort = process.env.CREDENTIAL_REQUESTS_PORT || 5100
+  const backOfficePort = process.env.CREDENTIAL_REQUESTS_PORT || 5101
+
+  appCredentialRequests.listen(credentialRequestsPort, () => debug('Request credential service started at port' + credentialRequestsPort))
+  appBackOffice.listen(backOfficePort, () => debug('Back office service started at port' + backOfficePort))
 }
 
 main().catch(e => { debug(e); process.exit(1) })

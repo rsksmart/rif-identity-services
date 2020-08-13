@@ -19,7 +19,8 @@
   },
   "scripts": {
     "build:data-vault": "cd ../data-vault && npm run start:build",
-    "build": "npm run build:data-vault && tsc",
+    "build:issuer": "cd ../issuer && npm run back:build",
+    "build": "npm run build:data-vault && npm run build:issuer && tsc",
     "start": "npm run build && node build/index.js",
     "start:dev": "concurrently \"tsc --watch\" \"nodemon ./build/index.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"

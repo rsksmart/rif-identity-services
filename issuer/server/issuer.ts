@@ -8,8 +8,6 @@ import setupIdentity from './setup/identity'
 import credentialRequestService from './services/credentialRequests'
 import backOffice from './services/backOffice'
 
-import { runIssuer } from './issuer'
-
 const debug = Debug('rif-id:main')
 dotenv.config()
 
@@ -18,10 +16,11 @@ debug('Setting up')
 export async function runIssuer ({
   secretBoxKey,
   rpcUrl,
-  credentialRequestsPort,
-  backOfficePort,
   debuggerOptions,
-  adminPass
+  adminPass,
+  apps,
+  credentialRequestServicePrefix,
+  backOfficePrefix
 }) {
   /* debugger from .env */
   if (debuggerOptions) {
@@ -32,14 +31,8 @@ export async function runIssuer ({
   const agent = setupAgent(dbConnection, secretBoxKey, rpcUrl)
   await setupIdentity(agent)
 
-  debug('Set up')
-
-  debug('Starting services')
-
-  credentialRequestService(credentialRequestsPort, agent)
-  backOffice(backOfficePort, agent, adminPass)
-
-  debug('Services started')
-  debug('Requests at port' + credentialRequestsPort)
-  debug('Back office at port' + backOfficePort)
+  debug('Setting up services')
+  credentialRequestService(apps[0], agent, credentialRequestServicePrefix)
+  backOffice(apps.length > 1 ? apps[1] : apps[0], agent, adminPass, backOfficePrefix)
+  debug('Services set up')
 }
