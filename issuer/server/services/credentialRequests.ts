@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
-import keccak256 from 'keccak256'
+import { keccak256 } from 'js-sha3'
 import { messageToRequest } from '../lib/messageToRequest'
 import CredentialRequest from '../lib/CredentialRequest'
 import Debug from 'debug'
@@ -14,8 +14,9 @@ const makeCredential = (issuer, request) => ({
   issuer,
   credentialSubject: {
     id: request.from,
-    name: request.name,
-    otherClaims: request.sdr
+    fullName: request.fullName,
+    type: request.type,
+    otherClaims: [...request.sdr]
   }
 })
 
