@@ -11,7 +11,7 @@ export function messageToRequest(credentialRequest) {
     const status = credentialRequest.status
     const id = credentialRequest.id
 
-    if (from || name || sdr.length === 0) request = { from, fullName, type, sdr, isValid, status, id }
+    if (from || fullName || sdr.length === 0) request = { from, fullName, type, sdr, isValid, status, id }
   }
 
   if (!request) throw new Error('Invalid request')
