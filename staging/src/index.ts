@@ -11,7 +11,7 @@ const tinyQr = require('../../tiny-qr/tinyQr')
 dotenv.config()
 Debug.enable('*')
 
-const debug = Debug('rif-id:data-vault:scripts')
+const debug = Debug('rif-id:staging')
 
 if (!process.env.DATA_VAULT_PRIVATE_KEY) throw new Error('Setup private key')
 if (!process.env.DATA_VAULT_ADDRESS) throw new Error('Setup address')
