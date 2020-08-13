@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
-import keccak256 from 'keccak256'
+import { keccak256 } from 'js-sha3'
 import { messageToRequest } from '../lib/messageToRequest'
 import CredentialRequest from '../lib/CredentialRequest'
 import Debug from 'debug'
