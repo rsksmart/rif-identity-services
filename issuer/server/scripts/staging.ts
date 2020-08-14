@@ -31,7 +31,7 @@ async function main () {
   })
 
   const credentialRequestsPort = process.env.CREDENTIAL_REQUESTS_PORT || 5100
-  const backOfficePort = process.env.CREDENTIAL_REQUESTS_PORT || 5200
+  const backOfficePort = process.env.REACT_APP_BACKOFFICE_PORT || 5200
 
   appCredentialRequests.listen(credentialRequestsPort, () => debug('Request credential service started at port' + credentialRequestsPort))
   appBackOffice.listen(backOfficePort, () => debug('Back office service started at port' + backOfficePort))
