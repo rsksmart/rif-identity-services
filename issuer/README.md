@@ -78,7 +78,7 @@ Also a database file will be created. `issuer.sqlite`
 2. Please fill the back office service port again :/, crate a `.env` file
 
   ```
-  REACT_APP_BACKOFFICE_PORT=5101
+  REACT_APP_BACKOFFICE=http://localhost:5101
   ```
 
   or the port you used.
