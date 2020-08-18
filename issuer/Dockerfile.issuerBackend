@@ -4,9 +4,7 @@ WORKDIR /app
 COPY . ./
 RUN npm i
 RUN npm run back:build
-RUN cd app && \
-    yarn
-RUN yarn front:build
 
 EXPOSE 5101
+EXPOSE 5100
 CMD [ "node", ".\/server\/build\/scripts\/all.js"]

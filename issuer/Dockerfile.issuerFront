@@ -2,11 +2,9 @@ FROM node:10
 
 WORKDIR /app
 COPY . ./
-
+RUN npm i
 RUN yarn global add serve
-RUN yarn 2> /dev/null
-RUN yarn front:build 
+RUN npm run front:build
 
-
-EXPOSE 5100
-CMD [ "serve", "-s", "build", "-l", "5100"]
+EXPOSE 8181
+CMD [ "serve", "-s", ".\/app\/build", "-l", "8181"]
