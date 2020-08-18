@@ -38,6 +38,47 @@ If you started the front end apps you should get this
 
 ![run-all-front](./img/run-all-front.png)
 
+## Using docker compose
+
+### Setup
+
+To use docker compose option, first you need to setup tha variable `DOCKER_TAG`. This will be the tag when creating the docker image. If no one is set, by default will take the TAG `latest`. For instance:
+
+```bash
+export DOCKER_TAG=latest
+```
+
+Setup the following `.env` variables. Look into each service section of this README to know how to complete them:
+
+```text
+./data-vault/.env
+./issuer/.env
+./issuer/app/.env
+```
+### Execute
+
+First, build the image:
+
+```bash
+docker-compose build 
+```
+
+Execute as daemon
+
+```bash
+docker-compose up -d
+```
+
+Identity service will start using it's own network
+```bash
+docker network ls
+```
+```bash
+1d8ec230c51e        rif-identity-services_default   bridge              local
+```
+
+
+
 ## Usage
 
 - Create identity
