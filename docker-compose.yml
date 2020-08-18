@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+    rif-identity-ipfs-testnet:
+        image: rif-identity-ipfs:${DOCKER_TAG:-latest}
+        build: 
+            context: ./data-vault
+            dockerfile: Dockerfile.ipfs       
+        ports:
+            - "8080:8080"
+            - "5001:5001"
+
+    rif-identity-datavault-testnet:
+        image: rif-identity-datavault:${DOCKER_TAG:-latest}
+        build: 
+            context: ./data-vault
+            dockerfile: Dockerfile.dataVault
+        ports:
+            - "5102:5102"
+
+    rif-identity-tiniyqr-testnet:
+        image: rif-identity-tinyqr:${DOCKER_TAG:-latest}
+        build: 
+            context: ./tiny-qr
+            dockerfile: Dockerfile.tiny-qr       
+        ports:
+            - "5103:5103"
+
+    rif-identity-issuer-back-testnet:
+        image: rif-identity-tinyqr:${DOCKER_TAG:-latest}
+        build: 
+            context: ./issuer
+            dockerfile: Dockerfile.issuerBackend       
+        ports:
+            - "5100:5100"
+            - "5101:5101"
+
+    rif-identity-issuer-front-testnet:
+        image: rif-identity-tinyqr:${DOCKER_TAG:-latest}
+        build: 
+            context: ./issuer
+            dockerfile: Dockerfile.issuerFront    
+        ports:
+            - "8181:8181"            
+networks:
+    rif-identity-service:
+        driver: default
