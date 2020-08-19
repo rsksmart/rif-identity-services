@@ -1,10 +1,17 @@
 FROM node:10
 
 WORKDIR /app
-COPY . ./
+
+COPY package.json ./
+
 RUN npm i
+
+COPY ./server ./server
+COPY ./tsconfig.json ./
+
 RUN npm run back:build
 
 EXPOSE 5101
 EXPOSE 5100
+
 CMD [ "node", ".\/server\/build\/scripts\/all.js"]
