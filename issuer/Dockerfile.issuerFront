@@ -1,8 +1,13 @@
 FROM node:10
 
 WORKDIR /app
-COPY . ./
+
+COPY package.json ./
+
 RUN npm i
+
+COPY ./app ./app
+
 RUN yarn global add serve
 RUN npm run front:build
 

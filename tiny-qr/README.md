@@ -25,7 +25,10 @@ Holder                            Tiny QR                 Verifier
   npm i
   ```
 
-2. (optional) Configure, create a .env file with
+3. Create an empty .env file
+
+
+2. (optional) Configure, fill the .env file with
 
   Defaults to:
 

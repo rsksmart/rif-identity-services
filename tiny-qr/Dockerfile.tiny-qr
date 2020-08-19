@@ -1,7 +1,13 @@
 FROM node:10
 
 WORKDIR /app
-COPY . ./
+
+COPY package.json ./
+
+RUN npm i
+
+COPY ./index.js ./
+COPY ./tinyQr.js ./
 
 RUN npm i
 EXPOSE 5103

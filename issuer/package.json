@@ -38,9 +38,11 @@
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
     "js-sha3": "^0.8.0",
+    "node-gyp": "^7.1.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
+    "reflect-metadata": "^0.1.13",
     "sqlite3": "^5.0.0",
     "typeorm": "^0.2.25",
     "typescript": "^3.9.7"

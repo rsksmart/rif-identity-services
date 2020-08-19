@@ -4,8 +4,8 @@ export function messageToRequest(credentialRequest) {
 
   if (message.data.claims.find(c => c.claimType === 'credentialRequest' && c.claimValue === 'cred1')) {
     const from = message.data.iss
-    const fullName = message.data.claims.find(c => c.claimType === 'fullName').claimValue
-    const type = message.data.claims.find(c => c.claimType === 'type').claimValue
+    const fullName = message.data.claims.find(c => c.claimType === 'fullName')?.claimValue
+    const type = message.data.claims.find(c => c.claimType === 'type')?.claimValue
     const sdr = message.data.claims.filter(c => c.claimType !== 'credentialRequest' && c.claimType !== 'type')
     const isValid = message.metaData.indexOf({ type: 'JWT', value: 'ES256K-R' })
     const status = credentialRequest.status

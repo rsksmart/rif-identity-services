@@ -26,6 +26,7 @@ interface CentralizedIPFSPinnerEnv {
   privateKey: string;
   address: string;
   ipfsPort: string;
+  ipfsHost: string;
   authExpirationTime: string;
   rpcUrl: string;
 }
@@ -56,7 +57,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
     /* setup data vault */
     const dataVaultProvider = new DataVaultProviderIPFS(
       connection,
-      { host: 'localhost', port: env.ipfsPort, protocol: 'http' }
+      { host: env.ipfsHost, port: env.ipfsPort, protocol: 'http' }
     )
 
     /* authentication */
