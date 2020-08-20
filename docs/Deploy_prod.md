@@ -111,12 +111,12 @@ Now setup the services:
     Update `“Addresses” -> “API”` and open ip4 port. Set `“API”: “/ipv4/0.0.0.0/tcp/5001"`
 
     Before the update
-
-    ![beofre_update_ipfs](./img/beofre_update_ipfs.png)
+    
+    <img src="./beofre_update_ipfs.png" height="200" />
 
     After the update
 
-    ![after_update_ipfs](./img/after_update_ipfs.png)
+    <img src="./after_update_ipfs.png" height="200" />
 
     Save the file and exit the container
 
