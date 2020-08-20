@@ -25,14 +25,19 @@ Holder                            Tiny QR                 Verifier
   npm i
   ```
 
-2. Configure, create a .env file with
+3. Create an empty .env file
+
+
+2. (optional) Configure, fill the .env file with
+
+  Defaults to:
 
   ```
   TINY_QR_PORT=5103
   TINY_QR_URL=http://localhost:5103
   ```
 
-  Ensure to put DNS in Tiny QR URL if used
+  **Ensure to put DNS in Tiny QR URL if used**
 
 3. Run
 

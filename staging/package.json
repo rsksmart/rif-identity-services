@@ -1,0 +1,30 @@
+{
+  "name": "staging",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@types/cors": "^2.8.7",
+    "@types/debug": "^4.1.5",
+    "@types/express": "^4.17.7",
+    "cors": "^2.8.5",
+    "debug": "^4.1.1",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "concurrently": "^5.3.0",
+    "nodemon": "^2.0.4",
+    "typescript": "^3.9.7"
+  },
+  "scripts": {
+    "build:data-vault": "cd ../data-vault && npm run start:build",
+    "build:issuer": "cd ../issuer && npm run back:build",
+    "build": "npm run build:data-vault && npm run build:issuer && tsc",
+    "start": "npm run build && node build/index.js",
+    "start:dev": "concurrently \"tsc --watch\" \"nodemon ./build/index.js\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

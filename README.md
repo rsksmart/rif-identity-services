@@ -23,6 +23,8 @@ The project has different modules that run together form the RIF Identity main f
 
 > For development, commands appended with `:dev` run a watch mode
 
+> For production, find Docker guide [here](./docs/Deploy_prod.md)
+
 There are also two apps to test the flow:
 
 - `holder/holder-app` is a react app that allows to fulfill the whole flow but retrieve from IPFS
@@ -37,6 +39,47 @@ After starting all services you should get something like this
 If you started the front end apps you should get this
 
 ![run-all-front](./img/run-all-front.png)
+
+## Using docker compose
+
+### Setup
+
+To use docker compose option, first you need to setup tha variable `DOCKER_TAG`. This will be the tag when creating the docker image. If no one is set, by default will take the TAG `latest`. For instance:
+
+```bash
+export DOCKER_TAG=latest
+```
+
+Setup the following `.env` variables. Look into each service section of this README to know how to complete them:
+
+```text
+./data-vault/.env
+./issuer/.env
+./issuer/app/.env
+```
+### Execute
+
+First, build the image:
+
+```bash
+docker-compose build 
+```
+
+Execute as daemon
+
+```bash
+docker-compose up -d
+```
+
+Identity service will start using it's own network
+```bash
+docker network ls
+```
+```bash
+1d8ec230c51e        rif-identity-services_default   bridge              local
+```
+
+
 
 ## Usage
 

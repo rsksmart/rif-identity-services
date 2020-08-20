@@ -12,10 +12,9 @@ import Debug from 'debug'
 const debug = Debug('rif-id:setup:agent')
 
 
-function createIdentityProviders(dbConnection) {
-  const secretBox = new SecretBox(process.env.SECRET_BOX_KEY)
+function createIdentityProviders(dbConnection, secretBoxKey ,rpcUrl) {
+  const secretBox = new SecretBox(secretBoxKey)
   const keyStore = new KeyStore(dbConnection, secretBox)
-  const rpcUrl = process.env.RPC_URL
 
   const kms = new KeyManagementSystem(keyStore)
   const identityStore = new IdentityStore('issuer-ethr', dbConnection)
@@ -35,9 +34,7 @@ function createServiceControllers() {
   return []
 }
 
-function createResolver() {
-  const rpcUrl = process.env.RPC_URL
-
+function createResolver(rpcUrl) {
   return new DafResolver({ networks: [
     { name: "rsk:testnet", registry: "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", rpcUrl },
   ]})
@@ -60,10 +57,10 @@ function createActionHandler() {
   return actionHandler
 }
 
-export default function setupAgent(dbConnection) {
-  const identityProviders = createIdentityProviders(dbConnection)
+export default function setupAgent(dbConnection, secreBoxKey, rpcUrl) {
+  const identityProviders = createIdentityProviders(dbConnection, secreBoxKey, rpcUrl)
   const serviceControllers = createServiceControllers()
-  const didResolver = createResolver()
+  const didResolver = createResolver(rpcUrl)
   const messageHandler = createMessageHandler()
   const actionHandler = createActionHandler()
 

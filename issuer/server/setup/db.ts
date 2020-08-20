@@ -9,6 +9,7 @@ export default function setupDB(database) {
   const connection = createConnection({
     type: 'sqlite',
     database,
+    //database: '../staging/issuer.sqlite',
     synchronize: true,
     logging: false,
     entities: [...Entities, CredentialRequest],

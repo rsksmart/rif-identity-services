@@ -1,5 +1,3 @@
-import express from 'express'
-import cors from 'cors'
 import basicAuth from 'express-basic-auth'
 import bodyParser from 'body-parser'
 import Debug from 'debug'
@@ -9,11 +7,9 @@ import CredentialRequest from '../lib/CredentialRequest'
 const debug = Debug('rif-id:services:backOffice')
 const trace = v => { debug(v); return v }
 
-export default function backOffice(port, agent) {
-  const app = express()
-  app.use(cors())
+export default function backOffice(app, agent, adminPass, backOfficePrefix = '') {
   app.use(basicAuth({
-    users: { 'admin': process.env.ADMIN_PASS }
+    users: { 'admin': adminPass }
   }))
 
   const getAllRequests = () => {
@@ -22,11 +18,11 @@ export default function backOffice(port, agent) {
       .then(messages => messages.map(messageToRequest))
   }
 
-  app.post('/auth', function (req, res) {
+  app.post(backOfficePrefix + '/auth', function (req, res) {
     res.status(200).send()
   })
 
-  app.get('/identity', function(req, res) {
+  app.get(backOfficePrefix + '/identity', function(req, res) {
     debug('Identity requested')
 
     agent.identityManager.getIdentities()
@@ -36,13 +32,13 @@ export default function backOffice(port, agent) {
       })
   })
 
-  app.get('/requests', function(req, res) {
+  app.get(backOfficePrefix + '/requests', function(req, res) {
     debug(`Query requests`)
 
     getAllRequests().then(requests => res.status(200).send(JSON.stringify(requests)))
   })
 
-  app.put('/request/:id/status', bodyParser.json(), function(req, res) {
+  app.put(backOfficePrefix + '/request/:id/status', bodyParser.json(), function(req, res) {
     const { id } = req.params
     const { status } = req.body
     debug(`PUT status ${status} for credential request ${id}`)
@@ -63,5 +59,5 @@ export default function backOffice(port, agent) {
       })
   })
 
-  app.listen(port, () => debug(`Back office service started on port ${port}`))
+  //app.listen(port, () => debug(`Back office service started on port ${port}`))
 }

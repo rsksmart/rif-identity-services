@@ -1,5 +1,3 @@
-import express from 'express'
-import cors from 'cors'
 import bodyParser from 'body-parser'
 import { keccak256 } from 'js-sha3'
 import { messageToRequest } from '../lib/messageToRequest'
@@ -27,17 +25,14 @@ type CredentialRequestResponseStatus = 'PENDING' | 'DENIED' | 'SUCCESS'
 
 const credentialRequestResponsePayload = (status: CredentialRequestResponseStatus, raw: string) => ({ status, payload: { raw } })
 
-export default function credentialRequestService(port, agent) {
-  const app = express()
-  app.use(cors())
-
-  app.post('/requestCredential', bodyParser.text(), function(req, res) {
+export default function credentialRequestService(app, agent, credentialRequestServicePrefix = '') {
+  app.post(credentialRequestServicePrefix + '/requestCredential', bodyParser.text(), function(req, res) {
     const message = JSON.parse(req.body)
     debug(`Incoming credential request ${message.body}`)
 
     agent.handleMessage({ raw: message.body, meta: [] })
       .then(message => {
-        const hash = keccak256(message.raw).toString('hex')
+        const hash = (keccak256(message.raw) as any).toString('hex')
 
         const credRequest = {
           status: 'pending',
@@ -57,7 +52,7 @@ export default function credentialRequestService(port, agent) {
       })
   })
 
-  app.get('/receiveCredential', function(req, res) {
+  app.get(credentialRequestServicePrefix + '/receiveCredential', function(req, res) {
     debug(`Incoming credential request`)
 
     const { hash } = req.query
@@ -89,5 +84,5 @@ export default function credentialRequestService(port, agent) {
       })
   })
 
-  app.listen(port, () => debug(`Credential requests service started on port ${port}`))
+  // app.listen(port, () => debug(`Credential requests service started on port ${port}`))
 }

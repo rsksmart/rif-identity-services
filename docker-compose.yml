@@ -1,0 +1,63 @@
+version: "3"
+
+services:
+    rif-identity-ipfs-testnet:
+        image: rif-identity-ipfs:${DOCKER_TAG:-latest}
+        build: 
+            context: ./data-vault
+            dockerfile: Dockerfile.ipfs
+        env_file: ./data-vault/.env    
+        ports:
+            - "5001:5001"
+        networks:
+            - rif-identity-service
+
+    rif-identity-datavault-testnet:
+        image: rif-identity-datavault:${DOCKER_TAG:-latest}
+        build: 
+            context: ./data-vault
+            dockerfile: Dockerfile.dataVault
+        env_file: ./data-vault/.env
+        ports:
+            - "5102:5102"
+        networks:
+            - rif-identity-service
+
+    rif-identity-tiniyqr-testnet:
+        image: rif-identity-tinyqr:${DOCKER_TAG:-latest}
+        build: 
+            context: ./tiny-qr
+            dockerfile: Dockerfile.tiny-qr       
+        env_file: ./tiny-qr/.env
+        ports:
+            - "5103:5103"
+        networks:
+            - rif-identity-service
+
+    rif-identity-issuer-back-testnet:
+        image: rif-identity-back:${DOCKER_TAG:-latest}
+        build: 
+            context: ./issuer
+            dockerfile: Dockerfile.issuerBackend
+        env_file: ./issuer/.env
+        ports:
+            - "5100:5100"
+            - "5101:5101"
+        networks:
+            - rif-identity-service
+
+    rif-identity-issuer-front-testnet:
+        image: rif-identity-front:${DOCKER_TAG:-latest}
+        build: 
+            context: ./issuer
+            dockerfile: Dockerfile.issuerFront   
+        env_file: ./issuer/app/.env 
+        ports:
+            - "8181:8181"  
+        networks:
+            - rif-identity-service
+        
+
+networks:
+    rif-identity-service:
+        driver: bridge

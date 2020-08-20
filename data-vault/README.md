@@ -44,6 +44,12 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   npm i
   ```
 
+  `postinstall` is running a script to append `"rsk:testnet"` to `"did:ethr:"` methods name
+
+  To do it manually, remove `postinstall` script before running installing, then find this in `node_modules/ethr-did/lib//index.js`
+
+  ![fix](./img/fix.png)
+
 2. Install IPFS CLI. Find your option: https://docs.ipfs.io/how-to/command-line-quick-start/.
 
 3. Init IPFS
@@ -63,10 +69,16 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   ```
   PRIVATE_KEY= private key
   ADDRESS= matching address
+  ```
+
+  Optional parameters
+
+  ```
   AUTH_EXPIRATION_TIME= fixed time for auth tokens to expire in
   RPC_URL= rsk testnet rpc url
   PORT= to run the data vault
-  IPFS_PORT= port of a local http IPFS gateway
+  IPFS_PORT= port of an http IPFS gateway
+  IPFS_HOST=host of an IPFS gateway - should be used if running with Docker
   ```
 
   Example
@@ -78,15 +90,20 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   RPC_URL=https://did.testnet.rsk.co:4444
   PORT=5102
   IPFS_PORT=5001
+  IPFS_HOST=rif-identity-ipfs-testnet
   ```
 
-6. Fix a bug :/ - go to `node_modules/ethr-did/lib/index.js` and find `"did:ethr:"`. Prepend `"rsk:testnet"`
+  Defaults
 
-  ![fix](./img/fix.png)
+  ```
+  AUTH_EXPIRATION_TIME=300000
+  RPC_URL=https://did.testnet.rsk.co:4444
+  PORT=5102
+  IPFS_PORT=5001
+  IPFS_HOST=localhost
+  ```
 
-  You can also copy paste the file in `./lib/ethrDID-copy.js`
-
-7. In another terminal, start data-vault:
+6. In another terminal, start data-vault:
 
   ```
   npm run start
