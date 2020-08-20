@@ -23,6 +23,8 @@ The project has different modules that run together form the RIF Identity main f
 
 > For development, commands appended with `:dev` run a watch mode
 
+> For production, find Docker guide [here](./docs/Deploy_prod.md)
+
 There are also two apps to test the flow:
 
 - `holder/holder-app` is a react app that allows to fulfill the whole flow but retrieve from IPFS
