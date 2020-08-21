@@ -43,6 +43,10 @@ function tinyQr(app, serviceUrl, suffix = '') {
       res.status(404).end()
     }
   })
+
+  app.get('/__health', function (req, res) {
+    res.status(200).end('OK')
+  })
 }
 
 module.exports = tinyQr;
