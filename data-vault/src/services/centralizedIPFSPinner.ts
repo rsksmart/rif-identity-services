@@ -130,5 +130,9 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
         .then(({ issuer }) => dataVaultProvider.get(issuer))
         .then(cids => res.status(200).send(JSON.stringify(cids)))
     })
+
+    app.get('/__health', function (req, res) {
+      res.status(200).end('OK')
+    })
   })
 }

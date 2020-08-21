@@ -84,5 +84,8 @@ export default function credentialRequestService(app, agent, credentialRequestSe
       })
   })
 
+  app.get('/__health', function (req, res) {
+    res.status(200).end('OK')
+  })
   // app.listen(port, () => debug(`Credential requests service started on port ${port}`))
 }

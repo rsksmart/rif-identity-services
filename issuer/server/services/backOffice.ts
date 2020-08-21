@@ -8,9 +8,9 @@ const debug = Debug('rif-id:services:backOffice')
 const trace = v => { debug(v); return v }
 
 export default function backOffice(app, agent, adminPass, backOfficePrefix = '') {
-  app.use(basicAuth({
+  const checkAuth = basicAuth({
     users: { 'admin': adminPass }
-  }))
+  })
 
   const getAllRequests = () => {
     return agent.dbConnection
@@ -18,11 +18,11 @@ export default function backOffice(app, agent, adminPass, backOfficePrefix = '')
       .then(messages => messages.map(messageToRequest))
   }
 
-  app.post(backOfficePrefix + '/auth', function (req, res) {
+  app.post(backOfficePrefix + '/auth', checkAuth, function (req, res) {
     res.status(200).send()
   })
 
-  app.get(backOfficePrefix + '/identity', function(req, res) {
+  app.get(backOfficePrefix + '/identity', checkAuth, function(req, res) {
     debug('Identity requested')
 
     agent.identityManager.getIdentities()
@@ -32,13 +32,13 @@ export default function backOffice(app, agent, adminPass, backOfficePrefix = '')
       })
   })
 
-  app.get(backOfficePrefix + '/requests', function(req, res) {
+  app.get(backOfficePrefix + '/requests', checkAuth, function(req, res) {
     debug(`Query requests`)
 
     getAllRequests().then(requests => res.status(200).send(JSON.stringify(requests)))
   })
 
-  app.put(backOfficePrefix + '/request/:id/status', bodyParser.json(), function(req, res) {
+  app.put(backOfficePrefix + '/request/:id/status', checkAuth, bodyParser.json(), function(req, res) {
     const { id } = req.params
     const { status } = req.body
     debug(`PUT status ${status} for credential request ${id}`)
@@ -59,5 +59,8 @@ export default function backOffice(app, agent, adminPass, backOfficePrefix = '')
       })
   })
 
+  app.get('/__health', function (req, res) {
+    res.status(200).end('OK')
+  })
   //app.listen(port, () => debug(`Back office service started on port ${port}`))
 }
