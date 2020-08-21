@@ -5,15 +5,16 @@ import { Entity, PrimaryGeneratedColumn, Column, Connection } from 'typeorm'
 const debug = Debug('rif-id:data-vault:ipfs-provider')
 
 interface IDataVaultProviderIPFS {
-  put: (did: string, content: Buffer) => Promise<string>
-  get: (did: string) => Promise<string[]>
+  put: (did: string, key: string, content: Buffer) => Promise<string>
+  get: (did: string, key: string) => Promise<string[]>
 }
 
 @Entity()
 class DataVaultEntry {
-  constructor(did: string, cid: string) {
+  constructor(did: string, key: string, value: string) {
     this.did = did
-    this.cid = cid
+    this.key = key
+    this.value = value
   }
 
   @PrimaryGeneratedColumn()
@@ -23,20 +24,23 @@ class DataVaultEntry {
   did!: string;
 
   @Column('text')
-  cid!: string;
+  key!: string;
+
+  @Column('text')
+  value!: string;
 }
 
 const DataVaultProviderIPFS = (function (
   this: IDataVaultProviderIPFS,
   dbConnection: Connection,
-  ipfsOptions = { host: 'localhost', port: '8080', protocol: 'http' },
+  ipfsOptions: IPFSOptions = { host: 'localhost', port: '8080', protocol: 'http' },
 ) {
   const storage = RifStorage(Provider.IPFS, ipfsOptions)
 
-  async function addToDictionary(did: string, cid: string) {
-    const entry = new DataVaultEntry(did, cid)
+  async function addToDictionary(did: string, key: string, value: string) {
+    const entry = new DataVaultEntry(did, key, value)
     await dbConnection.manager.save(entry)
-    debug(`pair ${did} - ${cid} stored`)
+    debug(`pair ${key} - ${value} stored for DID: ${did}`)
   }
 
   /**
@@ -45,23 +49,23 @@ const DataVaultProviderIPFS = (function (
    * @param {Buffer} content
    * @returns string
    */
-  this.put = async function(did: string, content: Buffer) {
-    const fileHash = await storage.put(content)
+  this.put = async function(did: string, key: string, value: Buffer) {
+    const fileHash = await storage.put(value)
     debug('Stored hash: ' + fileHash)
 
     await (storage as any).ipfs.pin.add(fileHash)
     debug('Pinned hash: ' + fileHash)
 
-    await addToDictionary(did, fileHash)
+    await addToDictionary(did, key, fileHash)
 
     return fileHash
   }
 
-  this.get = function(did: string): Promise<string[]> {
+  this.get = function(did: string, key: string): Promise<string[]> {
     return dbConnection.getRepository(DataVaultEntry).find({
-      where: { did },
-      select: ['cid']
-    }).then(entries => entries.map(entry => entry.cid))
+      where: { did, key },
+      select: ['value']
+    }).then(entries => entries.map(entry => entry.value))
   }
 } as any as { new (
   dbOptions: Connection,
@@ -70,4 +74,10 @@ const DataVaultProviderIPFS = (function (
 
 const Entities = [DataVaultEntry]
 
-export { DataVaultProviderIPFS, Entities }
+interface IPFSOptions {
+  host: string;
+  port: string;
+  protocol: string;
+}
+
+export { DataVaultProviderIPFS, Entities, IPFSOptions }

@@ -115,19 +115,19 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
     /* operations */
     app.post(prefix + '/put', bodyParser.json(), function (req, res) {
       debug(`Put`)
-      const { jwt } = req.body
+      const { jwt, key } = req.body
 
       authenticateAndFindClaim(jwt)('content')
-        .then(({ issuer, content }) => dataVaultProvider.put(issuer, Buffer.from(content)))
+        .then(({ issuer, content }) => dataVaultProvider.put(issuer, key, Buffer.from(content)))
         .then(cid => res.status(200).send(cid))
     })
 
     app.post(prefix + '/get', bodyParser.json(), function (req, res) {
       debug(`Get`)
-      const { jwt } = req.body
+      const { jwt, key } = req.body
 
       authenticate(jwt)
-        .then(({ issuer }) => dataVaultProvider.get(issuer))
+        .then(({ issuer }) => dataVaultProvider.get(issuer, key))
         .then(cids => res.status(200).send(JSON.stringify(cids)))
     })
 
