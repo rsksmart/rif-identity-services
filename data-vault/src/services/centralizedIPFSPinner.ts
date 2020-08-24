@@ -131,6 +131,15 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
         .then(cids => res.status(200).send(JSON.stringify(cids)))
     })
 
+    app.post(prefix + '/delete', bodyParser.json(), function (req, res) {
+      debug(`Delete`)
+      const { jwt, key, cid } = req.body
+
+      authenticate(jwt)
+        .then(({ issuer }) => dataVaultProvider.delete(issuer, key, cid))
+        .then(cids => res.status(200).send(JSON.stringify(cids)))
+    })
+
     app.get('/__health', function (req, res) {
       res.status(200).end('OK')
     })

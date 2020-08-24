@@ -19,7 +19,7 @@ describe('DataVaultProviderIPFS tests', () => {
       logging: false
     })
 
-    ipfsOptions = { host: 'localhost', port: '5001', protocol: 'http' }
+    ipfsOptions = { host: 'localhost', port: '5001', protocol: 'http' } // TODO: Create the IPFS daemon on runtime
 
     const mnemonic = generateMnemonic(12)
     const seed = await mnemonicToSeed(mnemonic)
@@ -81,5 +81,28 @@ describe('DataVaultProviderIPFS tests', () => {
 
     expect(hashes).toContain(hash)
     expect(hashes).not.toContain(anotherHash)
+  })
+
+  it('should delete just saved content', async () => {
+    const provider = new DataVaultProviderIPFS(connection, ipfsOptions)
+
+    const key = getRandomString()
+    const value = getRandomString()
+
+    const hash = await provider.put(did, key, Buffer.from(value))
+    const deleted = await provider.delete(did, key, hash)
+
+    expect(deleted).toBeTruthy()
+  })
+
+  it('should return false if deleting unexistent file', async () => {
+    const provider = new DataVaultProviderIPFS(connection, ipfsOptions)
+
+    const key = getRandomString()
+    const hash = getRandomString()
+
+    const deleted = await provider.delete(did, key, hash)
+
+    expect(deleted).toBeFalsy()
   })
 })

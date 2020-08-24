@@ -7,14 +7,15 @@ const debug = Debug('rif-id:data-vault:ipfs-provider')
 interface IDataVaultProviderIPFS {
   put: (did: string, key: string, content: Buffer) => Promise<string>
   get: (did: string, key: string) => Promise<string[]>
+  delete: (did: string, key: string, cid: string) => Promise<boolean>
 }
 
 @Entity()
 class DataVaultEntry {
-  constructor(did: string, key: string, value: string) {
+  constructor(did: string, key: string, cid: string) {
     this.did = did
     this.key = key
-    this.value = value
+    this.cid = cid
   }
 
   @PrimaryGeneratedColumn()
@@ -27,7 +28,7 @@ class DataVaultEntry {
   key!: string;
 
   @Column('text')
-  value!: string;
+  cid!: string;
 }
 
 const DataVaultProviderIPFS = (function (
@@ -64,8 +65,25 @@ const DataVaultProviderIPFS = (function (
   this.get = function(did: string, key: string): Promise<string[]> {
     return dbConnection.getRepository(DataVaultEntry).find({
       where: { did, key },
-      select: ['value']
-    }).then(entries => entries.map(entry => entry.value))
+      select: ['cid']
+    }).then(entries => entries.map(entry => entry.cid))
+  }
+
+  this.delete = async function(did: string, key: string, cid: string): Promise<boolean> {
+    const repository = dbConnection.getRepository(DataVaultEntry)
+    const file = await repository.findOne({ where: { did, key, cid } });
+
+    if (file) {
+      const deleteResult =  await repository.remove(file)
+      
+      if (!deleteResult.id) {
+        await (storage as any).ipfs.pin.rm(cid)
+
+        return true
+      }
+    }
+
+    return false
   }
 } as any as { new (
   dbOptions: Connection,
