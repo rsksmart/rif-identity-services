@@ -11,7 +11,7 @@ function App() {
   const [identity, setIdentity] = useState('')
 
   const getIdentity = useCallback(
-    () => axios.get(backOfficeUrl + '/identity', { auth }).then(res => res.data).then(setIdentity),
+    () => axios.get(backOfficeUrl() + '/identity', { auth }).then(res => res.data).then(setIdentity),
     [auth]
   )
 

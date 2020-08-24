@@ -6,21 +6,35 @@ import poweredByIOV from '../vectors/power_by_iovlabs.svg'
 import logo from '../vectors/logo.svg'
 
 const Login = ({ login }) => {
-  const [username, setUser] = useState('')
-  const [password, setPass] = useState('')
+  const [fields, setFields] = useState({
+    username: '',
+    password: '',
+    server: backOfficeUrl(),
+  });
   const [authError, setAuthError] = useState('')
 
-  const auth = { username, password }
+  const auth = { username: fields.username, password: fields.password }
 
-  const handleChangeUser = e => setUser(e.target.value)
-  const handleChangePass = e => setPass(e.target.value)
+  const handleChange = e => {
+    setFields({
+      ...fields,
+      [e.target.id]: e.target.value
+    });
+  }
 
-  const authenticate = () => axios.post(backOfficeUrl + '/auth', {}, { auth })
-    .then(res => {
-      if (res.status === 200) login(auth)
-      else setAuthError(res.data.toString())
-    })
-    .catch(error => setAuthError(error.message))
+  const authenticate = (e) => {
+    e.preventDefault();
+    if (fields.server !== backOfficeUrl()) {
+      localStorage.setItem('BACK_OFFICE', fields.server);
+    }
+
+    axios.post(fields.server + '/auth', {}, { auth })
+      .then(res => {
+        if (res.status === 200) login(auth)
+        else setAuthError(res.data.toString())
+      })
+      .catch(error => setAuthError(error.message))
+  }
 
   return (
     <div className='login'>
@@ -30,17 +44,23 @@ const Login = ({ login }) => {
             <div className="col">
               <p className='login-header'>Sign in to</p>
               <h3 className='login-title'>RIF Credential manager</h3>
-              <form className='form' onSubmit={e => { e.preventDefault(); authenticate() }}>
+              <form className='form' onSubmit={authenticate}>
                 <div className="form-group row">
-                  <label htmlFor="inputEmail3" className="col-sm-3 col-form-label login-label">Username</label>
+                  <label htmlFor="username" className="col-sm-3 col-form-label login-label">Username</label>
                   <div className="col-sm-6">
-                    <input type="text" className="form-control login-control" id="inputEmail3" onChange={handleChangeUser} value={username} />
+                    <input type="text" className="form-control login-control" id="username" onChange={handleChange} value={fields.username} />
                   </div>
                 </div>
                 <div className="form-group row">
-                  <label htmlFor="inputPassword3" className="col-sm-3 col-form-label login-label">Password</label>
+                  <label htmlFor="password" className="col-sm-3 col-form-label login-label">Password</label>
                   <div className="col-sm-6">
-                    <input type="password" className="form-control login-control" id="inputPassword3" onChange={handleChangePass} value={password} />
+                    <input type="password" className="form-control login-control" id="password" onChange={handleChange} value={fields.password} />
+                  </div>
+                </div>
+                <div className="form-group row">
+                  <label htmlFor="server" className="col-sm-3 col-form-label login-label">Server</label>
+                  <div className="col-sm-6">
+                    <input type="text" className="form-control login-control" id="server" onChange={handleChange} value={fields.server} />
                   </div>
                 </div>
                 {
