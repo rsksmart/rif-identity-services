@@ -8,19 +8,28 @@ import logo from '../vectors/logo.svg'
 const Login = ({ login }) => {
   const [username, setUser] = useState('')
   const [password, setPass] = useState('')
+  const [server, setServer] = useState(backOfficeUrl());
   const [authError, setAuthError] = useState('')
 
   const auth = { username, password }
 
   const handleChangeUser = e => setUser(e.target.value)
   const handleChangePass = e => setPass(e.target.value)
+  const handleChangeServer = e => setServer(e.target.value)
 
-  const authenticate = () => axios.post(backOfficeUrl + '/auth', {}, { auth })
-    .then(res => {
-      if (res.status === 200) login(auth)
-      else setAuthError(res.data.toString())
-    })
-    .catch(error => setAuthError(error.message))
+  const authenticate = (e) => {
+    e.preventDefault();
+    if (server !== backOfficeUrl()) {
+      localStorage.setItem('BACK_OFFICE', server);
+    }
+
+    axios.post(server + '/auth', {}, { auth })
+      .then(res => {
+        if (res.status === 200) login(auth)
+        else setAuthError(res.data.toString())
+      })
+      .catch(error => setAuthError(error.message))
+  }
 
   return (
     <div className='login'>
@@ -30,7 +39,7 @@ const Login = ({ login }) => {
             <div className="col">
               <p className='login-header'>Sign in to</p>
               <h3 className='login-title'>RIF Credential manager</h3>
-              <form className='form' onSubmit={e => { e.preventDefault(); authenticate() }}>
+              <form className='form' onSubmit={authenticate}>
                 <div className="form-group row">
                   <label htmlFor="inputEmail3" className="col-sm-3 col-form-label login-label">Username</label>
                   <div className="col-sm-6">
@@ -41,6 +50,12 @@ const Login = ({ login }) => {
                   <label htmlFor="inputPassword3" className="col-sm-3 col-form-label login-label">Password</label>
                   <div className="col-sm-6">
                     <input type="password" className="form-control login-control" id="inputPassword3" onChange={handleChangePass} value={password} />
+                  </div>
+                </div>
+                <div className="form-group row">
+                  <label htmlFor="inputServer" className="col-sm-3 col-form-label login-label">Server</label>
+                  <div className="col-sm-6">
+                    <input type="text" className="form-control login-control" id="inputServer" onChange={handleChangeServer} value={server} />
                   </div>
                 </div>
                 {

@@ -1,1 +1,4 @@
-export const backOfficeUrl = process.env.REACT_APP_BACKOFFICE
+export const backOfficeUrl = () =>
+  localStorage.getItem("BACK_OFFICE")
+    ? localStorage.getItem("BACK_OFFICE")
+    : process.env.REACT_APP_BACKOFFICE;

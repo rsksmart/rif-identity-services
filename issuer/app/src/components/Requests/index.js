@@ -11,11 +11,11 @@ function Requests({ auth }) {
   const handleCatch = e => setError(e.message)
 
   const getMessagesSince = useCallback(
-    () => axios.get(`${backOfficeUrl}/requests`, { auth }).then(res => res.data).then(setRequests).catch(handleCatch),
+    () => axios.get(`${backOfficeUrl()}/requests`, { auth }).then(res => res.data).then(setRequests).catch(handleCatch),
     [auth]
   )
 
-  const putActionFactory = (status) => (id) => axios.put(`${backOfficeUrl}/request/${id}/status`, { status }, { auth })
+  const putActionFactory = (status) => (id) => axios.put(`${backOfficeUrl()}/request/${id}/status`, { status }, { auth })
     .then(res => {
       if (res.status !== 200) throw new Error(res.data)
       return res.data
