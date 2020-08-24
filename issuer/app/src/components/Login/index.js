@@ -20,7 +20,6 @@ const Login = ({ login }) => {
       ...fields,
       [e.target.id]: e.target.value
     });
-    console.log(e.target.id);
   }
 
   const authenticate = (e) => {
