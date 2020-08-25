@@ -139,7 +139,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
 
       authenticate(jwt)
         .then(({ issuer }) => dataVaultProvider.delete(issuer, key, cid))
-        .then(cids => res.status(200).send(JSON.stringify(cids)))
+        .then(() => res.status(204).send())
     })
 
     app.get('/__health', function (req, res) {

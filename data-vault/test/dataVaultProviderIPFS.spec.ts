@@ -2,9 +2,7 @@ import { createConnection, Connection } from 'typeorm'
 import { Entities, DataVaultProviderIPFS, IPFSOptions } from '../src/lib/DataVaultProviderIPFS'
 import { rskDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'
 import { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } from '@rsksmart/rif-id-mnemonic'
-
-// return an 8 characters random string 
-const getRandomString = (): string => Math.random().toString(36).substring(3, 11)
+import { getRandomString } from './utils'
 
 describe('DataVaultProviderIPFS tests', () => {
   let connection: Connection, ipfsOptions: IPFSOptions;
