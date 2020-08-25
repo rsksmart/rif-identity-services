@@ -6,17 +6,26 @@ import Debug from 'debug'
 
 const debug = Debug('rif-id:services:credentialRequests')
 
-const makeCredential = (issuer, request) => ({
-  '@context': ['https://www.w3.org/2018/credentials/v1'],
-  type: ['VerifiableCredential'],
-  issuer,
-  credentialSubject: {
-    id: request.from,
-    fullName: request.fullName,
-    type: request.type,
-    otherClaims: [...request.sdr]
+const makeCredential = (issuer, request) => {
+  const nbf = Math.floor(new Date().getTime() / 1000);
+  const exp = Math.floor((new Date().getTime() + (60000 * 60 * 24 * 365)) / 1000);
+
+  return {
+    '@context': ['https://www.w3.org/2018/credentials/v1'],
+    type: ['VerifiableCredential'],
+    issuer,
+    nbf,
+    exp,
+    credentialSubject: {
+      id: request.from,
+      fullName: request.fullName,
+      type: request.type,
+      otherClaims: [
+        ...request.sdr
+      ],
+    }
   }
-})
+};
 
 // dangerous !
 const messageHashDictionary = {}
