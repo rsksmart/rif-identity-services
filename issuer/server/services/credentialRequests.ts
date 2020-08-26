@@ -6,6 +6,24 @@ import Debug from 'debug'
 
 const debug = Debug('rif-id:services:credentialRequests')
 
+const serverCredentialMetadata = (type: string) => {
+  switch(type) {
+    case 'PARKING_PERMIT':
+      return [
+        { claimType: 'parkingPermitId', claimValue: '999999' },
+        { claimType: 'typeOfVehicle', claimValue: 'Car' },
+        { claimType: 'typeOfParkingPermit', claimValue: 'Normal' },
+      ];
+    case 'DRIVERS_LICENSE':
+      return [
+        { claimType: 'typeOfVehicle', claimValue: 'Car' },
+        { claimType: 'typeOfLicense', claimValue: 'A1' },
+        { claimType: 'isInternational', claimValue: false },
+      ];
+    default: return [];
+  }
+}
+
 const makeCredential = (issuer, request) => {
   const nbf = Math.floor(new Date().getTime() / 1000);
   const exp = Math.floor((new Date().getTime() + (60000 * 60 * 24 * 365)) / 1000);
@@ -21,7 +39,9 @@ const makeCredential = (issuer, request) => {
       fullName: request.fullName,
       type: request.type,
       otherClaims: [
-        ...request.sdr
+        ...request.sdr,
+        ...serverCredentialMetadata(request.type),
+        { claimType: 'issuanceOffice', claimValue: 'Country Office' }
       ],
     }
   }
