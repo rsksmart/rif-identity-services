@@ -18,7 +18,8 @@ describe('Express app tests', () => {
     ipfsPort: process.env.IPFS_PORT || '5001',
     ipfsHost: process.env.IPFS_HOST || 'localhost',
     authExpirationTime: '300000',
-    rpcUrl: 'https://mainnet.infura.io/v3/1e0af90f0e934c88b0f0b6612146e07a'
+    rpcUrl: 'https://mainnet.infura.io/v3/1e0af90f0e934c88b0f0b6612146e07a',
+    dbFile: `./api-test-${new Date().getTime()}.sqlite`
   }
 
   const login = () => request(app).post('/auth').send({ did }).expect(200)

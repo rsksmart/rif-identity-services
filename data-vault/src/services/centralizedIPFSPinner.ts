@@ -29,6 +29,7 @@ interface CentralizedIPFSPinnerEnv {
   ipfsHost: string;
   authExpirationTime: string;
   rpcUrl: string;
+  dbFile: string;
 }
 
 export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPinnerEnv, prefix = '') {
@@ -49,7 +50,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
 
   return createConnection({
     type: 'sqlite',
-    database: 'data-vault-mapper.sqlite',
+    database: env.dbFile,
     entities: Entities,
     synchronize: true,
     logging: false

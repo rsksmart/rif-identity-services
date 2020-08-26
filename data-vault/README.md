@@ -79,6 +79,7 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   PORT= to run the data vault
   IPFS_PORT= port of an http IPFS gateway
   IPFS_HOST=host of an IPFS gateway - should be used if running with Docker
+  DATABASE_FILE=relative path of the sqlite database
   ```
 
   Example
@@ -91,6 +92,7 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   PORT=5102
   IPFS_PORT=5001
   IPFS_HOST=rif-identity-ipfs-testnet
+  DATABASE_FILE=./data-vault-mapper.sqlite
   ```
 
   Defaults
@@ -101,6 +103,7 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   PORT=5102
   IPFS_PORT=5001
   IPFS_HOST=localhost
+  DATABASE_FILE=./data-vault-mapper.sqlite
   ```
 
 6. In another terminal, start data-vault:
