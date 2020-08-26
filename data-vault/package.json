@@ -21,7 +21,6 @@
     "@types/supertest": "^2.0.10",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
-    "debug": "^4.1.1",
     "did-jwt": "^4.4.0",
     "did-jwt-vc": "^1.0.4",
     "did-resolver": "^2.0.1",

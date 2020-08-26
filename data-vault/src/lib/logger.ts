@@ -12,15 +12,14 @@ const customFormat = format.printf((info) => {
 
 const logger = winston.createLogger({
   level: 'info',
-  format: format.combine(format.timestamp(), customFormat),
   transports: [
-    new transports.File({ filename: FILE }),
+    new transports.File({ filename: FILE, format: format.combine(format.timestamp(), customFormat) }),
   ],
 });
 
 if (ENV === 'dev') {
   logger.add(new transports.Console({
-    format: format.colorize(),
+    format: format.simple(),
   }));
 }
 
