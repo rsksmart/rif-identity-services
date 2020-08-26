@@ -80,6 +80,7 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   IPFS_PORT= port of an http IPFS gateway
   IPFS_HOST=host of an IPFS gateway - should be used if running with Docker
   DATABASE_FILE=relative path of the sqlite database
+  LOG_FILE=relative path of the log file
   NODE_ENV=dev or production environment, used for logging purposes
   ```
 
