@@ -50,7 +50,7 @@ const makeCredential = (issuer, request) => {
 // dangerous !
 const messageHashDictionary = {}
 
-type CredentialRequestResponseStatus = 'PENDING' | 'DENIED' | 'SUCCESS'
+type CredentialRequestResponseStatus = 'PENDING' | 'DENIED' | 'SUCCESS' | 'ISSUED'
 
 const credentialRequestResponsePayload = (status: CredentialRequestResponseStatus, raw: string) => ({ status, payload: { raw } })
 
@@ -91,19 +91,25 @@ export default function credentialRequestService(app, agent, credentialRequestSe
     const { hash } = req.query
     const id = messageHashDictionary[hash as string]
 
-    agent.dbConnection.then(connection => connection.getRepository(CredentialRequest).findOne(
+    agent.dbConnection.then(connection => {
+      connection.getRepository(CredentialRequest).findOne(
       { 
         relations: ['message'],
         where: { id }
-      }
-    ))
+      })
       .then((cr: CredentialRequest) => {
         if (cr.status === 'denied') {
           res.status(200).send(credentialRequestResponsePayload('DENIED', cr.message.raw))
         } else if (cr.status === 'pending') {
           res.status(200).send(credentialRequestResponsePayload('PENDING', cr.message.raw))
+        } else if (cr.status === 'issued') {
+          res.status(200).send(credentialRequestResponsePayload('ISSUED', cr.message.raw))
         } else {
           const request = messageToRequest(cr)
+
+          // save issued status to db:
+          cr.status = 'issued';
+          connection.getRepository(CredentialRequest).save(cr).then(() => {
 
           agent.identityManager.getIdentities()
             .then(identities => {
@@ -113,8 +119,10 @@ export default function credentialRequestService(app, agent, credentialRequestSe
                 data: makeCredential(identities[0].did, request),
               }).then(vc => res.status(200).send(credentialRequestResponsePayload('SUCCESS', vc.raw)))
             })
+          })
         }
       })
+    })
   })
 
   app.get('/__health', function (req, res) {
