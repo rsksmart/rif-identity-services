@@ -80,6 +80,7 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   IPFS_PORT= port of an http IPFS gateway
   IPFS_HOST=host of an IPFS gateway - should be used if running with Docker
   DATABASE_FILE=relative path of the sqlite database
+  NODE_ENV=dev or production environment, used for logging purposes
   ```
 
   Example
@@ -93,6 +94,8 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   IPFS_PORT=5001
   IPFS_HOST=rif-identity-ipfs-testnet
   DATABASE_FILE=./data-vault-mapper.sqlite
+  LOG_FILE=./data-vault.log
+  NODE_ENV=production
   ```
 
   Defaults
@@ -104,6 +107,8 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   IPFS_PORT=5001
   IPFS_HOST=localhost
   DATABASE_FILE=./data-vault-mapper.sqlite
+  LOG_FILE=./data-vault.log
+  NODE_ENV=dev
   ```
 
 6. In another terminal, start data-vault:

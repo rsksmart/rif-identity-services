@@ -1,15 +1,10 @@
-/* env */
 import dotenv from 'dotenv'
-import Debug from 'debug'
 import express from 'express'
 import cors from 'cors'
 import { setupCentralizedIPFSPinner } from '../services/centralizedIPFSPinner'
+import logger from '../lib/logger'
 
-/* env */
 dotenv.config()
-Debug.enable('*')
-
-const debug = Debug('rif-id:data-vault:scripts')
 
 if (!process.env.PRIVATE_KEY) throw new Error('Setup private key')
 if (!process.env.ADDRESS) throw new Error('Setup address')
@@ -30,4 +25,4 @@ const port = process.env.PORT || '5102'
 const app = express()
 app.use(cors())
 
-setupCentralizedIPFSPinner(app, env).then(() => app.listen(port, () => debug(`Data vault started on port ${port}`)))
+setupCentralizedIPFSPinner(app, env).then(() => app.listen(port, () => logger.info(`Data vault started on port ${port}`)))

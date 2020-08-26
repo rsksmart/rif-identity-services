@@ -1,8 +1,6 @@
 import RifStorage, { Provider } from '@rsksmart/rif-storage'
-import Debug from 'debug'
 import { Entity, PrimaryGeneratedColumn, Column, Connection } from 'typeorm'
-
-const debug = Debug('rif-id:data-vault:ipfs-provider')
+import logger from './logger'
 
 interface IDataVaultProviderIPFS {
   put: (did: string, key: string, content: Buffer) => Promise<string>
@@ -41,7 +39,7 @@ const DataVaultProviderIPFS = (function (
   async function addToDictionary(did: string, key: string, value: string) {
     const entry = new DataVaultEntry(did, key, value)
     await dbConnection.manager.save(entry)
-    debug(`pair ${key} - ${value} stored for DID: ${did}`)
+    logger.info(`pair ${key} - ${value} stored for DID: ${did}`)
   }
 
   /**
@@ -52,10 +50,10 @@ const DataVaultProviderIPFS = (function (
    */
   this.put = async function(did: string, key: string, value: Buffer) {
     const fileHash = await storage.put(value)
-    debug('Stored hash: ' + fileHash)
+    logger.info('Stored hash: ' + fileHash)
 
     await (storage as any).ipfs.pin.add(fileHash)
-    debug('Pinned hash: ' + fileHash)
+    logger.info('Pinned hash: ' + fileHash)
 
     await addToDictionary(did, key, fileHash)
 
@@ -75,9 +73,11 @@ const DataVaultProviderIPFS = (function (
 
     if (file) {
       const deleteResult =  await repository.remove(file)
-      
+      logger.info(`Deleted hash: ${cid}`)
+
       if (!deleteResult.id) {
         await (storage as any).ipfs.pin.rm(cid)
+        logger.info(`Unpinned hash: ${cid}`)
 
         return true
       }

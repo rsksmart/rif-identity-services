@@ -30,7 +30,8 @@
     "ethr-did-resolver": "^2.3.2",
     "express": "^4.17.1",
     "sqlite3": "^5.0.0",
-    "typeorm": "^0.2.25"
+    "typeorm": "^0.2.25",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@rsksmart/rif-id-ethr-did": "0.0.1",
