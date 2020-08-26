@@ -115,3 +115,37 @@ After the _store_ process the holder can verify the file was uploaded accessing 
 You should now see
 
 ![dv](dv.png)
+
+## Test
+
+1. Install deps
+
+  ```
+  npm i
+  ```
+
+  `postinstall` is running a script to append `"rsk:testnet"` to `"did:ethr:"` methods name
+
+  To do it manually, remove `postinstall` script before running installing, then find this in `node_modules/ethr-did/lib//index.js`
+
+  ![fix](./img/fix.png)
+
+2. Install IPFS CLI. Find your option: https://docs.ipfs.io/how-to/command-line-quick-start/.
+
+3. Init IPFS
+
+  ```
+  ipfs init
+  ```
+
+4. Start IPFS Daemon
+
+  ```
+  ipfs daemon
+  ```
+
+5. Run tests
+
+  ```
+  npm test
+  ```

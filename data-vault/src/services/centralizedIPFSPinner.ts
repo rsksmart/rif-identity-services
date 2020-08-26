@@ -77,7 +77,9 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
       res.status(200).send(identity.did)
     })
 
-    app.post(prefix + '/auth', bodyParser.json(), function(req, res) {
+    app.use(bodyParser.json({ limit: '50kb'} ))
+
+    app.post(prefix + '/auth', function(req, res) {
       const { did } = req.body
       const token = randomBytes(64).toString('hex')
       debug(`${did} requested auth - token ${token}`)
@@ -103,7 +105,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
       }, identity).then(jwt => res.status(200).send(jwt))
     })
 
-    app.post(prefix + '/testAuth', bodyParser.json(), function(req, res) {
+    app.post(prefix + '/testAuth', function(req, res) {
       const { jwt } = req.body
       debug(`Testing auth`)
 
@@ -113,22 +115,31 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
     })
 
     /* operations */
-    app.post(prefix + '/put', bodyParser.json(), function (req, res) {
+    app.post(prefix + '/put', function (req, res) {
       debug(`Put`)
-      const { jwt } = req.body
+      const { jwt, key } = req.body
 
       authenticateAndFindClaim(jwt)('content')
-        .then(({ issuer, content }) => dataVaultProvider.put(issuer, Buffer.from(content)))
+        .then(({ issuer, content }) => dataVaultProvider.put(issuer, key, Buffer.from(content)))
         .then(cid => res.status(200).send(cid))
     })
 
-    app.post(prefix + '/get', bodyParser.json(), function (req, res) {
+    app.post(prefix + '/get', function (req, res) {
       debug(`Get`)
-      const { jwt } = req.body
+      const { jwt, key } = req.body
 
       authenticate(jwt)
-        .then(({ issuer }) => dataVaultProvider.get(issuer))
+        .then(({ issuer }) => dataVaultProvider.get(issuer, key))
         .then(cids => res.status(200).send(JSON.stringify(cids)))
+    })
+
+    app.post(prefix + '/delete', function (req, res) {
+      debug(`Delete`)
+      const { jwt, key, cid } = req.body
+
+      authenticate(jwt)
+        .then(({ issuer }) => dataVaultProvider.delete(issuer, key, cid))
+        .then(() => res.status(204).send())
     })
 
     app.get('/__health', function (req, res) {
