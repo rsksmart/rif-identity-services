@@ -50,6 +50,10 @@ export default function credentialRequestService(app, agent, credentialRequestSe
             res.status(200).send()
           })
       })
+      .catch(error => {
+        debug(error)
+        res.status(500).send('Unhandled error')
+      });
   })
 
   app.get(credentialRequestServicePrefix + '/receiveCredential', function(req, res) {
