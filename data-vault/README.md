@@ -67,8 +67,8 @@ After the _store_ process the holder can verify the file was uploaded accessing 
 5. Configure: create a `.env` file with
 
   ```
-  PRIVATE_KEY= private key
-  ADDRESS= matching address
+  PRIVATE_KEY=COMPLETE WITH YOUR PRIVATE KEY
+  ADDRESS=COMPLETE WITH YOUR ADDRESS
   ```
 
   Optional parameters

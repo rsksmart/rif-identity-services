@@ -25,17 +25,18 @@ Now setup the services:
 2. Create a `.env` file with
 
     ```
-    PRIVATE_KEY=c0d0bafd577fe198158270925613affc27b7aff9e8b7a7050b2b65f6eefd3083
-    ADDRESS=0x4a795ab98dc3732d1123c6133d3efdc76d4c91f8
+    PRIVATE_KEY=COMPLETE WITH YOUR PRIVATE KEY
+    ADDRESS=COMPLETE WITH YOUR ADDRESS
     RPC_URL=https://did.testnet.rsk.co:4444
     IPFS_PORT=5001
     IPFS_HOST=rif-identity-ipfs-testnet
     PORT=5102
+    DATABASE_FILE=./data-vault-mapper.sqlite
+    LOG_FILE=./data-vault.log
+    NODE_ENV=production
     ```
 
-> Two concerns about the private key:
-> 1. It is stored raw.
-> 2. Don't use the example, please generate a new one
+> The private key is stored raw.
 
 > `IPFS_HOST` and `IPFS_PORT` refer to the IPFS container named `rif-identity-ipfs-testnet`. You should put here the container name that will be run in the same network as this service, or the dns name if running in another machine.
 
@@ -46,7 +47,7 @@ Now setup the services:
 
     ```
     TINY_QR_PORT=5103
-    TINY_QR_URL=http://localhost:5103
+    TINY_QR_URL=COMPLETE WITH THE DNS SET OF THIS SERVICE
     ```
 
 > `TINY_QR_URL` must contain the DNS set for the tiny QR service
@@ -57,17 +58,17 @@ Now setup the services:
 2. Create a `.env` file with
 
     ```
-    SECRET_BOX_KEY=29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c
+    SECRET_BOX_KEY=COMPLETE WITH YOUR SECRET BOX KEY
     CREDENTIAL_REQUESTS_PORT=5100
     REACT_APP_BACKOFFICE_PORT=5101
     RPC_URL=https://did.testnet.rsk.co:4444
     DEBUG=rif-id:*
-    ADMIN_PASS=admin
+    ADMIN_PASS=COMPLETE WITH YOUR ADMIN PASS
     ```
 
-> `SECRET_BOX_KEY` is used to encypt/decrypt key store, please change it.
+> `SECRET_BOX_KEY` is used to encypt/decrypt key store.
 
-> `ADMIN_PASS` is the password required to login to the front-end. Please change it.
+> `ADMIN_PASS` is the password required to login to the front-end, it is stored raw.
 
 #### Issuer front end
 
@@ -76,7 +77,7 @@ Now setup the services:
 
     ```
     SKIP_PREFLIGHT_CHECK=true
-    REACT_APP_BACKOFFICE=http://localhost:5101
+    REACT_APP_BACKOFFICE=COMPLETE WITH THE DNS SET OF THE ISSUER BACK OFFICE
     ```
 
 > `REACT_APP_BACKOFFICE` must contain the DNS set for the issuer back office service (started on port 5101)
