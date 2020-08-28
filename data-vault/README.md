@@ -83,6 +83,7 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   IPFS_HOST=host of an IPFS gateway - should be used if running with Docker
   DATABASE_FILE=relative path of the sqlite database
   LOG_FILE=relative path of the log file
+  LOG_ERRORS_FILE=relative path of the error log file
   NODE_ENV=dev or production environment, used for logging purposes
   ```
 
@@ -98,6 +99,7 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   IPFS_HOST=rif-identity-ipfs-testnet
   DATABASE_FILE=./data-vault-mapper.sqlite
   LOG_FILE=./data-vault.log
+  LOG_ERRORS_FILE=./data-vault.error.log
   NODE_ENV=production
   ```
 
@@ -111,6 +113,7 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   IPFS_HOST=localhost
   DATABASE_FILE=./data-vault-mapper.sqlite
   LOG_FILE=./data-vault.log
+  LOG_ERRORS_FILE=./data-vault.error.log
   NODE_ENV=dev
   ```
 

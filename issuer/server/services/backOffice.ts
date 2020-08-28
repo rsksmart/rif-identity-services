@@ -8,7 +8,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const logger = createLogger('rif-id:services:backOffice')
-const trace = v => { logger.info(v); return v }
+const trace = v => { logger.info(JSON.stringify(v)); return v }
 
 export default function backOffice(app, agent, adminPass, backOfficePrefix = '') {
   const checkAuth = basicAuth({

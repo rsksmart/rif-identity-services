@@ -1,6 +1,8 @@
 import RIFStorage, { Provider } from '@rsksmart/rif-storage'
 import { Entity, PrimaryGeneratedColumn, Column, Connection } from 'typeorm'
-import logger from './logger'
+import createLogger from './logger'
+
+const logger = createLogger('rif-id:data-vault:ipfs-provider')
 
 @Entity()
 class DataVaultEntry {
