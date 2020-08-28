@@ -3,24 +3,50 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-const ENV = process.env.NODE_ENV || 'dev'
-const FILE = process.env.LOG_FILE || './data-vault.log'
+const ENV = process.env.NODE_ENV || 'dev' 
+const FILE = process.env.LOG_FILE || './data-vault.log' 
+const ERROR_FILE = process.env.LOG_ERROR_FILE || './data-vault.error.log' 
 
-const customFormat = format.printf((info) => {
-  return `${info.timestamp}: [${info.level}] ${info.message}`
-})
+const fileFormat = format.printf(
+  ({ timestamp, level, label, message }) => `${timestamp} [${label}] ${level.toUpperCase()} ${message}`
+)
 
-const logger = winston.createLogger({
-  level: 'info',
-  transports: [
-    new transports.File({ filename: FILE, format: format.combine(format.timestamp(), customFormat) })
-  ]
-})
+const fileErrorFormat = format.printf(
+  ({ timestamp, stack, label }) => `${timestamp} [${label}] ${stack}`
+)
 
-if (ENV === 'dev') {
-  logger.add(new transports.Console({
-    format: format.simple()
-  }))
+export default (label: string) => {
+  const logger = winston.createLogger({
+    transports: [
+      new transports.File({
+        filename: FILE,
+        level: 'info',
+        format: format.combine(
+          format.label({ label }),
+          format.timestamp(),
+          fileFormat
+        )
+      }),
+      new transports.File({
+        filename: ERROR_FILE,
+        level: 'error',
+        format: format.combine(
+          format.label({ label }),
+          format.timestamp(),
+          format.errors({ stack: true }),
+          fileErrorFormat
+        )
+      }),
+    ],
+  });
+
+  if (ENV === 'dev') {
+    const consoleFormat = format.printf(({ label, message }) => `[${label}] ${message}`)
+
+    logger.add(new transports.Console({
+      format: format.combine(format.label({ label }), consoleFormat)
+    }));
+  }
+
+  return logger;
 }
-
-export default logger

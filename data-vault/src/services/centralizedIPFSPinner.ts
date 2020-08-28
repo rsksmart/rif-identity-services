@@ -17,7 +17,9 @@ import { verifyJWT } from 'did-jwt'
 
 /* Data vault */
 import { CentralizedIPFSPinnerProvider, Entities } from '../lib/DataVaultProviderIPFS'
-import logger from '../lib/logger'
+
+import createLogger from '../lib/logger'
+const logger = createLogger('rif-id:data-vault:services:centralized-pinner')
 
 interface CentralizedIPFSPinnerEnv {
   privateKey: string;
@@ -159,4 +161,5 @@ export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPi
       res.status(200).end('OK')
     })
   })
+  .catch(e => logger.error('Caught error', e))
 }

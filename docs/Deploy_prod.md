@@ -33,6 +33,7 @@ Now setup the services:
     PORT=5102
     DATABASE_FILE=./data-vault-mapper.sqlite
     LOG_FILE=./data-vault.log
+    LOG_ERRORS_FILE=./data-vault.error.log
     NODE_ENV=production
     ```
 
