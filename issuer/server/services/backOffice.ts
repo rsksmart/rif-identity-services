@@ -1,11 +1,14 @@
 import basicAuth from 'express-basic-auth'
 import bodyParser from 'body-parser'
-import Debug from 'debug'
 import { messageToRequest } from '../lib/messageToRequest'
 import CredentialRequest from '../lib/CredentialRequest'
+import createLogger from '../lib/logger'
+import dotenv from 'dotenv'
 
-const debug = Debug('rif-id:services:backOffice')
-const trace = v => { debug(v); return v }
+dotenv.config()
+
+const logger = createLogger('rif-id:services:backOffice')
+const trace = v => { logger.info(v); return v }
 
 export default function backOffice(app, agent, adminPass, backOfficePrefix = '') {
   const checkAuth = basicAuth({
@@ -23,25 +26,28 @@ export default function backOffice(app, agent, adminPass, backOfficePrefix = '')
   })
 
   app.get(backOfficePrefix + '/identity', checkAuth, function(req, res) {
-    debug('Identity requested')
+    logger.info('Identity requested')
 
     agent.identityManager.getIdentities()
       .then(identities => {
         if (!identities) return res.status(500).send('No identity')
         res.status(200).send(identities[0].did)
       })
+      .catch(e => logger.error('Caught error on GET /identity', e))
   })
 
   app.get(backOfficePrefix + '/requests', checkAuth, function(req, res) {
-    debug(`Query requests`)
+    logger.info(`Query requests`)
 
-    getAllRequests().then(requests => res.status(200).send(JSON.stringify(requests)))
+    getAllRequests()
+      .then(requests => res.status(200).send(JSON.stringify(requests)))
+      .catch(e => logger.error('Caught error on GET /requests', e))
   })
 
   app.put(backOfficePrefix + '/request/:id/status', checkAuth, bodyParser.json(), function(req, res) {
     const { id } = req.params
     const { status } = req.body
-    debug(`PUT status ${status} for credential request ${id}`)
+    logger.info(`PUT status ${status} for credential request ${id}`)
 
     if (status !== 'granted' && status !== 'denied') res.status(400).send('Invalid action')
 
@@ -57,6 +63,8 @@ export default function backOffice(app, agent, adminPass, backOfficePrefix = '')
           .then(trace)
           .then(cr => res.status(200).send(JSON.stringify(cr)))
       })
+      .catch(e => logger.error('Caught error on PUT /request/:id/status', e))
+
   })
 
   app.get('/__health', function (req, res) {

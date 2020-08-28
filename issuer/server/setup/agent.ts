@@ -7,9 +7,9 @@ import * as DIDComm from 'daf-did-comm'
 import * as DidJwt from 'daf-did-jwt'
 import * as W3c from 'daf-w3c'
 import * as Sdr from 'daf-selective-disclosure'
-import Debug from 'debug'
+import createLogger from '../lib/logger'
 
-const debug = Debug('rif-id:setup:agent')
+const logger = createLogger('rif-id:setup:agent')
 
 
 function createIdentityProviders(dbConnection, secretBoxKey ,rpcUrl) {
@@ -73,7 +73,7 @@ export default function setupAgent(dbConnection, secreBoxKey, rpcUrl) {
     actionHandler
   })
 
-  debug('Agent created')
+  logger.info('Agent created')
 
   return agent
 }
