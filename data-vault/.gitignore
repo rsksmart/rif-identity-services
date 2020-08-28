@@ -4,3 +4,4 @@ build/
 *.sqlite
 junit.xml
 coverage/
+*.log

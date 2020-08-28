@@ -21,7 +21,6 @@
     "@types/supertest": "^2.0.10",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
-    "debug": "^4.1.1",
     "did-jwt": "^4.4.0",
     "did-jwt-vc": "^1.0.4",
     "did-resolver": "^2.0.1",
@@ -30,7 +29,8 @@
     "ethr-did-resolver": "^2.3.2",
     "express": "^4.17.1",
     "sqlite3": "^5.0.0",
-    "typeorm": "^0.2.25"
+    "typeorm": "^0.2.25",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@rsksmart/rif-id-ethr-did": "0.0.1",

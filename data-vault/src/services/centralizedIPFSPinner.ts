@@ -17,10 +17,7 @@ import { verifyJWT } from 'did-jwt'
 
 /* Data vault */
 import { DataVaultProviderIPFS, Entities } from '../lib/DataVaultProviderIPFS'
-
-/* debugger */
-import Debug from 'debug'
-const debug = Debug('rif-id:data-vault:services:centralized-pinner')
+import logger from '../lib/logger'
 
 interface CentralizedIPFSPinnerEnv {
   privateKey: string;
@@ -29,6 +26,7 @@ interface CentralizedIPFSPinnerEnv {
   ipfsHost: string;
   authExpirationTime: string;
   rpcUrl: string;
+  dbFile: string;
 }
 
 export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPinnerEnv, prefix = '') {
@@ -45,11 +43,11 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
   /* setup auth */
   const authDictionary: any = {} // stores tokens and expiration time for given did
 
-  debug(`Identity: ${identity.did}`)
+  logger.info(`Identity: ${identity.did}`)
 
   return createConnection({
     type: 'sqlite',
-    database: 'data-vault-mapper.sqlite',
+    database: env.dbFile,
     entities: Entities,
     synchronize: true,
     logging: false
@@ -73,7 +71,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
       .then(({ issuer, payload }) => ({ issuer, content: payload.claims.find((claim: any) => claim.claimType === claimType).claimValue }))
 
     app.get(prefix + '/identity', function(req, res) {
-      debug(`Requested identity`)
+      logger.info(`Requested identity`)
       res.status(200).send(identity.did)
     })
 
@@ -82,7 +80,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
     app.post(prefix + '/auth', function(req, res) {
       const { did } = req.body
       const token = randomBytes(64).toString('hex')
-      debug(`${did} requested auth - token ${token}`)
+      logger.info(`${did} requested auth - token ${token}`)
 
       const sub = did
       const iss = identity.did
@@ -107,7 +105,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
 
     app.post(prefix + '/testAuth', function(req, res) {
       const { jwt } = req.body
-      debug(`Testing auth`)
+      logger.info(`Testing auth`)
 
       authenticate(jwt)
         .then(() => res.status(200).send('Authenticated'))
@@ -116,7 +114,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
 
     /* operations */
     app.post(prefix + '/put', function (req, res) {
-      debug(`Put`)
+      logger.info(`Put`)
       const { jwt, key } = req.body
 
       authenticateAndFindClaim(jwt)('content')
@@ -125,7 +123,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
     })
 
     app.post(prefix + '/get', function (req, res) {
-      debug(`Get`)
+      logger.info(`Get`)
       const { jwt, key } = req.body
 
       authenticate(jwt)
@@ -134,7 +132,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
     })
 
     app.post(prefix + '/delete', function (req, res) {
-      debug(`Delete`)
+      logger.info(`Delete`)
       const { jwt, key, cid } = req.body
 
       authenticate(jwt)
