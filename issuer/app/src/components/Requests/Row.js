@@ -4,6 +4,13 @@ import { transformDID } from '../../transformers'
 const Row = ({ request, grantCredential, denyCredential }) => {
   const [showDetails, setShowDetails] = useState(false)
 
+  const actions = request.status !== 'issued'
+    ? (<>
+        <td><button className="btn btn-link" onClick={() => grantCredential(request.id)}>Grant</button></td>
+        <td><button className="btn btn-link" onClick={() => denyCredential(request.id)}>Deny</button></td>
+      </>)
+    : (<td colSpan="2"><button className="btn btn-link disabled">Revoke</button></td>);
+
   return (
     <>
       <tr>
@@ -12,8 +19,7 @@ const Row = ({ request, grantCredential, denyCredential }) => {
         <td>{request.name}</td>
         <td>{request.isValid ? 'valid' : 'invalid'}</td>
         <td>{request.status}</td>
-        <td><button className="btn btn-link" onClick={() => grantCredential(request.id)}>Grant</button></td>
-        <td><button className="btn btn-link" onClick={() => denyCredential(request.id)}>Deny</button></td>
+        {actions}
         <td><button className="btn btn-link" onClick={() => setShowDetails(!showDetails)}>{showDetails ? 'show less' : 'show more'}</button></td>
       </tr>
       {

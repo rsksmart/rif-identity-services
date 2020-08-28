@@ -6,22 +6,51 @@ import Debug from 'debug'
 
 const debug = Debug('rif-id:services:credentialRequests')
 
-const makeCredential = (issuer, request) => ({
-  '@context': ['https://www.w3.org/2018/credentials/v1'],
-  type: ['VerifiableCredential'],
-  issuer,
-  credentialSubject: {
-    id: request.from,
-    fullName: request.fullName,
-    type: request.type,
-    otherClaims: [...request.sdr]
+const serverCredentialMetadata = (type: string) => {
+  switch(type) {
+    case 'PARKING_PERMIT':
+      return [
+        { claimType: 'parkingPermitId', claimValue: '999999' },
+        { claimType: 'typeOfVehicle', claimValue: 'Car' },
+        { claimType: 'typeOfParkingPermit', claimValue: 'Normal' },
+      ];
+    case 'DRIVERS_LICENSE':
+      return [
+        { claimType: 'typeOfVehicle', claimValue: 'Car' },
+        { claimType: 'typeOfLicense', claimValue: 'A1' },
+        { claimType: 'isInternational', claimValue: false },
+      ];
+    default: return [];
   }
-})
+}
+
+const makeCredential = (issuer, request) => {
+  const nbf = Math.floor(new Date().getTime() / 1000);
+  const exp = Math.floor((new Date().getTime() + (60000 * 60 * 24 * 365)) / 1000);
+
+  return {
+    '@context': ['https://www.w3.org/2018/credentials/v1'],
+    type: ['VerifiableCredential'],
+    issuer,
+    nbf,
+    exp,
+    credentialSubject: {
+      id: request.from,
+      fullName: request.fullName,
+      type: request.type,
+      otherClaims: [
+        ...request.sdr,
+        ...serverCredentialMetadata(request.type),
+        { claimType: 'issuanceOffice', claimValue: 'Country Office' }
+      ],
+    }
+  }
+};
 
 // dangerous !
 const messageHashDictionary = {}
 
-type CredentialRequestResponseStatus = 'PENDING' | 'DENIED' | 'SUCCESS'
+type CredentialRequestResponseStatus = 'PENDING' | 'DENIED' | 'SUCCESS' | 'ISSUED'
 
 const credentialRequestResponsePayload = (status: CredentialRequestResponseStatus, raw: string) => ({ status, payload: { raw } })
 
@@ -62,19 +91,25 @@ export default function credentialRequestService(app, agent, credentialRequestSe
     const { hash } = req.query
     const id = messageHashDictionary[hash as string]
 
-    agent.dbConnection.then(connection => connection.getRepository(CredentialRequest).findOne(
+    agent.dbConnection.then(connection => {
+      connection.getRepository(CredentialRequest).findOne(
       { 
         relations: ['message'],
         where: { id }
-      }
-    ))
+      })
       .then((cr: CredentialRequest) => {
         if (cr.status === 'denied') {
           res.status(200).send(credentialRequestResponsePayload('DENIED', cr.message.raw))
         } else if (cr.status === 'pending') {
           res.status(200).send(credentialRequestResponsePayload('PENDING', cr.message.raw))
+        } else if (cr.status === 'issued') {
+          res.status(200).send(credentialRequestResponsePayload('ISSUED', cr.message.raw))
         } else {
           const request = messageToRequest(cr)
+
+          // save issued status to db:
+          cr.status = 'issued';
+          connection.getRepository(CredentialRequest).save(cr).then(() => {
 
           agent.identityManager.getIdentities()
             .then(identities => {
@@ -84,8 +119,10 @@ export default function credentialRequestService(app, agent, credentialRequestSe
                 data: makeCredential(identities[0].did, request),
               }).then(vc => res.status(200).send(credentialRequestResponsePayload('SUCCESS', vc.raw)))
             })
+          })
         }
       })
+    })
   })
 
   app.get('/__health', function (req, res) {
