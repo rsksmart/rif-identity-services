@@ -33,7 +33,6 @@
     "daf-resolver": "^6.0.0",
     "daf-selective-disclosure": "^6.0.0",
     "daf-w3c": "^6.0.0",
-    "debug": "^4.1.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
@@ -45,7 +44,8 @@
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^5.0.0",
     "typeorm": "^0.2.25",
-    "typescript": "^3.9.7"
+    "typescript": "^3.9.7",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "concurrently": "^5.3.0",

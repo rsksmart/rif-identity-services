@@ -40,7 +40,10 @@ The issuer has 2 processes running:
   CREDENTIAL_REQUESTS_PORT= port to run credential requests service
   SECRET_BOX_KEY= 32 random bytes in hex representation - encryption key
   RPC_URL= rsk testnet rpc url - the one in the example was tested and works
-  DEBUG= regexp for debugging logs
+  LOG_FILE=relative path to the logs
+  LOG_ERRORS_FILE=relative path to the error logs
+  DB_FILE=relative path to the sqlite db
+  NODE_ENV=current environment
   ```
 
   Example
@@ -50,8 +53,11 @@ The issuer has 2 processes running:
   CREDENTIAL_REQUESTS_PORT=5100
   REACT_APP_BACKOFFICE_PORT=5101
   RPC_URL=https://did.testnet.rsk.co:4444
-  DEBUG=rif-id:*
   ADMIN_PASS=admin
+  LOG_FILE=./issuer-backend.log
+  LOG_ERRORS_FILE=./issuer-backend.error.log
+  DB_FILE=./issuer.sqlite
+  NODE_ENV=dev
   ```
 
   Defaults
@@ -60,6 +66,10 @@ The issuer has 2 processes running:
   CREDENTIAL_REQUESTS_PORT=5100
   REACT_APP_BACKOFFICE_PORT=5101
   RPC_URL=https://did.testnet.rsk.co:4444
+  LOG_FILE=./issuer-backend.log
+  LOG_ERRORS_FILE=./issuer-backend.error.log
+  DB_FILE=./issuer.sqlite
+  NODE_ENV=dev
   ```
 
 2. Install:
