@@ -29,18 +29,21 @@ interface CentralizedIPFSPinnerEnv {
   dbFile: string;
 }
 
-function findClaims(claims: any, claimTypes: string[]) {
-  let found = {} as any
+export type DAFClaim = { claimType: string, claimValue: string }
 
-  for (let claim of claims)
-    for (let claimType of claimTypes)
-      if (claim.claimType === claimType)
-        found[claimType] = claim.claimValue
+function findClaims (claims: DAFClaim[], claimTypes: string[]) {
+  const found: { [key: string]: string } = {}
+
+  for (const claim of claims) {
+    for (const claimType of claimTypes) {
+      if (claim.claimType === claimType) { found[claimType] = claim.claimValue }
+    }
+  }
 
   return found
 }
 
-export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPinnerEnv, prefix = '') {
+export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPinnerEnv, prefix = ''): Promise<void> {
   /* setup did resolver */
   const providerConfig = { networks: [{ name: 'rsk:testnet', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: env.rpcUrl }] }
   const ethrDidResolver = getResolver(providerConfig)
@@ -126,7 +129,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
 
     /* operations */
     app.post(prefix + '/put', function (req, res) {
-      logger.info(`Put`)
+      logger.info('Put')
       const { jwt } = req.body
 
       authenticateAndFindClaims(jwt)(['key', 'content'])
@@ -135,7 +138,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
     })
 
     app.post(prefix + '/get', function (req, res) {
-      logger.info(`Get`)
+      logger.info('Get')
       const { jwt } = req.body
 
       authenticateAndFindClaims(jwt)(['key'])
@@ -144,7 +147,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
     })
 
     app.post(prefix + '/delete', function (req, res) {
-      logger.info(`Delete`)
+      logger.info('Delete')
       const { jwt } = req.body
 
       authenticateAndFindClaims(jwt)(['key', 'cid'])
