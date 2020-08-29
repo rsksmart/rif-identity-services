@@ -4,15 +4,16 @@ A data vault first approach. This service uses an IPFS node to pin files.
 
 Alert: anyone in possession of a DID can used the server to upload files, now it has now file-size restrictions
 
+<!-- OUTDATED! 
 ```
 User                                     Data Vault
  |                 Store cred.                |
  |                                            |
- | ----------- POST /auth { did } ----------> |---┐
+ | ----------- POST /auth { did } --------- -> |---┐
  |                                            |  resolves did
  | <--------------- jwt(token) -------------- |<--┘
  |                                            |
- | -- POST /save jwt(payload, did, token) --> |---┐
+ | -- POST /save jwt(payload, did, token) - -> |---┐
  |                                            |  verify jwt
  |                                            |  verify token
  |                                            |  ipfs put payload
@@ -23,16 +24,17 @@ User                                     Data Vault
  |                                            |
  |               Recover creds.               |
  |                                            |
- | ----------- POST /auth { did } ----------> |---┐
+ | ----------- POST /auth { did } --------- -> |---┐
  |                                            |  resolves did
  | <--------------- jwt(token) -------------- |<--┘
  |                                            |
- | ----- POST /recover jwt(did, token) -----> |---┐
+ | ----- POST /recover jwt(did, token) ---- -> |---┐
  |                                            |  verify jwt
  |                                            |  verify token
  |                                            |  retrieve db { did }
  | <----------------- cids ------------------ |<--┘
 ```
+-->
 
 After the _store_ process the holder can verify the file was uploaded accessing to IPFS. When a recovery is required, the server will response all the CIDs of the files that were ever stored by the DID, the DID holder can then retrieve the files from IPFS. To maintain this flow a local DB maps DIDs to CIDs.
 
@@ -141,7 +143,7 @@ You should now see
 
 2. Install IPFS CLI. Find your option: https://docs.ipfs.io/how-to/command-line-quick-start/.
 
-3. Init IPFS
+3. Init IPFS (once after installing IPFS)
 
   ```
   ipfs init
@@ -158,3 +160,9 @@ You should now see
   ```
   npm test
   ```
+
+## Lint
+
+```
+npm run lint
+```

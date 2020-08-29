@@ -1,16 +1,21 @@
-import request from 'supertest';
+import request from 'supertest'
 import express, { Express } from 'express'
-import { setupCentralizedIPFSPinner } from '../src/services/centralizedIPFSPinner'
+import { setupCentralizedIPFSPinner, DAFClaim } from '../src/services/centralizedIPFSPinner'
 import { rskDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'
 import { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } from '@rsksmart/rif-id-mnemonic'
 import { verifyJWT, SimpleSigner, createJWT, decodeJWT } from 'did-jwt'
-import { Resolver } from 'did-resolver';
-import { getResolver } from 'ethr-did-resolver';
-import { getRandomString, largeText } from './utils';
+import { Resolver } from 'did-resolver'
+import { getResolver } from 'ethr-did-resolver'
+import { getRandomString, largeText } from './utils'
 import EthrDID from 'ethr-did'
+import fs from 'fs'
+
+jest.setTimeout(30000)
 
 describe('Express app tests', () => {
-  let app: Express, did: string, privateKey: string, resolver: Resolver;
+  let app: Express, did: string, privateKey: string, resolver: Resolver
+
+  const dbFile = `./api-test-${new Date().getTime()}.sqlite`
 
   const env = {
     privateKey: 'c0d0bafd577fe198158270925613affc27b7aff9e8b7a7050b2b65f6eefd3083',
@@ -19,45 +24,52 @@ describe('Express app tests', () => {
     ipfsHost: 'localhost',
     authExpirationTime: '300000',
     rpcUrl: 'https://mainnet.infura.io/v3/1e0af90f0e934c88b0f0b6612146e07a',
-    dbFile: `./api-test-${new Date().getTime()}.sqlite`,
+    dbFile
   }
 
   const login = () => request(app).post('/auth').send({ did }).expect(200)
     .then(res => res.text)
     .then(decodeJWT)
-    .then(({ payload }) => payload.vc!.credentialSubject.token)
+    .then(({ payload }) => {
+      if (!payload.vc) throw new Error('Invalid JWT')
+      return payload.vc.credentialSubject.token
+    })
 
   beforeAll(async () => {
     const mnemonic = generateMnemonic(12)
     const seed = await mnemonicToSeed(mnemonic)
     const hdKey = seedToRSKHDKey(seed)
     privateKey = hdKey.derive(0).privateKey!.toString('hex')
-    did = rskDIDFromPrivateKey()(privateKey).did;
-    
+    did = rskDIDFromPrivateKey()(privateKey).did
+
     const providerConfig = {
       networks: [
-        { name: "rsk:testnet", rpcUrl: env.rpcUrl, registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b' }
+        { name: 'rsk:testnet', rpcUrl: env.rpcUrl, registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b' }
       ]
     }
-    
-    resolver = new Resolver(getResolver(providerConfig));
+
+    resolver = new Resolver(getResolver(providerConfig))
 
     app = express()
-    
-    await setupCentralizedIPFSPinner(app, env)
 
+    await setupCentralizedIPFSPinner(app, env)
   })
-  
+
+  afterAll(() => {
+    if (process.env.CI === 'true' && process.env.CIRCLECI === 'true') fs.copyFileSync(dbFile, './artifacts')
+    else fs.unlinkSync(dbFile)
+  })
+
   describe('POST /auth', () => {
     it('returns a valid JWT', async () => {
       const { text } = await request(app).post('/auth').send({ did }).expect(200)
 
       const { signer, payload, jwt } = await verifyJWT(text, { resolver })
-      
+
       expect(signer).toBeTruthy()
       expect(payload).toBeTruthy()
       expect(jwt).toBeTruthy()
-      expect(jwt.split('.').length).toBe(3)
+      expect(jwt.split('.')).toHaveLength(3)
     })
   })
 
@@ -69,7 +81,7 @@ describe('Express app tests', () => {
       })
 
       const { text } = await request(app).get('/identity').send().expect(200)
-      
+
       expect(text).toEqual(identity.did)
     })
   })
@@ -80,13 +92,13 @@ describe('Express app tests', () => {
         issuer: did,
         claims: [{
           claimType: 'token', claimValue: token
-        }],
+        }]
       }
 
       const signer = SimpleSigner(privateKey)
       return createJWT(
         { type: 'sdr', ...sdrData },
-        { signer, alg: 'ES256K-R', issuer: did },
+        { signer, alg: 'ES256K-R', issuer: did }
       )
     }
 
@@ -110,67 +122,99 @@ describe('Express app tests', () => {
   })
 
   describe('CRD operations', () => {
-    const getJwt = () => login()
+    const getJwt = (otherClaims: DAFClaim[]) => login()
       .then(token => {
         const sdrData = {
           issuer: did,
           claims: [
             { claimType: 'token', claimValue: token },
-            { claimType: 'content', claimValue: getRandomString() }
+            ...otherClaims
           ]
         }
-  
+
         const signer = SimpleSigner(privateKey)
         return createJWT(
           { type: 'sdr', ...sdrData },
-          { signer, alg: 'ES256K-R', issuer: did },
+          { signer, alg: 'ES256K-R', issuer: did }
         )
       })
-    
-    let jwt: string, key: string;
-    
-    beforeEach(async () => {
-      jwt = await getJwt()
-      key = getRandomString()
-    })
+
+    const putRandom = () => {
+      const key = getRandomString()
+
+      return getJwt([
+        { claimType: 'key', claimValue: key },
+        { claimType: 'content', claimValue: getRandomString() }
+      ]).then(jwt => {
+        return request(app).post('/put').send({ jwt }).expect(200)
+          .then(res => ({ key, cid: res.text }))
+      })
+    }
 
     it('POST /put', async () => {
-      const { text } = await request(app).post('/put').send({ jwt, key }).expect(200)
+      const { cid } = await putRandom()
 
-      expect(text).toBeTruthy()
+      expect(cid).toBeTruthy()
+      // TODO: test is expected CID using hashing function
     })
 
     it('POST /put large text', async () => {
-      await request(app).post('/put').send({ jwt: largeText }).expect(413)
+      await request(app).post('/put').send({
+        jwt: await getJwt([
+          { claimType: 'key', claimValue: getRandomString() },
+          { claimType: 'content', claimValue: largeText }
+        ])
+      }).expect(413)
     })
 
     it('POST /get', async () => {
-      const response = await request(app).post('/put').send({ jwt, key }).expect(200)
-      const expected = response.text
+      const { key, cid } = await putRandom()
 
-      const { text } = await request(app).post('/get').send({ jwt, key }).expect(200)
-      expect(JSON.parse(text)).toEqual([expected])
+      const { text } = await request(app).post('/get').send({
+        jwt: await getJwt([
+          { claimType: 'key', claimValue: key }
+        ])
+      }).expect(200)
+      expect(JSON.parse(text)).toEqual([cid])
     })
 
     it('POST /delete with existing key', async () => {
-      const response = await request(app).post('/put').send({ jwt, key }).expect(200)
-      const cid = response.text
+      const { key, cid } = await putRandom()
 
-      await request(app).post('/delete').send({ jwt, key, cid }).expect(204)
+      await request(app).post('/delete').send({
+        jwt: await getJwt([
+          { claimType: 'key', claimValue: key },
+          { claimType: 'cid', claimValue: cid }
+        ])
+      }).expect(204)
 
       // try to get the same key, should be empty
-      const { text } = await request(app).post('/get').send({ jwt, key }).expect(200)
+      const { text } = await request(app).post('/get').send({
+        jwt: await getJwt([
+          { claimType: 'key', claimValue: key }
+        ])
+      }).expect(200)
+
       expect(JSON.parse(text)).toEqual([])
     })
 
     it('POST /delete with non existing key', async () => {
-      const response = await request(app).post('/put').send({ jwt, key }).expect(200)
-      const cid = response.text
+      const { key, cid } = await putRandom()
 
-      await request(app).post('/delete').send({ jwt, key: 'NO EXISTS', cid }).expect(204)
+      await request(app).post('/delete').send({
+        jwt: await getJwt([
+          { claimType: 'key', claimValue: 'NO EXISTS' },
+          { claimType: 'cid', claimValue: cid }
+        ])
+      }).expect(204)
 
-      // try to get the same key, should be empty
-      const { text } = await request(app).post('/get').send({ jwt, key }).expect(200)
+      // try to get the same key, should be set
+      const { text } = await request(app).post('/get').send({
+        jwt: await getJwt([
+          { claimType: 'key', claimValue: key }
+        ])
+      }).expect(200)
+
       expect(JSON.parse(text)).toEqual([cid])
     })
   })

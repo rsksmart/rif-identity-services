@@ -16,7 +16,7 @@ import { createVerifiableCredentialJwt } from 'did-jwt-vc'
 import { verifyJWT } from 'did-jwt'
 
 /* Data vault */
-import { DataVaultProviderIPFS, Entities } from '../lib/DataVaultProviderIPFS'
+import { CentralizedIPFSPinnerProvider, Entities } from '../lib/DataVaultProviderIPFS'
 import logger from '../lib/logger'
 
 interface CentralizedIPFSPinnerEnv {
@@ -29,20 +29,23 @@ interface CentralizedIPFSPinnerEnv {
   dbFile: string;
 }
 
-function findClaims(claims: any, claimTypes: string[]) {
-  let found = {} as any
+export type DAFClaim = { claimType: string, claimValue: string }
 
-  for (let claim of claims)
-    for (let claimType of claimTypes)
-      if (claim.claimType === claimType)
-        found[claimType] = claim.claimValue
+function findClaims (claims: DAFClaim[], claimTypes: string[]) {
+  const found: { [key: string]: string } = {}
+
+  for (const claim of claims) {
+    for (const claimType of claimTypes) {
+      if (claim.claimType === claimType) { found[claimType] = claim.claimValue }
+    }
+  }
 
   return found
 }
 
-export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPinnerEnv, prefix = '') {
+export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPinnerEnv, prefix = ''): Promise<void> {
   /* setup did resolver */
-  const providerConfig = { networks: [{ name: "rsk:testnet", registry: "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", rpcUrl: env.rpcUrl }] }
+  const providerConfig = { networks: [{ name: 'rsk:testnet', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: env.rpcUrl }] }
   const ethrDidResolver = getResolver(providerConfig)
   const didResolver = new Resolver(ethrDidResolver)
 
@@ -52,7 +55,8 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
   })
 
   /* setup auth */
-  const authDictionary: any = {} // stores tokens and expiration time for given did
+  // TODO: store in DB
+  const authDictionary: { [issuer: string]: { token: string, exp: number } } = {} // stores tokens and expiration time for given did
 
   logger.info(`Identity: ${identity.did}`)
 
@@ -62,18 +66,18 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
     entities: Entities,
     synchronize: true,
     logging: false
-  }).then(connection => {
+  }).then(dbConnection => {
     /* setup data vault */
-    const dataVaultProvider = new DataVaultProviderIPFS(
-      connection,
-      { host: env.ipfsHost, port: env.ipfsPort, protocol: 'http' }
-    )
+    const dataVaultProvider = new CentralizedIPFSPinnerProvider({
+      dbConnection,
+      ipfsOptions: { host: env.ipfsHost, port: env.ipfsPort, protocol: 'http' }
+    })
 
     /* authentication */
     const authenticate = (jwt: string) => verifyJWT(jwt, {
       resolver: didResolver
     }).then(({ payload, issuer }) => {
-      if (authDictionary[issuer].token !== payload.claims.find((claim: any) => claim.claimType === 'token').claimValue) throw new Error('Invalid token')
+      if (authDictionary[issuer].token !== payload.claims.find((claim: DAFClaim) => claim.claimType === 'token').claimValue) throw new Error('Invalid token')
       if (authDictionary[issuer].exp < Math.floor(+new Date() / 1000)) throw new Error('Token expired')
       return { payload, issuer }
     })
@@ -81,14 +85,14 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
     const authenticateAndFindClaims = (jwt: string) => (claimTypes: string[]) => authenticate(jwt)
       .then(({ issuer, payload }) => ({ issuer, claims: findClaims(payload.claims, claimTypes) }))
 
-    app.get(prefix + '/identity', function(req, res) {
-      logger.info(`Requested identity`)
+    app.get(prefix + '/identity', function (req, res) {
+      logger.info('Requested identity')
       res.status(200).send(identity.did)
     })
 
-    app.use(bodyParser.json({ limit: '50kb'} ))
+    app.use(bodyParser.json({ limit: '50kb' }))
 
-    app.post(prefix + '/auth', function(req, res) {
+    app.post(prefix + '/auth', function (req, res) {
       const { did } = req.body
       const token = randomBytes(64).toString('hex')
       logger.info(`${did} requested auth - token ${token}`)
@@ -114,9 +118,9 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
       }, identity).then(jwt => res.status(200).send(jwt))
     })
 
-    app.post(prefix + '/testAuth', function(req, res) {
+    app.post(prefix + '/testAuth', function (req, res) {
       const { jwt } = req.body
-      logger.info(`Testing auth`)
+      logger.info('Testing auth')
 
       authenticate(jwt)
         .then(() => res.status(200).send('Authenticated'))
@@ -125,7 +129,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
 
     /* operations */
     app.post(prefix + '/put', function (req, res) {
-      logger.info(`Put`)
+      logger.info('Put')
       const { jwt } = req.body
 
       authenticateAndFindClaims(jwt)(['key', 'content'])
@@ -134,7 +138,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
     })
 
     app.post(prefix + '/get', function (req, res) {
-      logger.info(`Get`)
+      logger.info('Get')
       const { jwt } = req.body
 
       authenticateAndFindClaims(jwt)(['key'])
@@ -143,7 +147,7 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
     })
 
     app.post(prefix + '/delete', function (req, res) {
-      logger.info(`Delete`)
+      logger.info('Delete')
       const { jwt } = req.body
 
       authenticateAndFindClaims(jwt)(['key', 'cid'])
