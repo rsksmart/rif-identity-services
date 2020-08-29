@@ -29,6 +29,17 @@ interface CentralizedIPFSPinnerEnv {
   dbFile: string;
 }
 
+function findClaims(claims: any, claimTypes: string[]) {
+  let found = {} as any
+
+  for (let claim of claims)
+    for (let claimType of claimTypes)
+      if (claim.claimType === claimType)
+        found[claimType] = claim.claimValue
+
+  return found
+}
+
 export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPinnerEnv, prefix = '') {
   /* setup did resolver */
   const providerConfig = { networks: [{ name: "rsk:testnet", registry: "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", rpcUrl: env.rpcUrl }] }
@@ -67,8 +78,8 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
       return { payload, issuer }
     })
 
-    const authenticateAndFindClaim = (jwt: string) => (claimType: any) => authenticate(jwt)
-      .then(({ issuer, payload }) => ({ issuer, content: payload.claims.find((claim: any) => claim.claimType === claimType).claimValue }))
+    const authenticateAndFindClaims = (jwt: string) => (claimTypes: string[]) => authenticate(jwt)
+      .then(({ issuer, payload }) => ({ issuer, claims: findClaims(payload.claims, claimTypes) }))
 
     app.get(prefix + '/identity', function(req, res) {
       logger.info(`Requested identity`)
@@ -115,28 +126,28 @@ export function setupCentralizedIPFSPinner(app: Express, env: CentralizedIPFSPin
     /* operations */
     app.post(prefix + '/put', function (req, res) {
       logger.info(`Put`)
-      const { jwt, key } = req.body
+      const { jwt } = req.body
 
-      authenticateAndFindClaim(jwt)('content')
-        .then(({ issuer, content }) => dataVaultProvider.put(issuer, key, Buffer.from(content)))
+      authenticateAndFindClaims(jwt)(['key', 'content'])
+        .then(({ issuer, claims }) => dataVaultProvider.put(issuer, claims.key, Buffer.from(claims.content)))
         .then(cid => res.status(200).send(cid))
     })
 
     app.post(prefix + '/get', function (req, res) {
       logger.info(`Get`)
-      const { jwt, key } = req.body
+      const { jwt } = req.body
 
-      authenticate(jwt)
-        .then(({ issuer }) => dataVaultProvider.get(issuer, key))
+      authenticateAndFindClaims(jwt)(['key'])
+        .then(({ issuer, claims }) => dataVaultProvider.get(issuer, claims.key))
         .then(cids => res.status(200).send(JSON.stringify(cids)))
     })
 
     app.post(prefix + '/delete', function (req, res) {
       logger.info(`Delete`)
-      const { jwt, key, cid } = req.body
+      const { jwt } = req.body
 
-      authenticate(jwt)
-        .then(({ issuer }) => dataVaultProvider.delete(issuer, key, cid))
+      authenticateAndFindClaims(jwt)(['key', 'cid'])
+        .then(({ issuer, claims }) => dataVaultProvider.delete(issuer, claims.key, claims.cid))
         .then(() => res.status(204).send())
     })
 
