@@ -125,7 +125,10 @@ export default function credentialRequestService(app, agent, credentialRequestSe
           })
         }
       })
-      .catch(e => logger.error('Caught error on /receiveCredential', e))
+      .catch(e => {
+        logger.error('Caught error on /receiveCredential', e)
+        res.status(500).send()
+      })
     })
   })
 

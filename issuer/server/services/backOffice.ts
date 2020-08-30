@@ -33,7 +33,10 @@ export default function backOffice(app, agent, adminPass, backOfficePrefix = '')
         if (!identities) return res.status(500).send('No identity')
         res.status(200).send(identities[0].did)
       })
-      .catch(e => logger.error('Caught error on GET /identity', e))
+      .catch(e => {
+        logger.error('Caught error on GET /identity', e)
+        res.status(500).send()
+      })
   })
 
   app.get(backOfficePrefix + '/requests', checkAuth, function(req, res) {
@@ -41,7 +44,10 @@ export default function backOffice(app, agent, adminPass, backOfficePrefix = '')
 
     getAllRequests()
       .then(requests => res.status(200).send(JSON.stringify(requests)))
-      .catch(e => logger.error('Caught error on GET /requests', e))
+      .catch(e => {
+        logger.error('Caught error on GET /requests', e)
+        res.status(500).send()
+      })
   })
 
   app.put(backOfficePrefix + '/request/:id/status', checkAuth, bodyParser.json(), function(req, res) {
@@ -63,8 +69,10 @@ export default function backOffice(app, agent, adminPass, backOfficePrefix = '')
           .then(trace)
           .then(cr => res.status(200).send(JSON.stringify(cr)))
       })
-      .catch(e => logger.error('Caught error on PUT /request/:id/status', e))
-
+      .catch(e => {
+        logger.error('Caught error on PUT /request/:id/status', e)
+        res.status(500).send()
+      })
   })
 
   app.get('/__health', function (req, res) {
