@@ -19,6 +19,8 @@ import { verifyJWT } from 'did-jwt'
 import { CentralizedIPFSPinnerProvider, Entities } from '../lib/DataVaultProviderIPFS'
 
 import createLogger from '../lib/logger'
+import { Logger } from 'winston'
+
 const logger = createLogger('rif-id:data-vault:services:centralized-pinner')
 
 interface CentralizedIPFSPinnerEnv {
@@ -45,7 +47,7 @@ function findClaims (claims: DAFClaim[], claimTypes: string[]) {
   return found
 }
 
-export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPinnerEnv, prefix = ''): Promise<any> {
+export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPinnerEnv, prefix = ''): Promise<void | Logger> {
   /* setup did resolver */
   const providerConfig = { networks: [{ name: 'rsk:testnet', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: env.rpcUrl }] }
   const ethrDidResolver = getResolver(providerConfig)
