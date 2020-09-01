@@ -3,9 +3,9 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-const ENV = process.env.NODE_ENV || 'dev' 
-const FILE = process.env.LOG_FILE || './data-vault.log' 
-const ERROR_FILE = process.env.LOG_ERROR_FILE || './data-vault.error.log' 
+const ENV = process.env.NODE_ENV || 'dev'
+const FILE = process.env.LOG_FILE || './data-vault.log'
+const ERROR_FILE = process.env.LOG_ERROR_FILE || './data-vault.error.log'
 
 const fileFormat = format.printf(
   ({ timestamp, level, label, message }) => `${timestamp} [${label}] ${level.toUpperCase()} ${message}`
@@ -36,17 +36,17 @@ export default (label: string) => {
           format.errors({ stack: true }),
           fileErrorFormat
         )
-      }),
-    ],
-  });
+      })
+    ]
+  })
 
   if (ENV === 'dev') {
     const consoleFormat = format.printf(({ label, message }) => `[${label}] ${message}`)
 
     logger.add(new transports.Console({
       format: format.combine(format.label({ label }), consoleFormat)
-    }));
+    }))
   }
 
-  return logger;
+  return logger
 }

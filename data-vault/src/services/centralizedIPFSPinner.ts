@@ -120,11 +120,11 @@ export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPi
           credentialSubject
         }
       }, identity)
-      .then(jwt => res.status(200).send(jwt))
-      .catch(e => {
-        logger.error('Caught error on POST /auth', e)
-        res.status(500).send()
-      })
+        .then(jwt => res.status(200).send(jwt))
+        .catch(e => {
+          logger.error('Caught error on POST /auth', e)
+          res.status(500).send()
+        })
     })
 
     app.post(prefix + '/testAuth', function (req, res) {
@@ -174,12 +174,11 @@ export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPi
           logger.error('Caught error on POST /delete', e)
           res.status(500).send()
         })
-
     })
 
     app.get('/__health', function (req, res) {
       res.status(200).end('OK')
     })
   })
-  .catch(e => logger.error('Database connection error', e))
+    .catch(e => logger.error('Database connection error', e))
 }
