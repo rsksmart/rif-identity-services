@@ -10,14 +10,13 @@ jobs:
       - checkout
       - node/with-cache:
           steps:
-            - run: cd data-vault
-            - run: npm install
+            - run: cd data-vault && npm install
             - run:
                 name: Lint
-                command: npm run lint:ci
+                command: cd data-vault && npm run lint:ci
             - run:
                 name: Test
-                command: npm run test:ci
+                command: cd data-vault && npm run test:ci
                 environment:
                   JEST_JUNIT_OUTPUT_DIR: ./reports/
             - store_test_results:
