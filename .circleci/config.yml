@@ -12,7 +12,6 @@ jobs:
           steps:
             - run: cd data-vault
             - run: npm install
-            - run: npm run test
             - run:
                 name: Lint
                 command: npm run lint:ci
@@ -24,7 +23,7 @@ jobs:
             - store_test_results:
                 path: ./reports/
             - store_artifacts:
-                path: ./artifacts/
+                path: ./reports/
 
 workflows:
     data-vault:
