@@ -3,12 +3,13 @@ orbs:
   node: circleci/node@1.1.6
 jobs:
   data-vault-lint-test:
-    working_directory: ~/tmp
+    # working_directory: ~/tmp
     executor:
       name: node/default
     steps:
       - checkout
       - node/with-cache:
+          dir: ~/tmp/data-vault/node_modules
           steps:
             - run: cd data-vault && npm install
             - run:
