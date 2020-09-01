@@ -6,12 +6,11 @@ jobs:
     working_directory: ~/tmp
     executor:
       name: node/default
-    parameters:
-      app-dir: data-vault
     steps:
       - checkout
       - node/with-cache:
           steps:
+            - run: cd data-vault
             - run: npm install
             - run:
                 name: Lint
