@@ -11,7 +11,7 @@
     "test:ci": "npx jest test/ --coverage --coverageDirectory reports",
     "lint": "eslint src/* test/* --ext .json,.js,.ts",
     "lint:fix": "eslint src/* test/* --ext .json,.js,.ts --fix",
-    "lint:ci": "npx eslint eslint src/* test/* --ext .json,.js,.ts --format junit --output-file ./reports/eslint.xml",
+    "lint:ci": "npx eslint src/* test/* --ext .json,.js,.ts --format junit --output-file ./reports/eslint.xml",
     "postinstall": "rm ./node_modules/ethr-did/lib/index.js && cp ./patch/ethrDID-copy.js ./node_modules/ethr-did/lib/index.js"
   },
   "author": "",

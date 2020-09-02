@@ -33,6 +33,7 @@ Now setup the services:
     PORT=5102
     DATABASE_FILE=./data-vault-mapper.sqlite
     LOG_FILE=./data-vault.log
+    LOG_ERRORS_FILE=./data-vault.error.log
     NODE_ENV=production
     ```
 
@@ -62,8 +63,11 @@ Now setup the services:
     CREDENTIAL_REQUESTS_PORT=5100
     REACT_APP_BACKOFFICE_PORT=5101
     RPC_URL=https://did.testnet.rsk.co:4444
-    DEBUG=rif-id:*
     ADMIN_PASS=COMPLETE WITH YOUR ADMIN PASS
+    LOG_FILE=./issuer-backend.log
+    LOG_ERRORS_FILE=./issuer-backend.error.log
+    DB_FILE=./issuer.sqlite
+    NODE_ENV=production
     ```
 
 > `SECRET_BOX_KEY` is used to encypt/decrypt key store.

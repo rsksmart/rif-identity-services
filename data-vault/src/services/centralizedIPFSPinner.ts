@@ -17,7 +17,11 @@ import { verifyJWT } from 'did-jwt'
 
 /* Data vault */
 import { CentralizedIPFSPinnerProvider, Entities } from '../lib/DataVaultProviderIPFS'
-import logger from '../lib/logger'
+
+import createLogger from '../lib/logger'
+import { Logger } from 'winston'
+
+const logger = createLogger('rif-id:data-vault:services:centralized-pinner')
 
 interface CentralizedIPFSPinnerEnv {
   privateKey: string;
@@ -43,7 +47,7 @@ function findClaims (claims: DAFClaim[], claimTypes: string[]) {
   return found
 }
 
-export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPinnerEnv, prefix = ''): Promise<void> {
+export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPinnerEnv, prefix = ''): Promise<void | Logger> {
   /* setup did resolver */
   const providerConfig = { networks: [{ name: 'rsk:testnet', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: env.rpcUrl }] }
   const ethrDidResolver = getResolver(providerConfig)
@@ -115,7 +119,12 @@ export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPi
           type: ['VerifiableCredential'],
           credentialSubject
         }
-      }, identity).then(jwt => res.status(200).send(jwt))
+      }, identity)
+        .then(jwt => res.status(200).send(jwt))
+        .catch(e => {
+          logger.error('Caught error on POST /auth', e)
+          res.status(500).send()
+        })
     })
 
     app.post(prefix + '/testAuth', function (req, res) {
@@ -135,6 +144,10 @@ export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPi
       authenticateAndFindClaims(jwt)(['key', 'content'])
         .then(({ issuer, claims }) => dataVaultProvider.put(issuer, claims.key, Buffer.from(claims.content)))
         .then(cid => res.status(200).send(cid))
+        .catch(e => {
+          logger.error('Caught error on POST /put', e)
+          res.status(500).send()
+        })
     })
 
     app.post(prefix + '/get', function (req, res) {
@@ -144,6 +157,10 @@ export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPi
       authenticateAndFindClaims(jwt)(['key'])
         .then(({ issuer, claims }) => dataVaultProvider.get(issuer, claims.key))
         .then(cids => res.status(200).send(JSON.stringify(cids)))
+        .catch(e => {
+          logger.error('Caught error on POST /get', e)
+          res.status(500).send()
+        })
     })
 
     app.post(prefix + '/delete', function (req, res) {
@@ -153,10 +170,15 @@ export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPi
       authenticateAndFindClaims(jwt)(['key', 'cid'])
         .then(({ issuer, claims }) => dataVaultProvider.delete(issuer, claims.key, claims.cid))
         .then(() => res.status(204).send())
+        .catch(e => {
+          logger.error('Caught error on POST /delete', e)
+          res.status(500).send()
+        })
     })
 
     app.get('/__health', function (req, res) {
       res.status(200).end('OK')
     })
   })
+    .catch(e => logger.error('Database connection error', e))
 }

@@ -10,7 +10,7 @@ import { getRandomString, largeText } from './utils'
 import EthrDID from 'ethr-did'
 import fs from 'fs'
 
-jest.setTimeout(30000)
+jest.setTimeout(60000)
 
 describe('Express app tests', () => {
   let app: Express, did: string, privateKey: string, resolver: Resolver

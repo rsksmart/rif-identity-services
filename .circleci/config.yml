@@ -1,30 +1,60 @@
 version: 2.1
+
 orbs:
   node: circleci/node@1.1.6
+
+commands:
+  install-ipfs:
+    steps:
+      - run:
+          name: "Install IPFS"
+          command: |
+            wget https://dist.ipfs.io/go-ipfs/v0.6.0/go-ipfs_v0.6.0_linux-amd64.tar.gz
+            tar -xvzf go-ipfs_v0.6.0_linux-amd64.tar.gz
+            cd go-ipfs && sudo bash install.sh
+            ipfs --version
+  spawn-ipfs-node:
+    description: "Init IPFS repo and spawn a node in background"
+    steps:
+      - run:
+          name: "Init IPFS repos"
+          command: ipfs init
+      - run:
+          name: "Run IPFS Provider node"
+          command: ipfs daemon
+          background: true
+      - run:
+          name: "Waiting for the IPFS daemon"
+          no_output_timeout: 60s
+          command: |
+            while (! ipfs id --api=/ip4/127.0.0.1/tcp/5001 2>/dev/null); do
+              sleep 1
+            done
+
 jobs:
   data-vault-lint-test:
-    working_directory: ~/tmp
     executor:
       name: node/default
     steps:
       - checkout
+      - install-ipfs
+      - spawn-ipfs-node
       - node/with-cache:
+          dir: ~/tmp
           steps:
-            - run: cd data-vault
-            - run: npm install
-            - run: npm run test
+            - run: cd data-vault && npm install
             - run:
                 name: Lint
-                command: npm run lint:ci
+                command: cd data-vault && npm run lint:ci
             - run:
                 name: Test
-                command: npm run test:ci
+                command: cd data-vault && npm run test:ci
                 environment:
                   JEST_JUNIT_OUTPUT_DIR: ./reports/
             - store_test_results:
                 path: ./reports/
             - store_artifacts:
-                path: ./artifacts/
+                path: ./reports/
 
 workflows:
     data-vault:

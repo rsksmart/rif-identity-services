@@ -2,9 +2,12 @@ import bodyParser from 'body-parser'
 import { keccak256 } from 'js-sha3'
 import { messageToRequest } from '../lib/messageToRequest'
 import CredentialRequest from '../lib/CredentialRequest'
-import Debug from 'debug'
+import createLogger from '../lib/logger'
+import dotenv from 'dotenv'
 
-const debug = Debug('rif-id:services:credentialRequests')
+dotenv.config()
+
+const logger = createLogger('rif-id:services:credentialRequests')
 
 const serverCredentialMetadata = (type: string) => {
   switch(type) {
@@ -57,7 +60,7 @@ const credentialRequestResponsePayload = (status: CredentialRequestResponseStatu
 export default function credentialRequestService(app, agent, credentialRequestServicePrefix = '') {
   app.post(credentialRequestServicePrefix + '/requestCredential', bodyParser.text(), function(req, res) {
     const message = JSON.parse(req.body)
-    debug(`Incoming credential request ${message.body}`)
+    logger.info(`Incoming credential request ${message.body}`)
 
     agent.handleMessage({ raw: message.body, meta: [] })
       .then(message => {
@@ -75,18 +78,18 @@ export default function credentialRequestService(app, agent, credentialRequestSe
 
             messageHashDictionary[hash] = credentialRequest.id
 
-            debug(`Credential request stored`)
+            logger.info(`Credential request stored`)
             res.status(200).send()
           })
       })
       .catch(error => {
-        debug(error)
+        logger.error('Caught error on /requestCredential', error)
         res.status(500).send('Unhandled error')
       });
   })
 
   app.get(credentialRequestServicePrefix + '/receiveCredential', function(req, res) {
-    debug(`Incoming credential request`)
+    logger.info(`Incoming credential request`)
 
     const { hash } = req.query
     const id = messageHashDictionary[hash as string]
@@ -122,11 +125,14 @@ export default function credentialRequestService(app, agent, credentialRequestSe
           })
         }
       })
+      .catch(e => {
+        logger.error('Caught error on /receiveCredential', e)
+        res.status(500).send()
+      })
     })
   })
 
   app.get('/__health', function (req, res) {
     res.status(200).end('OK')
   })
-  // app.listen(port, () => debug(`Credential requests service started on port ${port}`))
 }
