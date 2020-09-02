@@ -21,7 +21,7 @@ commands:
           command: ipfs init
       - run:
           name: "Run IPFS Provider node"
-          command: export IPFS_PATH=./.repos/provider && ipfs daemon
+          command: ipfs daemon
           background: true
       - run:
           name: "Waiting for the IPFS daemon"
