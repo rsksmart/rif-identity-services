@@ -6,4 +6,5 @@ junit.xml
 coverage/
 *.log
 reports/
-
+log/
+db/

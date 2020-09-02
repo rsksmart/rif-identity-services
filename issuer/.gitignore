@@ -3,3 +3,5 @@ node_modules
 .env
 server/build/
 *.log
+log/
+db/

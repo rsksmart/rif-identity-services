@@ -18,6 +18,9 @@ services:
             context: ./data-vault
             dockerfile: Dockerfile.dataVault
         env_file: ./data-vault/.env
+        volumes:
+            - "/var/db/rif-identity/data-vault:/app/db"
+            - "/var/log/rif-identity/data-vault:/app/log"
         ports:
             - "5102:5102"
         networks:
@@ -29,6 +32,8 @@ services:
             context: ./tiny-qr
             dockerfile: Dockerfile.tiny-qr       
         env_file: ./tiny-qr/.env
+        volumes:
+            - "/var/log/rif-identity/tiny-qr:/app/log"
         ports:
             - "5103:5103"
         networks:
@@ -40,6 +45,9 @@ services:
             context: ./issuer
             dockerfile: Dockerfile.issuerBackend
         env_file: ./issuer/.env
+        volumes:
+            - "/var/db/rif-identity/issuer-server:/app/db"
+            - "/var/log/rif-identity/issuer-server:/app/log"
         ports:
             - "5100:5100"
             - "5101:5101"

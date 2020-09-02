@@ -17,7 +17,7 @@ const env = {
   ipfsHost: process.env.IPFS_HOST || 'localhost',
   authExpirationTime: process.env.AUTH_EXPIRATION_TIME || '300000',
   rpcUrl: process.env.RPC_URL || 'https://did.testnet.rsk.co:4444',
-  dbFile: process.env.DATABASE_FILE || './data-vault-mapper2.sqlite'
+  dbFile: process.env.DATABASE_FILE || './db/data-vault-mapper.sqlite'
 }
 
 const port = process.env.PORT || '5102'
