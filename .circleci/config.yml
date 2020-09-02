@@ -18,7 +18,7 @@ commands:
     steps:
       - run:
           name: "Init IPFS repos"
-          command: npm run init
+          command: ipfs init
       - run:
           name: "Run IPFS Provider node"
           command: export IPFS_PATH=./.repos/provider && ipfs daemon
