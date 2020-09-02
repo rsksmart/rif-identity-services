@@ -5,6 +5,8 @@ import { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } from '@rsksmart/rif-
 import { getRandomString } from './utils'
 import fs from 'fs'
 
+jest.setTimeout(60000)
+
 describe('DataVaultProviderIPFS tests', () => {
   let provider: ICentralizedIPFSPinnerProvider
   let did: string, anotherDid: string
