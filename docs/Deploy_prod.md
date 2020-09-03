@@ -86,6 +86,10 @@ Now setup the services:
 
 > `REACT_APP_BACKOFFICE` must contain the DNS set for the issuer back office service (started on port 5101)
 
+#### IMPORTANT NOTE:
+
+If you don't use the default values provided for the `DB` and `LOGS` paths, please make sure to update also the right hand of `docker-compose.yml`'s `volumes` lines. They must be kept in sync
+
 ## Run docker
 
 1. Create dirs where the logs and dbs will be saved:
