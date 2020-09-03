@@ -45,7 +45,7 @@ export const CentralizedIPFSPinnerProvider = (function (this: ICentralizedIPFSPi
   dbConnection,
   ipfsOptions
 }: CentralizedIPFSPinnerProviderConfig) {
-  const storage = RIFStorage(Provider.IPFS, ipfsOptions || { host: 'localhost', port: '8080', protocol: 'http' })
+  const storage = RIFStorage(Provider.IPFS, ipfsOptions || { host: 'localhost', port: '5001', protocol: 'http' })
 
   /**
    * Put a file in IPFS and associate it with a DID
