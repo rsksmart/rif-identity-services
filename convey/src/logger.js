@@ -4,9 +4,9 @@ const dotenv = require('dotenv')
 
 dotenv.config()
 
-const ENV = process.env.NODE_ENV || 'dev' 
-const FILE = process.env.LOG_FILE || './convey.log' 
-const ERROR_FILE = process.env.LOG_ERROR_FILE || './convey.error.log' 
+const ENV = process.env.NODE_ENV || 'dev'
+const FILE = process.env.LOG_FILE || './convey.log'
+const ERROR_FILE = process.env.LOG_ERROR_FILE || './convey.error.log'
 
 const fileFormat = format.printf(
   ({ timestamp, level, label, message }) => `${timestamp} [${label}] ${level.toUpperCase()} ${message}`
@@ -37,17 +37,17 @@ module.exports = (label) => {
           format.errors({ stack: true }),
           fileErrorFormat
         )
-      }),
-    ],
-  });
+      })
+    ]
+  })
 
   if (ENV === 'dev') {
     const consoleFormat = format.printf(({ label, message }) => `[${label}] ${message}`)
 
     logger.add(new transports.Console({
       format: format.combine(format.label({ label }), consoleFormat)
-    }));
+    }))
   }
 
-  return logger;
+  return logger
 }

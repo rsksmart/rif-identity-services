@@ -1,17 +1,17 @@
 const request = require('supertest')
 const express = require('express')
-const convey = require('../convey')
+const convey = require('../src/convey')
 
 const getRandomString = () => Math.random().toString(36).substring(3, 11)
 
 describe('Express app tests', () => {
-  let app;
+  let app
 
   beforeAll(() => {
     const ipfsOptions = {
       port: '5001',
       host: 'localhost',
-      protocol: 'http',
+      protocol: 'http'
     }
 
     app = express()
@@ -26,7 +26,7 @@ describe('Express app tests', () => {
 
     const { cid, url } = body
 
-    expect(cid).toBeTruthy()
+    expect(cid).toBeTruthy() // TODO: calculate cid
     expect(url).toBeTruthy()
     expect(url).toContain('convey://')
   })
@@ -34,9 +34,9 @@ describe('Express app tests', () => {
   it('gets a saved cid', async () => {
     const expected = getRandomString()
 
-    let response = await request(app).post('/file').send({ file: expected }).expect(200)
+    const response = await request(app).post('/file').send({ file: expected }).expect(200)
     const { cid } = response.body
-    
+
     const { body } = await request(app).get(`/file/${cid}`).expect(200)
 
     const { file } = body

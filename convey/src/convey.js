@@ -5,35 +5,32 @@ const createLogger = require('./logger')
 const logger = createLogger('rif-id:services:convey')
 const { Provider } = RIFStorage
 
-function tinyQr(app, ipfsOptions, prefix = '') {
+function convey (app, ipfsOptions, prefix = '') {
   const storage = RIFStorage.default(Provider.IPFS, ipfsOptions || { host: 'localhost', port: '5001', protocol: 'http' })
 
   app.use(bodyParser.json())
 
-  let files = {};
+  const files = {}
 
-  app.post(prefix + '/file', async function(req, res) {
+  app.post(prefix + '/file', async function (req, res) {
     const { file } = req.body
     logger.info(`Incoming file ${file}`)
 
     const cid = await storage.put(file)
     logger.info('Stored hash: ' + cid)
 
-    await storage.ipfs.pin.add(cid)
-    logger.info('Pinned hash: ' + cid)
-
-    files[cid] = file;
+    files[cid] = file
 
     const url = `convey://${cid}`
 
     res.json({ cid, url }).end()
   })
 
-  app.get(prefix + '/file/:cid', function(req, res) {
+  app.get(prefix + '/file/:cid', function (req, res) {
     const { cid } = req.params
 
     logger.info(`Incoming file request: cid: ${cid}`)
-  
+
     const file = files[cid]
 
     if (file) {
@@ -48,4 +45,4 @@ function tinyQr(app, ipfsOptions, prefix = '') {
   })
 }
 
-module.exports = tinyQr;
+module.exports = convey

@@ -39,6 +39,19 @@ services:
         networks:
             - rif-identity-service
 
+    rif-identity-convey-testnet:
+        image: rif-identity-convey:${DOCKER_TAG:-latest}
+        build: 
+            context: ./convey
+            dockerfile: Dockerfile.convey       
+        env_file: ./convey/.env
+        volumes:
+            - "/var/log/rif-identity/convey:/app/log"
+        ports:
+            - "5104:5104"
+        networks:
+            - rif-identity-service
+
     rif-identity-issuer-back-testnet:
         image: rif-identity-back:${DOCKER_TAG:-latest}
         build: 

@@ -1,6 +1,5 @@
 node_modules
 .env
 *.log
-db/
 log/
-/coverage
+coverage
