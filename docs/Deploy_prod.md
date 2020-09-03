@@ -31,9 +31,9 @@ Now setup the services:
     IPFS_PORT=5001
     IPFS_HOST=rif-identity-ipfs-testnet
     PORT=5102
-    DATABASE_FILE=./data-vault-mapper.sqlite
-    LOG_FILE=./data-vault.log
-    LOG_ERRORS_FILE=./data-vault.error.log
+    DATABASE_FILE=./db/data-vault-mapper.sqlite
+    LOG_FILE=./log/data-vault.log
+    LOG_ERRORS_FILE=./log/data-vault.error.log
     NODE_ENV=production
     ```
 
@@ -64,9 +64,9 @@ Now setup the services:
     REACT_APP_BACKOFFICE_PORT=5101
     RPC_URL=https://did.testnet.rsk.co:4444
     ADMIN_PASS=COMPLETE WITH YOUR ADMIN PASS
-    LOG_FILE=./issuer-backend.log
-    LOG_ERRORS_FILE=./issuer-backend.error.log
-    DB_FILE=./issuer.sqlite
+    LOG_FILE=./log/issuer-backend.log
+    LOG_ERRORS_FILE=./log/issuer-backend.error.log
+    DB_FILE=./db/issuer.sqlite
     NODE_ENV=production
     ```
 
@@ -86,22 +86,44 @@ Now setup the services:
 
 > `REACT_APP_BACKOFFICE` must contain the DNS set for the issuer back office service (started on port 5101)
 
+#### IMPORTANT NOTE:
+
+If you don't use the default values provided for the `DB` and `LOGS` paths, please make sure to update also the right hand of `docker-compose.yml`'s `volumes` lines. They must be kept in sync
+
 ## Run docker
 
-1. Go to `./` (root folder)
-2. Build the containers
+1. Create dirs where the logs and dbs will be saved:
+
+```
+mkdir /var/db/rif-identity # you may need sudo
+mkdir /var/log/rif-identity
+```
+
+2. Give permissions for everyone to write in those created folders
+
+```
+chmod -R 777 /var/db/rif-identity/  # you may need sudo
+chmod -R 777 /var/log/rif-identity/
+```
+
+3. Open Docker Preferences -> File Sharing and add just created dirs to the list of available directories
+
+4. Click on `Apply & Restart`
+
+5. Go to `./` (root folder)
+6. Build the containers
 
     ```
     docker-compose build
     ```
   
-3. Compose
+7. Compose
 
     ```
     docker-compose up -d
     ```
   
-4. Enable access to IPFS node container port 5001
+8. Enable access to IPFS node container port 5001
 
     ```
     docker container ls

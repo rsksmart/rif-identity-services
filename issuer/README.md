@@ -54,9 +54,9 @@ The issuer has 2 processes running:
   REACT_APP_BACKOFFICE_PORT=5101
   RPC_URL=https://did.testnet.rsk.co:4444
   ADMIN_PASS=admin
-  LOG_FILE=./issuer-backend.log
-  LOG_ERRORS_FILE=./issuer-backend.error.log
-  DB_FILE=./issuer.sqlite
+  LOG_FILE=./log/issuer-backend.log
+  LOG_ERRORS_FILE=./log/issuer-backend.error.log
+  DB_FILE=./db/issuer.sqlite
   NODE_ENV=dev
   ```
 
@@ -66,9 +66,9 @@ The issuer has 2 processes running:
   CREDENTIAL_REQUESTS_PORT=5100
   REACT_APP_BACKOFFICE_PORT=5101
   RPC_URL=https://did.testnet.rsk.co:4444
-  LOG_FILE=./issuer-backend.log
-  LOG_ERRORS_FILE=./issuer-backend.error.log
-  DB_FILE=./issuer.sqlite
+  LOG_FILE=./log/issuer-backend.log
+  LOG_ERRORS_FILE=./log/issuer-backend.error.log
+  DB_FILE=./db/issuer.sqlite
   NODE_ENV=dev
   ```
 

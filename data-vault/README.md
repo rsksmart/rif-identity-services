@@ -97,9 +97,9 @@ After the _store_ process the holder can verify the file was uploaded accessing 
   PORT=5102
   IPFS_PORT=5001
   IPFS_HOST=rif-identity-ipfs-testnet
-  DATABASE_FILE=./data-vault-mapper.sqlite
-  LOG_FILE=./data-vault.log
-  LOG_ERRORS_FILE=./data-vault.error.log
+  DATABASE_FILE=./db/data-vault-mapper.sqlite
+  LOG_FILE=./log/data-vault.log
+  LOG_ERRORS_FILE=./log/data-vault.error.log
   NODE_ENV=production
   ```
 
