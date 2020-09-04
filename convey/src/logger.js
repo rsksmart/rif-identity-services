@@ -5,8 +5,8 @@ const dotenv = require('dotenv')
 dotenv.config()
 
 const ENV = process.env.NODE_ENV || 'dev'
-const FILE = process.env.LOG_FILE || './convey.log'
-const ERROR_FILE = process.env.LOG_ERROR_FILE || './convey.error.log'
+const FILE = process.env.LOG_FILE || './log/convey.log'
+const ERROR_FILE = process.env.LOG_ERROR_FILE || './log/convey.error.log'
 
 const fileFormat = format.printf(
   ({ timestamp, level, label, message }) => `${timestamp} [${label}] ${level.toUpperCase()} ${message}`

@@ -4,7 +4,7 @@ const convey = require('../src/convey')
 
 const getRandomString = () => Math.random().toString(36).substring(3, 11)
 
-describe('Express app tests', () => {
+describe('Express app tests - happy path', () => {
   let app
 
   beforeAll(() => {
@@ -48,5 +48,23 @@ describe('Express app tests', () => {
     const cid = 'notExists'
 
     request(app).get(`/file/${cid}`).expect(404)
+  })
+})
+
+describe('Express app tests - wrong ipfs node', () => {
+  it('returns a 500 error when invalid ipfs api', async () => {
+    const ipfsOptions = {
+      port: '5001',
+      host: 'NOT-EXISTS',
+      protocol: 'http'
+    }
+
+    const app = express()
+
+    convey(app, ipfsOptions, '')
+
+    const file = getRandomString()
+
+    request(app).post('/file').send({ file }).expect(500)
   })
 })

@@ -13,17 +13,22 @@ function convey (app, ipfsOptions, prefix = '') {
   const files = {}
 
   app.post(prefix + '/file', async function (req, res) {
-    const { file } = req.body
-    logger.info(`Incoming file ${file}`)
+    try {
+      const { file } = req.body
+      logger.info(`Incoming file ${file}`)
 
-    const cid = await storage.put(file)
-    logger.info('Stored hash: ' + cid)
+      const cid = await storage.put(file)
+      logger.info('Stored hash: ' + cid)
 
-    files[cid] = file
+      files[cid] = file
 
-    const url = `convey://${cid}`
+      const url = `convey://${cid}`
 
-    res.json({ cid, url }).end()
+      res.json({ cid, url }).end()
+    } catch (err) {
+      logger.error('Caught error on POST /file', err)
+      res.status(500).send()
+    }
   })
 
   app.get(prefix + '/file/:cid', function (req, res) {
