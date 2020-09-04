@@ -4,7 +4,7 @@ const convey = require('../src/convey')
 
 const getRandomString = () => Math.random().toString(36).substring(3, 11)
 
-describe('Express app tests - happy path', () => {
+describe('Express app tests', () => {
   let app
 
   beforeAll(() => {
@@ -31,6 +31,12 @@ describe('Express app tests - happy path', () => {
     expect(url).toContain('convey://')
   })
 
+  it('fails when posting undefined', async () => {
+    const file = undefined
+
+    await request(app).post('/file').send({ file }).expect(500)
+  })
+
   it('gets a saved cid', async () => {
     const expected = getRandomString()
 
@@ -44,10 +50,20 @@ describe('Express app tests - happy path', () => {
     expect(file).toEqual(expected)
   })
 
+  it('not found when getting undefined', async () => {
+    await request(app).get('/file').send().expect(404)
+  })
+
   it('not found a cid that has not been saved in this convey', async () => {
     const cid = 'notExists'
 
     request(app).get(`/file/${cid}`).expect(404)
+  })
+
+  it('status check answers ok', async () => {
+    const { text } = await request(app).get('/__health').expect(200)
+
+    expect(text).toEqual('OK')
   })
 })
 
@@ -66,5 +82,19 @@ describe('Express app tests - wrong ipfs node', () => {
     const file = getRandomString()
 
     request(app).post('/file').send({ file }).expect(500)
+  })
+
+  it('status check fails when invalid ipfs api', async () => {
+    const ipfsOptions = {
+      port: '5001',
+      host: 'NOT-EXISTS',
+      protocol: 'http'
+    }
+
+    const app = express()
+
+    convey(app, ipfsOptions, '')
+
+    request(app).get('/__health').send().expect(500)
   })
 })
