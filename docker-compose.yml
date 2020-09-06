@@ -9,6 +9,7 @@ services:
         env_file: ./data-vault/.env    
         ports:
             - "5001:5001"
+            - "8080:8080"
         networks:
             - rif-identity-service
 
