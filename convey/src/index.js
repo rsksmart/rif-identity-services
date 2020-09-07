@@ -9,13 +9,20 @@ const logger = createLogger('rif-id:services:convey:script')
 const app = express()
 app.use(cors())
 
-const ipfsOptions = {
-  host: process.env.IPFS_HOST,
-  port: process.env.IPFS_PORT,
-  protocol: 'http'
+const env = {
+  rpcUrl: process.env.RPC_URL,
+  privateKey: process.env.PRIVATE_KEY,
+  address: process.env.ADDRESS,
+  challengeExpirationInSeconds: process.env.CHALLENGE_EXPIRATION_SECONDS || 300,
+  authExpirationInHours: process.env.AUTH_EXPIRATION_HOURS || 10,
+  ipfsOptions: {
+    host: process.env.IPFS_HOST,
+    port: process.env.IPFS_PORT,
+    protocol: 'http'
+  }
 }
 
-convey(app, ipfsOptions, '')
+convey(app, env, '')
 
 const port = process.env.CONVEY_PORT || 5104
 app.listen(port, () => logger.info(`Convey service service started on port ${port}`))
