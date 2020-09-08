@@ -9,7 +9,7 @@ const { authExpressMiddleware, getChallenge, getAuthToken, initializeAuth } = re
 function convey (app, env, prefix = '') {
   const storage = RIFStorage.default(Provider.IPFS, env.ipfsOptions || { host: 'localhost', port: '5001', protocol: 'http' })
 
-  initializeAuth(env.rpcUrl, env.address, env.privateKey)
+  initializeAuth(env)
   app.use(bodyParser.json())
 
   const files = {}
@@ -31,8 +31,6 @@ function convey (app, env, prefix = '') {
         res.status(500).end()
       }
     } catch (err) {
-      console.log('err')
-      console.log(err)
       logger.error('Status check failed due an exception', err)
       res.status(500).end()
     }
@@ -44,7 +42,7 @@ function convey (app, env, prefix = '') {
 
       logger.info(`${did} requested auth`)
 
-      const challenge = getChallenge(did, env.challengeExpirationInSeconds)
+      const challenge = getChallenge(did)
 
       res.status(200).send({ challenge })
     } catch (err) {
@@ -63,7 +61,6 @@ function convey (app, env, prefix = '') {
         .then(token => res.status(200).send({ token }))
         .catch(err => res.status(401).send(err.message))
     } catch (err) {
-      console.log(err)
       logger.error('Caught error on POST /auth', err)
       res.status(500).send()
     }

@@ -15,6 +15,7 @@ const env = {
   address: process.env.ADDRESS,
   challengeExpirationInSeconds: process.env.CHALLENGE_EXPIRATION_SECONDS || 300,
   authExpirationInHours: process.env.AUTH_EXPIRATION_HOURS || 10,
+  maxRequestsPerToken: process.env.MAX_REQUESTS_PER_TOKEN || 30,
   ipfsOptions: {
     host: process.env.IPFS_HOST,
     port: process.env.IPFS_PORT,

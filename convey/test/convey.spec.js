@@ -16,6 +16,7 @@ const env = {
   address: '0x4a795ab98dc3732d1123c6133d3efdc76d4c91f8',
   challengeExpirationInSeconds: 300,
   authExpirationInHours: 10,
+  maxRequestsPerToken: 20,
   ipfsOptions: {
     port: 5001,
     host: 'localhost',
@@ -123,45 +124,84 @@ describe('Express app tests', () => {
     })
   })
 
-  it('returns a valid cid', async () => {
-    const file = getRandomString()
+  describe('authenticated requests', () => {
+    let token
 
-    const { body } = await request(app).post('/file').send({ file }).expect(200)
+    beforeEach(async () => {
+      const did = clientIdentity.did
+      let body;
 
-    const { cid, url } = body
+      ({ body } = await request(app).post('/request-auth').send({ did }).expect(200))
 
-    expect(cid).toBeTruthy() // TODO: calculate cid
-    expect(url).toBeTruthy()
-    expect(url).toContain('convey://')
-  })
+      const claim = { claimType: 'challenge', claimValue: body.challenge }
 
-  it('fails when posting undefined', async () => {
-    const file = undefined
+      const jwt = await getLoginJwt(claim);
 
-    await request(app).post('/file').send({ file }).expect(500)
-  })
+      ({ body } = await request(app).post('/auth').send({ jwt }).expect(200));
 
-  it('gets a saved cid', async () => {
-    const expected = getRandomString()
+      ({ token } = body)
+    })
 
-    const response = await request(app).post('/file').send({ file: expected }).expect(200)
-    const { cid } = response.body
+    it('returns a valid cid', async () => {
+      const file = getRandomString()
 
-    const { body } = await request(app).get(`/file/${cid}`).expect(200)
+      const { body } = await request(app)
+        .post('/file')
+        .set('Authorization', token)
+        .send({ file }).expect(200)
 
-    const { file } = body
+      const { cid, url } = body
 
-    expect(file).toEqual(expected)
-  })
+      expect(cid).toBeTruthy() // TODO: calculate cid
+      expect(url).toBeTruthy()
+      expect(url).toContain('convey://')
+    })
 
-  it('not found when getting undefined', async () => {
-    await request(app).get('/file').send().expect(404)
-  })
+    it('returns a 401 if not logged in when posting a content', async () => {
+      const file = 'theContent'
 
-  it('not found a cid that has not been saved in this convey', async () => {
-    const cid = 'notExists'
+      await request(app).post('/file').send({ file }).expect(401)
+    })
 
-    await request(app).get(`/file/${cid}`).expect(404)
+    it('fails when posting undefined', async () => {
+      const file = undefined
+
+      await request(app)
+        .post('/file')
+        .set('Authorization', token)
+        .send({ file }).expect(500)
+    })
+
+    it('gets a saved cid', async () => {
+      const expected = getRandomString()
+
+      const response = await request(app)
+        .post('/file').set('Authorization', token)
+        .send({ file: expected }).expect(200)
+
+      const { cid } = response.body
+
+      const { body } = await request(app)
+        .get(`/file/${cid}`).set('Authorization', token).expect(200)
+
+      const { file } = body
+
+      expect(file).toEqual(expected)
+    })
+
+    it('not found when getting undefined', async () => {
+      await request(app).get('/file').set('Authorization', token).send().expect(404)
+    })
+
+    it('returns a 401 if not logged in when getting a content', async () => {
+      await request(app).get('/file/notExists').send().expect(401)
+    })
+
+    it('not found a cid that has not been saved in this convey', async () => {
+      const cid = 'notExists'
+
+      await request(app).get(`/file/${cid}`).set('Authorization', token).expect(404)
+    })
   })
 
   it('status check answers ok', async () => {
