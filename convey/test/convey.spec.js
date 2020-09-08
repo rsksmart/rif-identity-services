@@ -161,7 +161,7 @@ describe('Express app tests', () => {
   it('not found a cid that has not been saved in this convey', async () => {
     const cid = 'notExists'
 
-    request(app).get(`/file/${cid}`).expect(404)
+    await request(app).get(`/file/${cid}`).expect(404)
   })
 
   it('status check answers ok', async () => {
