@@ -137,6 +137,8 @@ chmod -R 777 /var/log/rif-identity/
 
     Update `“Addresses” -> “API”` and open ip4 port. Set `“API”: “/ipv4/0.0.0.0/tcp/5001"`
 
+    Update `“Addresses” -> Gateway` and open ip4 port. Set `“API”: “/ipv4/0.0.0.0/tcp/8080"`
+
     Before the update
     
     <img src="./beofre_update_ipfs.png" height="200" />
@@ -156,5 +158,13 @@ chmod -R 777 /var/log/rif-identity/
     ```
     docker restart COPIED-ID
     ```
+
+    **IMPORTANT NOTE**
+    
+    This container will expose two ports:
+
+    Port 5001 should accesible only from `rif-identity-datavault-testnet` and from `rif-identity-convey-testnet` _(this service is not merged yet, will be merged during these days)_
+
+    Port 8080 should be open to everyone, is our IPFS gateway and will be accessed by the mobile app, would be great if it is routed through the port 80. 
     
 Done!
