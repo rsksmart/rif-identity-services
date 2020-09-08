@@ -47,11 +47,15 @@ describe('Express app tests', () => {
     clientIdentity = new EthrDID({ address, privateKey })
   })
 
-  const getLoginJwt = async (claim) => createVerifiableCredentialJwt({
+  const getLoginJwt = async (claimType, claimValue) => createVerifiableCredentialJwt({
     vc: {
       '@context': ['https://www.w3.org/2018/credentials/v1'],
       type: ['VerifiableCredential'],
-      credentialSubject: { claims: [claim] }
+      credentialSubject: {
+        claims: [
+          { claimType, claimValue }
+        ]
+      }
     }
   }, clientIdentity)
 
@@ -74,9 +78,7 @@ describe('Express app tests', () => {
 
       ({ body } = await request(app).post('/request-auth').send({ did }).expect(200))
 
-      const claim = { claimType: 'challenge', claimValue: body.challenge }
-
-      const jwt = await getLoginJwt(claim);
+      const jwt = await getLoginJwt('challenge', body.challenge);
 
       ({ body } = await request(app).post('/auth').send({ jwt }).expect(200))
 
@@ -90,7 +92,7 @@ describe('Express app tests', () => {
     it('return 401 if not requested the challenge before', async () => {
       const claim = { claimType: 'another', claimValue: 'invalid' }
 
-      const jwt = await getLoginJwt(claim)
+      const jwt = await getLoginJwt('another', 'invalid')
 
       const { text } = await request(app).post('/auth').send({ jwt }).expect(401)
 
@@ -103,7 +105,7 @@ describe('Express app tests', () => {
 
       const claim = { claimType: 'challenge', claimValue: 'invalid' }
 
-      const jwt = await getLoginJwt(claim)
+      const jwt = await getLoginJwt('challenge', 'invalid')
 
       const { text } = await request(app).post('/auth').send({ jwt }).expect(401)
 
@@ -116,7 +118,7 @@ describe('Express app tests', () => {
 
       const claim = { claimType: 'another', claimValue: 'invalid' }
 
-      const jwt = await getLoginJwt(claim)
+      const jwt = await getLoginJwt('another', 'invalid')
 
       const { text } = await request(app).post('/auth').send({ jwt }).expect(401)
 
@@ -135,7 +137,7 @@ describe('Express app tests', () => {
 
       const claim = { claimType: 'challenge', claimValue: body.challenge }
 
-      const jwt = await getLoginJwt(claim);
+      const jwt = await getLoginJwt('challenge', body.challenge);
 
       ({ body } = await request(app).post('/auth').send({ jwt }).expect(200));
 
@@ -205,9 +207,7 @@ describe('Express app tests', () => {
   })
 
   it('status check answers ok', async () => {
-    const { text } = await request(app).get('/__health').expect(200)
-
-    expect(text).toEqual('OK')
+    await request(app).get('/__health').expect(204)
   })
 })
 
@@ -229,13 +229,5 @@ describe('Express app tests - wrong ipfs node', () => {
     const file = getRandomString()
 
     request(app).post('/file').send({ file }).expect(500)
-  })
-
-  it('status check fails when invalid ipfs api', async () => {
-    const app = express()
-
-    convey(app, invalidEnv, '')
-
-    request(app).get('/__health').send().expect(500)
   })
 })

@@ -15,25 +15,7 @@ function convey (app, env, prefix = '') {
   const files = {}
 
   app.get('/__health', async function (req, res) {
-    try {
-      const expected = Math.random().toString(36).substring(3, 11)
-
-      const cid = await storage.put(expected)
-
-      files[cid] = expected
-
-      const actual = files[cid]
-
-      if (cid && actual === expected) {
-        res.status(200).send('OK')
-      } else {
-        logger.warn(`Status check comparison failed: Expected file: ${expected}. Actual: ${actual}. Cid: ${cid}`)
-        res.status(500).end()
-      }
-    } catch (err) {
-      logger.error('Status check failed due an exception', err)
-      res.status(500).end()
-    }
+    res.status(204).send()
   })
 
   app.post(prefix + '/request-auth', function (req, res) {

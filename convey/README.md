@@ -122,3 +122,6 @@ Example:
 npm run lint
 ```
 
+## TODOS
+
+- Check if this line when getting a challenge could be improved (`setTimeout(() => delete challenges[did], env.challengeExpirationInSeconds * 1000)`). The goal is to do not save challenges for a long time, maybe a better idea is to add a new endpoint to clean it up.

@@ -64,7 +64,9 @@ const getAuthToken = async (jwt) => {
       '@context': ['https://www.w3.org/2018/credentials/v1'],
       type: ['VerifiableCredential'],
       credentialSubject: {
-        claims: 'TBD' // TODO
+        claims: [
+          { claimType: 'authToken' }
+        ]
       }
     }
   }, identity)
