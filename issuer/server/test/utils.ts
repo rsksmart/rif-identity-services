@@ -63,4 +63,4 @@ export const getTestSdrRequestData = async () => {
   const data = { from: issuer, body: jwt, fullName }
 
   return data
-} 
+}

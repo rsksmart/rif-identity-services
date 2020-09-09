@@ -1,11 +1,14 @@
 import { messageToRequest } from '../lib/messageToRequest'
+import { getRandomString } from './utils'
 
 describe('messageToRequest tests', () => {
+  const fullName = getRandomString()
+  const type = getRandomString()
   const sdr = [
-    { claimType: 'typeOfVehicle', claimValue: 'car' },
-    { claimType: 'isInternational', claimValue: true },
-    { claimType: 'city', claimValue: 'Buenos Aires' },
-    { claimType: 'fullName', claimValue: 'test' },
+    { claimType: getRandomString(), claimValue: getRandomString() },
+    { claimType: getRandomString(), claimValue: getRandomString() },
+    { claimType: getRandomString(), claimValue: getRandomString() },
+    { claimType: 'fullName', claimValue: fullName }
   ]
 
   const iss = 'issuer'
@@ -20,7 +23,7 @@ describe('messageToRequest tests', () => {
         iss,
         claims: [
           { claimType: 'credentialRequest', claimValue: 'cred1' },
-          { claimType: 'type', claimValue: 'drivers-license' },
+          { claimType: 'type', claimValue: type },
           ...sdr,
         ]
       }
@@ -32,8 +35,8 @@ describe('messageToRequest tests', () => {
 
     expect(request.sdr).toEqual(sdr)
     expect(request.from).toEqual(iss)
-    expect(request.fullName).toEqual('test')
-    expect(request.type).toEqual('drivers-license')
+    expect(request.fullName).toEqual(fullName)
+    expect(request.type).toEqual(type)
     expect(request.status).toEqual(status)
     expect(request.isValid).toBeTruthy()
     expect(request.id).toEqual(id)
