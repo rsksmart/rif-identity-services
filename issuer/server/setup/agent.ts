@@ -11,7 +11,6 @@ import createLogger from '../lib/logger'
 
 const logger = createLogger('rif-id:setup:agent')
 
-
 function createIdentityProviders(dbConnection, secretBoxKey ,rpcUrl) {
   const secretBox = new SecretBox(secretBoxKey)
   const keyStore = new KeyStore(dbConnection, secretBox)
