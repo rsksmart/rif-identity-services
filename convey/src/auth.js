@@ -87,11 +87,13 @@ const getAuthToken = async (jwt) => {
     throw new Error('Invalid challenge')
   }
 
+  const expirationInSeconds = Math.floor(authExpirationInHours * 60 * 60)
+
   const token = await createVerifiableCredentialJwt({
     sub: issuer,
     iss: identity.did,
     nbf: Math.round((+Date.now()) / 1000),
-    exp: Math.round((+Date.now() / 1000) + authExpirationInHours * 60 * 60),
+    exp: Math.round((+Date.now() / 1000) + expirationInSeconds),
     vc: {
       '@context': ['https://www.w3.org/2018/credentials/v1'],
       type: ['VerifiableCredential'],
@@ -105,6 +107,7 @@ const getAuthToken = async (jwt) => {
 
   const hash = keccak256(token).toString('hex')
   tokenRequestCounter[hash] = 0
+  setTimeout(() => delete tokenRequestCounter[hash], expirationInSeconds * 1000)
 
   return token
 }
@@ -126,12 +129,16 @@ const authExpressMiddleware = async (req, res, next) => {
       } else {
         const hash = keccak256(token).toString('hex')
 
-        tokenRequestCounter[hash]++
+        if (tokenRequestCounter[hash] >= 0) {
+          tokenRequestCounter[hash]++
 
-        if (tokenRequestCounter[hash] <= maxRequestsPerToken) {
-          next()
+          if (tokenRequestCounter[hash] <= maxRequestsPerToken) {
+            next()
+          } else {
+            res.status(401).send('Max amount of requests reached')
+          }
         } else {
-          res.status(401).send('Max amount of requests reached')
+          res.status(401).send('Expired token')
         }
       }
     } catch (err) {

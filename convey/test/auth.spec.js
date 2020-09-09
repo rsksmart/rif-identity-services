@@ -118,6 +118,17 @@ describe('auth tests', () => {
       await expectToThrowErrorMessage(() => getAuthToken(jwt), 'Invalid challenge')
     })
 
+    it('should throw an error when sending a challenge that is expired', async () => {
+      jest.useFakeTimers()
+
+      const challenge = getChallenge(identity.did)
+
+      const jwt = await getLoginJwt('challenge', challenge, identity)
+
+      jest.runAllTimers()
+      await expectToThrowErrorMessage(() => getAuthToken(jwt), 'Request for a challenge before auth')
+    })
+
     it('should throw an error when sending an invalid payload', async () => {
       getChallenge(identity.did)
 
@@ -177,7 +188,7 @@ describe('auth tests', () => {
 
       const mockedReq = getMockedReq(token)
 
-      await authExpressMiddleware(mockedReq, getMockedRes(), next)
+      await authExpressMiddleware(mockedReq, undefined, next)
 
       expect(next.mock.calls).toHaveLength(1)
     }, 8000)
@@ -232,40 +243,37 @@ describe('auth tests', () => {
       const mockedReq = getMockedReq(token)
 
       // submit three requests
-      await authExpressMiddleware(mockedReq, getMockedRes(), next)
-      await authExpressMiddleware(mockedReq, getMockedRes(), next)
-      await authExpressMiddleware(mockedReq, getMockedRes(), next)
+      await authExpressMiddleware(mockedReq, undefined, next)
+      await authExpressMiddleware(mockedReq, undefined, next)
+      await authExpressMiddleware(mockedReq, undefined, next)
 
       // the fourth one should return a 401
       await authExpressMiddleware(mockedReq, getMockedRes('Max amount of requests reached'))
     }, 12000)
 
-    // it('should return expired vc message', async () => {
-    //   const newEnv = {
-    //     ...env,
-    //     authExpirationInHours: 0.001 // this will make the expiration time to be 4 secs from now
-    //   }
+    it('should return expired vc message', async () => {
+      jest.useFakeTimers()
 
-    //   initializeAuth(newEnv)
+      // const newEnv = {
+      //   ...env,
+      //   authExpirationInHours: 0.001 // this will make the expiration time to be 4 secs from now
+      // }
 
-    //   const challenge = getChallenge(identity.did)
+      initializeAuth(env)
 
-    //   const jwt = await getLoginJwt('challenge', challenge, identity)
+      const challenge = getChallenge(identity.did)
 
-    //   const token = await getAuthToken(jwt)
+      const jwt = await getLoginJwt('challenge', challenge, identity)
 
-    //   const mockedReq = getMockedReq(token)
+      const token = await getAuthToken(jwt)
 
-    //   // submit first request and should work
-    //   await authExpressMiddleware(mockedReq, getMockedRes(), next)
+      const mockedReq = getMockedReq(token)
 
-    //   // set timeout of 4 seconds for second one and should throw the expected error
-    //   await setTimeout(
-    //     async () => {
-    //       await authExpressMiddleware(mockedReq, getMockedRes('Expired token'))
-    //     },
-    //     4000
-    //   )
-    // }, 12000)
+      // submit first request and should work
+      await authExpressMiddleware(mockedReq, undefined, next)
+
+      jest.runAllTimers()
+      await authExpressMiddleware(mockedReq, getMockedRes('Expired token'))
+    }, 12000)
   })
 })
