@@ -90,8 +90,6 @@ describe('Express app tests', () => {
     })
 
     it('return 401 if not requested the challenge before', async () => {
-      const claim = { claimType: 'another', claimValue: 'invalid' }
-
       const jwt = await getLoginJwt('another', 'invalid')
 
       const { text } = await request(app).post('/auth').send({ jwt }).expect(401)
@@ -103,8 +101,6 @@ describe('Express app tests', () => {
       // request for challenge so it bypasses that validation, will not be used
       await request(app).post('/request-auth').send({ did: clientIdentity.did }).expect(200)
 
-      const claim = { claimType: 'challenge', claimValue: 'invalid' }
-
       const jwt = await getLoginJwt('challenge', 'invalid')
 
       const { text } = await request(app).post('/auth').send({ jwt }).expect(401)
@@ -115,8 +111,6 @@ describe('Express app tests', () => {
     it('return 401 if invalid claim type', async () => {
       // request for challenge so it bypasses that validation, will not be used
       await request(app).post('/request-auth').send({ did: clientIdentity.did }).expect(200)
-
-      const claim = { claimType: 'another', claimValue: 'invalid' }
 
       const jwt = await getLoginJwt('another', 'invalid')
 
@@ -134,8 +128,6 @@ describe('Express app tests', () => {
       let body;
 
       ({ body } = await request(app).post('/request-auth').send({ did }).expect(200))
-
-      const claim = { claimType: 'challenge', claimValue: body.challenge }
 
       const jwt = await getLoginJwt('challenge', body.challenge);
 

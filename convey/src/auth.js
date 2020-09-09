@@ -10,14 +10,30 @@ const challenges = {}
 const tokenRequestCounter = {}
 
 let
-  providerConfig, ethrDidResolver, didResolver, identity,
-  challengeExpirationInSeconds, authExpirationInHours, address,
-  maxRequestsPerToken
+  providerConfig, ethrDidResolver, didResolver, identity, address,
+  challengeExpirationInSeconds, maxRequestsPerToken, rpcUrl, authExpirationInHours
 
 const initializeAuth = (env) => {
-  let rpcUrl, privateKey
+  if (!env) {
+    throw new Error('Missing env object')
+  }
 
-  ({ rpcUrl, address, privateKey, challengeExpirationInSeconds, authExpirationInHours, maxRequestsPerToken } = env)
+  let privateKey
+
+  rpcUrl = env.rpcUrl || 'https://did.testnet.rsk.co:4444'
+  challengeExpirationInSeconds = env.challengeExpirationInSeconds || 300
+  authExpirationInHours = env.authExpirationInHours || 10
+  maxRequestsPerToken = env.maxRequestsPerToken || 20;
+
+  ({ address, privateKey } = env)
+
+  if (!address) {
+    throw new Error('Missing env variable: address')
+  }
+
+  if (!privateKey) {
+    throw new Error('Missing env variable: privateKey')
+  }
 
   providerConfig = {
     networks: [{ name: 'rsk:testnet', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl }]
@@ -29,6 +45,14 @@ const initializeAuth = (env) => {
 }
 
 const getChallenge = (did) => {
+  if (!identity) {
+    throw new Error('Library not initialized')
+  }
+
+  if (!did) {
+    throw new Error('Invalid did')
+  }
+
   const challenge = randomBytes(64).toString('hex')
 
   challenges[did] = challenge
@@ -38,6 +62,14 @@ const getChallenge = (did) => {
 }
 
 const getAuthToken = async (jwt) => {
+  if (!identity) {
+    throw new Error('Library not initialized')
+  }
+
+  if (!jwt) {
+    throw new Error('JWT VC is required')
+  }
+
   const { payload, issuer } = await verifyJWT(jwt, { resolver: didResolver })
 
   if (!challenges[issuer]) {
@@ -59,7 +91,7 @@ const getAuthToken = async (jwt) => {
     sub: issuer,
     iss: identity.did,
     nbf: Math.round((+Date.now()) / 1000),
-    exp: Math.round((+Date.now() / 1000)) + authExpirationInHours * 60 * 60,
+    exp: Math.round((+Date.now() / 1000) + authExpirationInHours * 60 * 60),
     vc: {
       '@context': ['https://www.w3.org/2018/credentials/v1'],
       type: ['VerifiableCredential'],
@@ -78,6 +110,10 @@ const getAuthToken = async (jwt) => {
 }
 
 const authExpressMiddleware = async (req, res, next) => {
+  if (!identity) {
+    throw new Error('Library not initialized')
+  }
+
   // eslint-disable-next-line dot-notation
   const token = req.headers['authorization']
 
@@ -101,7 +137,7 @@ const authExpressMiddleware = async (req, res, next) => {
     } catch (err) {
       if (err.message.toLowerCase().includes('jwt has expired')) {
         res.status(401).send('Expired token')
-      } else if (err.message.toLowerCase().includes('json parse error')) {
+      } else if (err.message.toLowerCase().includes('incorrect format jwt')) {
         res.status(401).send('Invalid token')
       } else {
         res.status(401).send(err.message)
