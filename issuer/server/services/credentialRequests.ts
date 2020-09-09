@@ -59,77 +59,87 @@ const credentialRequestResponsePayload = (status: CredentialRequestResponseStatu
 
 export default function credentialRequestService(app, agent, credentialRequestServicePrefix = '') {
   app.post(credentialRequestServicePrefix + '/requestCredential', bodyParser.text(), function(req, res) {
-    const message = JSON.parse(req.body)
-    logger.info(`Incoming credential request ${message.body}`)
+    try {
+      const message = JSON.parse(req.body)
+      logger.info(`Incoming credential request ${message.body}`)
 
-    agent.handleMessage({ raw: message.body, meta: [] })
-      .then(message => {
-        const hash = (keccak256(message.raw) as any).toString('hex')
+      agent.handleMessage({ raw: message.body, meta: [] })
+        .then(message => {
+          const hash = (keccak256(message.raw) as any).toString('hex')
 
-        const credRequest = {
-          status: 'pending',
-          message,
-          hash,
-        }
+          const credRequest = {
+            status: 'pending',
+            message,
+            hash,
+          }
 
-        agent.dbConnection
-          .then(connection => connection.getRepository(CredentialRequest).save(credRequest))
-          .then(credentialRequest => {
+          agent.dbConnection
+            .then(connection => connection.getRepository(CredentialRequest).save(credRequest))
+            .then(credentialRequest => {
 
-            messageHashDictionary[hash] = credentialRequest.id
+              messageHashDictionary[hash] = credentialRequest.id
 
-            logger.info(`Credential request stored`)
-            res.status(200).send()
-          })
-      })
-      .catch(error => {
-        logger.error('Caught error on /requestCredential', error)
-        res.status(500).send('Unhandled error')
-      });
+              logger.info(`Credential request stored`)
+              res.status(200).send()
+            })
+        })
+        .catch(error => {
+          logger.error('Caught error on /requestCredential', error)
+          res.status(500).send('Unhandled error')
+        });
+    } catch (err) {
+      logger.error('Caught error on /requestCredential', err)
+      res.status(500).send('Unhandled error')
+    }
   })
 
   app.get(credentialRequestServicePrefix + '/receiveCredential', function(req, res) {
-    logger.info(`Incoming credential request`)
+    try {
+      logger.info(`Incoming credential request`)
 
-    const { hash } = req.query
-    const id = messageHashDictionary[hash as string]
+      const { hash } = req.query
+      const id = messageHashDictionary[hash as string]
 
-    agent.dbConnection.then(connection => {
-      connection.getRepository(CredentialRequest).findOne(
-      { 
-        relations: ['message'],
-        where: { id }
-      })
-      .then((cr: CredentialRequest) => {
-        if (cr.status === 'denied') {
-          res.status(200).send(credentialRequestResponsePayload('DENIED', cr.message.raw))
-        } else if (cr.status === 'pending') {
-          res.status(200).send(credentialRequestResponsePayload('PENDING', cr.message.raw))
-        } else if (cr.status === 'issued') {
-          res.status(200).send(credentialRequestResponsePayload('ISSUED', cr.message.raw))
-        } else {
-          const request = messageToRequest(cr)
+      agent.dbConnection.then(connection => {
+        connection.getRepository(CredentialRequest).findOne(
+        { 
+          relations: ['message'],
+          where: { id }
+        })
+        .then((cr: CredentialRequest) => {
+          if (cr.status === 'denied') {
+            res.status(200).send(credentialRequestResponsePayload('DENIED', cr.message.raw))
+          } else if (cr.status === 'pending') {
+            res.status(200).send(credentialRequestResponsePayload('PENDING', cr.message.raw))
+          } else if (cr.status === 'issued') {
+            res.status(200).send(credentialRequestResponsePayload('ISSUED', cr.message.raw))
+          } else {
+            const request = messageToRequest(cr)
 
-          // save issued status to db:
-          cr.status = 'issued';
-          connection.getRepository(CredentialRequest).save(cr).then(() => {
+            // save issued status to db:
+            cr.status = 'issued';
+            connection.getRepository(CredentialRequest).save(cr).then(() => {
 
-          agent.identityManager.getIdentities()
-            .then(identities => {
-              agent.handleAction({
-                type: 'sign.w3c.vc.jwt',
-                save: true,
-                data: makeCredential(identities[0].did, request),
-              }).then(vc => res.status(200).send(credentialRequestResponsePayload('SUCCESS', vc.raw)))
+            agent.identityManager.getIdentities()
+              .then(identities => {
+                agent.handleAction({
+                  type: 'sign.w3c.vc.jwt',
+                  save: true,
+                  data: makeCredential(identities[0].did, request),
+                }).then(vc => res.status(200).send(credentialRequestResponsePayload('SUCCESS', vc.raw)))
+              })
             })
-          })
-        }
+          }
+        })
+        .catch(e => {
+          logger.error('Caught error on /receiveCredential', e)
+          res.status(500).send()
+        })
       })
-      .catch(e => {
-        logger.error('Caught error on /receiveCredential', e)
-        res.status(500).send()
-      })
-    })
+    } catch (err) {
+      logger.error('Caught error on /receiveCredential', err)
+      res.status(500).send()
+    }
   })
 
   app.get('/__health', function (req, res) {
