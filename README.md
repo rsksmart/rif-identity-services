@@ -126,3 +126,4 @@ The modules store content in databases, such as DIDs and credentials. To clean t
 - Holder: delete browser local storage
 - Data vault: -
 - Tiny QR: -
+

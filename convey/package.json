@@ -1,0 +1,44 @@
+{
+  "name": "convey-service",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "start:dev": "nodemon index.js",
+    "test": "jest --coverage",
+    "lint": "eslint src/* test/* --ext .json,.js",
+    "lint:fix": "eslint src/* test/* --ext .json,.js --fix",
+    "postinstall": "rm ./node_modules/ethr-did/lib/index.js && cp ./patch/ethrDID-copy.js ./node_modules/ethr-did/lib/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@rsksmart/rif-storage": "^0.1.0",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "did-jwt": "^4.5.1",
+    "did-jwt-vc": "^1.0.6",
+    "did-resolver": "^2.1.1",
+    "dotenv": "^8.2.0",
+    "ethr-did": "^1.1.0",
+    "ethr-did-resolver": "^3.0.0",
+    "express": "^4.17.1",
+    "js-sha3": "^0.8.0",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "@rsksmart/rif-id-ethr-did": "0.0.1",
+    "@rsksmart/rif-id-mnemonic": "0.0.1",
+    "eslint": "^7.7.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jest": "^23.20.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "jest": "^26.4.2",
+    "nodemon": "^2.0.4",
+    "supertest": "^4.0.2"
+  }
+}
