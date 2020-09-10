@@ -3,17 +3,11 @@ import bodyParser from 'body-parser'
 import { messageToRequest } from '../lib/messageToRequest'
 import CredentialRequest from '../lib/CredentialRequest'
 import createLogger from '../lib/logger'
-import dotenv from 'dotenv'
-
-dotenv.config()
 
 const logger = createLogger('rif-id:services:backOffice')
 const trace = v => { logger.info(JSON.stringify(v)); return v }
 
 export default function backOffice(app, agent, adminPass, backOfficePrefix = '') {
-  const checkAuth = basicAuth({
-    users: { 'admin': adminPass }
-  })
 
   const getAllRequests = () => {
     return agent.dbConnection
@@ -21,11 +15,19 @@ export default function backOffice(app, agent, adminPass, backOfficePrefix = '')
       .then(messages => messages.map(messageToRequest))
   }
 
-  app.post(backOfficePrefix + '/auth', checkAuth, function (req, res) {
+  app.get('/__health', function (req, res) {
+    res.status(200).end('OK')
+  })
+
+  app.use(basicAuth({
+    users: { 'admin': adminPass }
+  }))
+
+  app.post(backOfficePrefix + '/auth', function (req, res) {
     res.status(200).send()
   })
 
-  app.get(backOfficePrefix + '/identity', checkAuth, function(req, res) {
+  app.get(backOfficePrefix + '/identity', function(req, res) {
     logger.info('Identity requested')
 
     agent.identityManager.getIdentities()
@@ -39,7 +41,7 @@ export default function backOffice(app, agent, adminPass, backOfficePrefix = '')
       })
   })
 
-  app.get(backOfficePrefix + '/requests', checkAuth, function(req, res) {
+  app.get(backOfficePrefix + '/requests', function(req, res) {
     logger.info(`Query requests`)
 
     getAllRequests()
@@ -50,33 +52,36 @@ export default function backOffice(app, agent, adminPass, backOfficePrefix = '')
       })
   })
 
-  app.put(backOfficePrefix + '/request/:id/status', checkAuth, bodyParser.json(), function(req, res) {
-    const { id } = req.params
-    const { status } = req.body
-    logger.info(`PUT status ${status} for credential request ${id}`)
+  app.put(backOfficePrefix + '/request/:id/status', bodyParser.json(), function(req, res) {
+    try {
+      const { id } = req.params
+      const { status } = req.body
 
-    if (status !== 'granted' && status !== 'denied') res.status(400).send('Invalid action')
+      logger.info(`PUT status ${status} for credential request ${id}`)
 
-    agent.dbConnection
-      .then(connection => {
-        return connection.getRepository(CredentialRequest).findOne({
-          where: { id },
-          relations: ['message']
-        }).then(cr => {
-          cr.status = status
-          return connection.getRepository(CredentialRequest).save(cr)
-        }).then(messageToRequest)
-          .then(trace)
-          .then(cr => res.status(200).send(JSON.stringify(cr)))
-      })
-      .catch(e => {
-        logger.error('Caught error on PUT /request/:id/status', e)
-        res.status(500).send()
-      })
+      if (status !== 'granted' && status !== 'denied') return res.status(400).send('Invalid action')
+
+      agent.dbConnection
+        .then(connection => {
+          return connection.getRepository(CredentialRequest).findOne({
+            where: { id },
+            relations: ['message']
+          }).then(cr => {
+            cr.status = status
+            return connection.getRepository(CredentialRequest).save(cr)
+          }).then(messageToRequest)
+            .then(trace)
+            .then(cr => res.status(200).send(JSON.stringify(cr)))
+        })
+        .catch(e => {
+          logger.error('Caught error on PUT /request/:id/status', e)
+          res.status(500).send()
+        })
+    } catch (err) {
+      logger.error('Caught error on PUT /request/:id/status', err)
+      res.status(500).send()
+    }
   })
 
-  app.get('/__health', function (req, res) {
-    res.status(200).end('OK')
-  })
   //app.listen(port, () => debug(`Back office service started on port ${port}`))
 }

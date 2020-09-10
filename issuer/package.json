@@ -13,7 +13,9 @@
     "front:dev": "cd app && npm run start",
     "all": "concurrently \"npm run back\" \"npm run front\"",
     "all:dev": "concurrently \"npm run back:dev\" \"npm run front:dev\"",
-    "staging:bo": "npm run back:build && node server/build/scripts/staging.js"
+    "staging:bo": "npm run back:build && node server/build/scripts/staging.js",
+    "postinstall": "rm ./node_modules/ethr-did/lib/index.js && cp ./patch/ethrDID-copy.js ./node_modules/ethr-did/lib/index.js",
+    "test:back": "cd server && jest test/ --coverage"
   },
   "author": "",
   "license": "ISC",
@@ -36,7 +38,6 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
-    "js-sha3": "^0.8.0",
     "node-gyp": "^7.1.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -48,8 +49,19 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "@rsksmart/rif-id-ethr-did": "0.0.1",
+    "@rsksmart/rif-id-mnemonic": "0.0.1",
+    "@types/jest": "^26.0.13",
     "concurrently": "^5.3.0",
+    "did-jwt": "^4.5.1",
+    "did-jwt-vc": "^1.0.6",
+    "did-resolver": "^2.1.1",
+    "ethr-did-resolver": "^3.0.0",
+    "jest": "^26.4.2",
+    "jest-junit": "^11.1.0",
+    "js-sha3": "^0.8.0",
     "nodemon": "^2.0.4",
-    "serve": "^11.3.2"
+    "serve": "^11.3.2",
+    "ts-jest": "^26.3.0"
   }
 }
