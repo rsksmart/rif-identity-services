@@ -4,7 +4,7 @@ const createLogger = require('./logger')
 
 const logger = createLogger('rif-id:services:convey')
 const { Provider } = RIFStorage
-const { authExpressMiddleware, getChallenge, getAuthToken, initializeAuth } = require('./auth')
+const { authExpressMiddleware, getChallenge, getAuthToken, initializeAuth } = require('@rsksmart/rif-id-jwt-auth')
 
 function convey (app, env, prefix = '') {
   const storage = RIFStorage.default(Provider.IPFS, env.ipfsOptions || { host: 'localhost', port: '5001', protocol: 'http' })

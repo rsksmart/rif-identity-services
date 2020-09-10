@@ -38,8 +38,18 @@ Large contents don't fit in QR codes so this service is designed to receive an e
 
 1. Install deps:
 
+  > NOTE: The auth package has not been published yet, so manual link is needed. Here are the instructions:
+  
+  ```
+  cd ../rif-id-jwt-auth
+  npm i
+  npm link
+  ```
+
+  Then, move back to `../convey`, install the dependencies and link the auth package
   ```
   npm i
+  npm link @rsksmart/rif-id-jwt-auth
   ```
 
   `postinstall` is running a script to append `"rsk:testnet"` to `"did:ethr:"` methods name
@@ -48,7 +58,7 @@ Large contents don't fit in QR codes so this service is designed to receive an e
 
   ![fix](./img/fix.png)
 
-3. Create an .env file with the following:
+2. Create an .env file with the following:
 
 ```
   CONVEY_PORT=port where the service will be served
@@ -92,9 +102,25 @@ Example:
 
 1. Install deps
 
+  > NOTE: The auth package has not been published yet, so manual link is needed. Here are the instructions:
+  
+  ```
+  cd ../rif-id-jwt-auth
+  npm i
+  npm link
+  ```
+
+  Then, move back to `../convey`, install the dependencies and link the auth package
   ```
   npm i
+  npm link @rsksmart/rif-id-jwt-auth
   ```
+
+  `postinstall` is running a script to append `"rsk:testnet"` to `"did:ethr:"` methods name
+
+  To do it manually, remove `postinstall` script before running installing, then find this in `node_modules/ethr-did/lib//index.js`
+
+  ![fix](./img/fix.png)
 
 2. Install IPFS CLI. Find your option: https://docs.ipfs.io/how-to/command-line-quick-start/.
 

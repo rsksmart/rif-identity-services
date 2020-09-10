@@ -1,0 +1,42 @@
+{
+  "name": "@rsksmart/rif-id-jwt-auth",
+  "version": "0.0.0",
+  "description": "RIF Identity Authentication",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest test/ --coverage",
+    "lint": "eslint src/* test/* --ext .json,.js",
+    "lint:fix": "eslint src/* test/* --ext .json,.js --fix",
+    "postinstall": "rm ./node_modules/ethr-did/lib/index.js && cp ./patch/ethrDID-copy.js ./node_modules/ethr-did/lib/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rsksmart/rif-identity-services.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rsksmart/rif-identity-services/issues"
+  },
+  "homepage": "https://github.com/rsksmart/rif-identity-services#readme",
+  "dependencies": {
+    "did-jwt": "^4.5.1",
+    "did-jwt-vc": "^1.0.6",
+    "did-resolver": "^2.1.1",
+    "ethr-did": "^1.1.0",
+    "ethr-did-resolver": "^3.0.0",
+    "js-sha3": "^0.8.0"
+  },
+  "devDependencies": {
+    "@rsksmart/rif-id-ethr-did": "0.0.1",
+    "@rsksmart/rif-id-mnemonic": "0.0.1",
+    "eslint": "^7.7.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jest": "^23.20.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "jest": "^26.4.2"
+  }
+}
