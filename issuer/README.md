@@ -44,6 +44,9 @@ The issuer has 2 processes running:
   LOG_ERRORS_FILE=relative path to the error logs
   DB_FILE=relative path to the sqlite db
   NODE_ENV=current environment
+  AUTH_EXPIRATION_HOURS=auth token expiration time in hours
+  CHALLENGE_EXPIRATION_SECONDS=auth challenge expiration time in seconds
+  MAX_REQUESTS_PER_TOKEN=max amount of requests allowed per token
   ```
 
   Example
@@ -58,6 +61,9 @@ The issuer has 2 processes running:
   LOG_ERRORS_FILE=./log/issuer-backend.error.log
   DB_FILE=./db/issuer.sqlite
   NODE_ENV=dev
+  AUTH_EXPIRATION_HOURS=10
+  CHALLENGE_EXPIRATION_SECONDS=300
+  MAX_REQUESTS_PER_TOKEN=20
   ```
 
   Defaults
@@ -70,6 +76,9 @@ The issuer has 2 processes running:
   LOG_ERRORS_FILE=./log/issuer-backend.error.log
   DB_FILE=./db/issuer.sqlite
   NODE_ENV=dev
+  AUTH_EXPIRATION_HOURS=10
+  CHALLENGE_EXPIRATION_SECONDS=300
+  MAX_REQUESTS_PER_TOKEN=20
   ```
 
 2. Install:

@@ -4,6 +4,9 @@ import { messageToRequest } from '../lib/messageToRequest'
 import CredentialRequest from '../lib/CredentialRequest'
 import createLogger from '../lib/logger'
 import dotenv from 'dotenv'
+import {
+  getChallenge, getAuthToken, authExpressMiddleware, initializeAuth
+} from '@rsksmart/rif-id-jwt-auth'
 
 dotenv.config()
 
@@ -57,7 +60,45 @@ type CredentialRequestResponseStatus = 'PENDING' | 'DENIED' | 'SUCCESS' | 'ISSUE
 
 const credentialRequestResponsePayload = (status: CredentialRequestResponseStatus, raw: string) => ({ status, payload: { raw } })
 
-export default function credentialRequestService(app, agent, credentialRequestServicePrefix = '') {
+export default function credentialRequestService(app, agent, env, credentialRequestServicePrefix = '') {
+  initializeAuth(env)
+
+  app.get('/__health', function (req, res) {
+    res.status(200).end('OK')
+  })
+
+  app.post(credentialRequestServicePrefix + '/request-auth', bodyParser.json(), function (req, res) {
+    try {
+      const { did } = req.body
+
+      logger.info(`${did} requested auth`)
+
+      const challenge = getChallenge(did)
+
+      res.status(200).send({ challenge })
+    } catch (err) {
+      logger.error('Caught error on /request-auth', err)
+      res.status(500).send()
+    }
+  })
+
+  app.post(credentialRequestServicePrefix + '/auth', bodyParser.json(), async function (req, res) {
+    try {
+      const { jwt } = req.body
+
+      // logger.info(`${issuer} trying to log in`)
+
+      getAuthToken(jwt)
+        .then(token => res.status(200).send({ token }))
+        .catch(err => res.status(401).send(err.message))
+    } catch (err) {
+      logger.error('Caught error on POST /auth', err)
+      res.status(500).send()
+    }
+  })
+
+  app.use(authExpressMiddleware)
+
   app.post(credentialRequestServicePrefix + '/requestCredential', bodyParser.text(), function(req, res) {
     try {
       const message = JSON.parse(req.body)
@@ -140,9 +181,5 @@ export default function credentialRequestService(app, agent, credentialRequestSe
       logger.error('Caught error on /receiveCredential', err)
       res.status(500).send()
     }
-  })
-
-  app.get('/__health', function (req, res) {
-    res.status(200).end('OK')
   })
 }

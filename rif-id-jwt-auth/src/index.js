@@ -27,6 +27,7 @@ const initializeAuth = (env) => {
 
   ({ address, privateKey } = env)
 
+  // if (!identity)
   if (!address) {
     throw new Error('Missing env variable: address')
   }

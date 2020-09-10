@@ -39,7 +39,7 @@ function convey (app, env, prefix = '') {
 
       // logger.info(`${issuer} trying to log in`)
 
-      getAuthToken(jwt, env.authExpirationInHours)
+      getAuthToken(jwt)
         .then(token => res.status(200).send({ token }))
         .catch(err => res.status(401).send(err.message))
     } catch (err) {

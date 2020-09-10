@@ -26,7 +26,12 @@ async function main () {
     credentialRequestServicePrefix: '',
     launchCredentialRequestService: false,
     launchBackOffice: true,
-    database: process.env.DB_FILE || '../staging/issuer.sqlite'
+    database: process.env.DB_FILE || '../staging/issuer.sqlite',
+    challengeExpirationInSeconds: process.env.CHALLENGE_EXPIRATION_SECONDS || 300,
+    authExpirationInHours: process.env.AUTH_EXPIRATION_HOURS || 10,
+    maxRequestsPerToken: process.env.MAX_REQUESTS_PER_TOKEN || 30,
+    address: process.env.ADDRESS,
+    privateKey: process.env.PRIVATE_KEY,
   })
 
   const credentialRequestsPort = process.env.CREDENTIAL_REQUESTS_PORT || 5100
