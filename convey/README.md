@@ -38,7 +38,7 @@ Large contents don't fit in QR codes so this service is designed to receive an e
 
 1. Install deps:
 
-  > NOTE: The auth package has not been published yet, so manual link is needed. Here are the instructions:
+  > NOTE: The auth package has not been published yet, so manual linking is needed. Find the instructions below:
   
   ```
   cd ../rif-id-jwt-auth

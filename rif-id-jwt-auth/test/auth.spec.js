@@ -153,7 +153,7 @@ describe('auth tests', () => {
 
       expect(payload.sub).toEqual(identity.did)
       expect(payload.exp).toBeLessThan((Date.now() / 1000) + env.authExpirationInHours * 60 * 60 + 10) // added 10 seconds of grace
-      expect(issuer).toContain(env.did)
+      expect(issuer).toEqual(env.did)
     }, 8000)
   })
 
