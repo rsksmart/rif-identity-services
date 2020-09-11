@@ -36,7 +36,7 @@ export async function runIssuer ({
     challengeExpirationInSeconds,
     authExpirationInHours,
     maxRequestsPerToken,
-    signer: (await identity.keyByType('Secp256k1')).signer,
+    signer: (await identity.keyByType('Secp256k1')).signer(),
     did: identity.did
   }
 
