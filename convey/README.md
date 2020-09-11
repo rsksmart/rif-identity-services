@@ -38,18 +38,8 @@ Large contents don't fit in QR codes so this service is designed to receive an e
 
 1. Install deps:
 
-  > NOTE: The auth package has not been published yet, so manual linking is needed. Find the instructions below:
-  
-  ```
-  cd ../rif-id-jwt-auth
-  npm i
-  npm link
-  ```
-
-  Then, move back to `../convey`, install the dependencies and link the auth package
   ```
   npm i
-  npm link @rsksmart/rif-id-jwt-auth
   ```
 
   `postinstall` is running a script to append `"rsk:testnet"` to `"did:ethr:"` methods name
@@ -100,18 +90,8 @@ Example:
 
 1. Install deps
 
-  > NOTE: The auth package has not been published yet, so manual link is needed. Here are the instructions:
-  
-  ```
-  cd ../rif-id-jwt-auth
-  npm i
-  npm link
-  ```
-
-  Then, move back to `../convey`, install the dependencies and link the auth package
   ```
   npm i
-  npm link @rsksmart/rif-id-jwt-auth
   ```
 
   `postinstall` is running a script to append `"rsk:testnet"` to `"did:ethr:"` methods name

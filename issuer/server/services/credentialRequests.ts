@@ -6,7 +6,7 @@ import createLogger from '../lib/logger'
 import dotenv from 'dotenv'
 import {
   getChallenge, getAuthToken, authExpressMiddleware, initializeAuth
-} from '@rsksmart/rif-id-jwt-auth'
+} from 'vc-jwt-auth'
 
 dotenv.config()
 

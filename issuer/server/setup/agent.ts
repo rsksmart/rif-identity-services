@@ -8,6 +8,7 @@ import * as DidJwt from 'daf-did-jwt'
 import * as W3c from 'daf-w3c'
 import * as Sdr from 'daf-selective-disclosure'
 import createLogger from '../lib/logger'
+import { Resolver } from 'did-resolver'
 
 const logger = createLogger('rif-id:setup:agent')
 
@@ -67,7 +68,7 @@ export default function setupAgent(dbConnection, secreBoxKey, rpcUrl) {
     dbConnection,
     identityProviders,
     serviceControllers,
-    didResolver,
+    didResolver: (didResolver as unknown as Resolver),
     messageHandler,
     actionHandler
   })

@@ -1,13 +1,13 @@
 {
-  "name": "@rsksmart/rif-id-jwt-auth",
-  "version": "0.0.0",
-  "description": "RIF Identity Authentication",
-  "main": "src/index.js",
+  "name": "vc-jwt-auth",
+  "version": "0.0.3",
+  "description": "Authentication with Verifiable Credentials",
+  "main": "lib/index.js",
   "scripts": {
     "test": "jest test/ --coverage",
     "lint": "eslint src/* test/* --ext .json,.js",
     "lint:fix": "eslint src/* test/* --ext .json,.js --fix",
-    "postinstall": "rm ./node_modules/ethr-did/lib/index.js && cp ./patch/ethrDID-copy.js ./node_modules/ethr-did/lib/index.js"
+    "prepublishOnly": "babel src --out-dir lib"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,9 @@
     "js-sha3": "^0.8.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.11.6",
+    "@babel/core": "^7.11.6",
+    "@babel/preset-env": "^7.11.5",
     "@rsksmart/rif-id-ethr-did": "0.0.1",
     "@rsksmart/rif-id-mnemonic": "0.0.1",
     "eslint": "^7.7.0",

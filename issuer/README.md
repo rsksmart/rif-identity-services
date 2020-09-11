@@ -86,19 +86,12 @@ The issuer has 2 processes running:
   ```
   npm i
   ```
-
-  > NOTE: The auth package has not been published yet, so manual linking is needed. Find the instructions below:
   
-  ```
-  cd ../../rif-id-jwt-auth
-  npm i
-  npm link
-  ```
+  `postinstall` is running a script to append `"rsk:testnet"` to `"did:ethr:"` methods name
 
-  Then, move back to `../issuer/server` and link the auth package
-  ```
-  npm link @rsksmart/rif-id-jwt-auth
-  ```
+  To do it manually, remove `postinstall` script before running installing, then find this in `node_modules/ethr-did/lib//index.js`
+
+  ![fix](./img/fix.png)
 
 3. Start
 

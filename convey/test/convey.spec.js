@@ -6,7 +6,7 @@ const { rskDIDFromPrivateKey } = require('@rsksmart/rif-id-ethr-did')
 const { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } = require('@rsksmart/rif-id-mnemonic')
 const { getResolver } = require('ethr-did-resolver')
 const { Resolver } = require('did-resolver')
-const { getLoginJwt } = require('@rsksmart/rif-id-jwt-auth/src/test-utils')
+const { getLoginJwt } = require('vc-jwt-auth/lib/test-utils')
 
 const getRandomString = () => Math.random().toString(36).substring(3, 11)
 
