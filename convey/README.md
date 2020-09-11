@@ -68,7 +68,6 @@ Large contents don't fit in QR codes so this service is designed to receive an e
   IPFS_HOST=host of the IPFS node
   NODE_ENV=running environment
   PRIVATE_KEY=key that will be used to sign auth tokens
-  ADDRESS=address associated to the key used to sign auth tokens
   RPC_URL=rsk testnet rpc url - the one in the example was tested and works
   AUTH_EXPIRATION_HOURS=auth token expiration time in hours
   CHALLENGE_EXPIRATION_SECONDS=auth challenge expiration time in seconds
@@ -84,7 +83,6 @@ Example:
   IPFS_HOST=localhost
   NODE_ENV=dev
   PRIVATE_KEY=c0d0bafd577fe198158270925613affc27b7aff9e8b7a7050b2b65f6eefd3083
-  ADDRESS=0x4a795ab98dc3732d1123c6133d3efdc76d4c91f8
   RPC_URL=https://did.testnet.rsk.co:4444
   AUTH_EXPIRATION_HOURS=10
   CHALLENGE_EXPIRATION_SECONDS=300

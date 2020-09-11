@@ -21,7 +21,6 @@ The library must be initialized with this method. If not, an exception will be t
 #### Parameter
 - `env`
 Is an `object` that contains the following:
--- `address` - address associated to the key used to sign auth tokens. REQUIRED
 -- `privateKey` - key that will be used to sign auth tokens. REQUIRED
 -- `rpcUrl`: rsk rpc url used to validate credentials - Default: `https://did.testnet.rsk.co:4444`
 -- `authExpirationInHours` - Default: 10

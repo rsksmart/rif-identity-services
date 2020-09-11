@@ -1,6 +1,7 @@
 const bodyParser = require('body-parser')
 const RIFStorage = require('@rsksmart/rif-storage')
 const createLogger = require('./logger')
+const { rskDIDFromPrivateKey } = require('@rsksmart/rif-id-ethr-did')
 
 const logger = createLogger('rif-id:services:convey')
 const { Provider } = RIFStorage
@@ -9,7 +10,16 @@ const { authExpressMiddleware, getChallenge, getAuthToken, initializeAuth } = re
 function convey (app, env, prefix = '') {
   const storage = RIFStorage.default(Provider.IPFS, env.ipfsOptions || { host: 'localhost', port: '5001', protocol: 'http' })
 
-  initializeAuth(env)
+  if (!env.privateKey) {
+    throw Error('Missing privateKey')
+  }
+  const { did, signer } = rskDIDFromPrivateKey()(env.privateKey)
+
+  initializeAuth({
+    ...env,
+    did,
+    signer
+  })
   app.use(bodyParser.json())
 
   const files = {}
