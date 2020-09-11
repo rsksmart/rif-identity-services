@@ -87,6 +87,19 @@ The issuer has 2 processes running:
   npm i
   ```
 
+  > NOTE: The auth package has not been published yet, so manual linking is needed. Find the instructions below:
+  
+  ```
+  cd ../../rif-id-jwt-auth
+  npm i
+  npm link
+  ```
+
+  Then, move back to `../issuer/server` and link the auth package
+  ```
+  npm link @rsksmart/rif-id-jwt-auth
+  ```
+
 3. Start
 
   ```
