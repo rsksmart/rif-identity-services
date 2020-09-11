@@ -23,20 +23,21 @@ export async function runIssuer ({
   database,
   challengeExpirationInSeconds,
   authExpirationInHours,
-  maxRequestsPerToken,
-  address,
-  privateKey
+  maxRequestsPerToken
 }) {
   const dbConnection = setupDb(database)
   const agent = setupAgent(dbConnection, secretBoxKey, rpcUrl)
   await setupIdentity(agent);
 
+  const identities = await agent.identityManager.getIdentities()
+  const identity = identities[0]
+
   const env = {
     challengeExpirationInSeconds,
     authExpirationInHours,
     maxRequestsPerToken,
-    address,
-    privateKey,
+    signer: (await identity.keyByType('Secp256k1')).signer,
+    did: identity.did
   }
 
   logger.info('Setting up services')

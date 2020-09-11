@@ -21,7 +21,8 @@ The library must be initialized with this method. If not, an exception will be t
 #### Parameter
 - `env`
 Is an `object` that contains the following:
--- `privateKey` - key that will be used to sign auth tokens. REQUIRED
+-- `did` - did that will be used to sign auth tokens. REQUIRED
+-- `signer` - [`Signer`](https://github.com/decentralized-identity/did-jwt/blob/master/src/SimpleSigner.ts) object associated with the did, will be used to sign auth tokens. REQUIRED
 -- `rpcUrl`: rsk rpc url used to validate credentials - Default: `https://did.testnet.rsk.co:4444`
 -- `authExpirationInHours` - Default: 10
 -- `challengeExpirationInSeconds` - Default: 300
