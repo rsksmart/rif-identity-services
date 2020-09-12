@@ -3,14 +3,13 @@ const { createVerifiableCredentialJwt, verifyCredential } = require('did-jwt-vc'
 const { verifyJWT } = require('did-jwt')
 const { getResolver } = require('ethr-did-resolver')
 const { Resolver } = require('did-resolver')
-const EthrDID = require('ethr-did')
 const { keccak256 } = require('js-sha3')
 
 const challenges = {}
 const tokenRequestCounter = {}
 
 let
-  providerConfig, ethrDidResolver, didResolver, identity, address,
+  providerConfig, ethrDidResolver, didResolver, identity,
   challengeExpirationInSeconds, maxRequestsPerToken, rpcUrl, authExpirationInHours
 
 const initializeAuth = (env) => {
@@ -18,21 +17,19 @@ const initializeAuth = (env) => {
     throw new Error('Missing env object')
   }
 
-  let privateKey
-
   rpcUrl = env.rpcUrl || 'https://did.testnet.rsk.co:4444'
   challengeExpirationInSeconds = env.challengeExpirationInSeconds || 300
   authExpirationInHours = env.authExpirationInHours || 10
-  maxRequestsPerToken = env.maxRequestsPerToken || 20;
+  maxRequestsPerToken = env.maxRequestsPerToken || 20
 
-  ({ address, privateKey } = env)
+  const { did, signer } = env
 
-  if (!address) {
-    throw new Error('Missing env variable: address')
+  if (!did) {
+    throw new Error('Missing env variable: did')
   }
 
-  if (!privateKey) {
-    throw new Error('Missing env variable: privateKey')
+  if (!signer) {
+    throw new Error('Missing env variable: signer')
   }
 
   providerConfig = {
@@ -41,7 +38,7 @@ const initializeAuth = (env) => {
   ethrDidResolver = getResolver(providerConfig)
   didResolver = new Resolver(ethrDidResolver)
 
-  identity = new EthrDID({ privateKey, address })
+  identity = { signer, did }
 }
 
 const getChallenge = (did) => {

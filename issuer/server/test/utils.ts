@@ -32,18 +32,22 @@ export const getTestAgent = async (setIdentity = true, db?: string): Promise<{
   return { database, agent, connection }
 }
 
-export const getTestSdrRequestData = async () => {
+export const getIdentity = async () => {
   const mnemonic = generateMnemonic(12)
   const seed = await mnemonicToSeed(mnemonic)
   const hdKey = seedToRSKHDKey(seed)
   const privateKey = hdKey.derive(0).privateKey!.toString('hex')
-  const issuer = rskDIDFromPrivateKey()(privateKey).did
-  const signer = SimpleSigner(privateKey)
+  
+  return rskDIDFromPrivateKey()(privateKey)
+}
+
+export const getTestSdrRequestData = async () => {
+  const { did, signer } = await getIdentity()
 
   const fullName = getRandomString()
 
   const sdrData = {
-    iss: issuer,
+    iss: did,
     claims: [
       { claimType: 'type', claimValue: getRandomString() },
       { claimType: 'credentialRequest', claimValue: 'cred1' },
@@ -57,10 +61,10 @@ export const getTestSdrRequestData = async () => {
   
   const jwt = await createJWT(
     { type: 'sdr', ...sdrData },
-    { signer, alg: 'ES256K-R', issuer }
+    { issuer: did, alg: 'ES256K-R', signer }
   )
 
-  const data = { from: issuer, body: jwt, fullName }
+  const data = { from: did, body: jwt, fullName }
 
   return data
 }

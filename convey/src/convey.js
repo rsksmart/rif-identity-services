@@ -1,15 +1,25 @@
 const bodyParser = require('body-parser')
 const RIFStorage = require('@rsksmart/rif-storage')
 const createLogger = require('./logger')
+const { rskDIDFromPrivateKey } = require('@rsksmart/rif-id-ethr-did')
 
 const logger = createLogger('rif-id:services:convey')
 const { Provider } = RIFStorage
-const { authExpressMiddleware, getChallenge, getAuthToken, initializeAuth } = require('./auth')
+const { authExpressMiddleware, getChallenge, getAuthToken, initializeAuth } = require('vc-jwt-auth')
 
 function convey (app, env, prefix = '') {
   const storage = RIFStorage.default(Provider.IPFS, env.ipfsOptions || { host: 'localhost', port: '5001', protocol: 'http' })
 
-  initializeAuth(env)
+  if (!env.privateKey) {
+    throw Error('Missing privateKey')
+  }
+  const { did, signer } = rskDIDFromPrivateKey()(env.privateKey)
+
+  initializeAuth({
+    ...env,
+    did,
+    signer
+  })
   app.use(bodyParser.json())
 
   const files = {}
@@ -39,7 +49,7 @@ function convey (app, env, prefix = '') {
 
       // logger.info(`${issuer} trying to log in`)
 
-      getAuthToken(jwt, env.authExpirationInHours)
+      getAuthToken(jwt)
         .then(token => res.status(200).send({ token }))
         .catch(err => res.status(401).send(err.message))
     } catch (err) {

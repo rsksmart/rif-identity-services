@@ -113,7 +113,7 @@ describe('backOfficeService tests', () => {
       expect(reqs[0].status).toEqual('pending')
       expect(reqs[0].from).toEqual(from)
       expect(reqs[0].fullName).toEqual(fullName)
-    }, 8000)
+    })
   })
 
   describe('PUT /request/:id/status', () => {
@@ -155,7 +155,7 @@ describe('backOfficeService tests', () => {
           // verify that the db is updated as well
           const retrieved = await connection.getRepository(CredentialRequest).findOneOrFail({ id: updated.id })
           expect(retrieved.status).toEqual(status)
-      }, 7000)
+      })
     })
   })
 })

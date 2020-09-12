@@ -1,19 +1,18 @@
 const request = require('supertest')
 const express = require('express')
 const convey = require('../src/convey')
-const EthrDID = require('ethr-did')
-const { createVerifiableCredentialJwt, verifyCredential } = require('did-jwt-vc')
-const { rskAddressFromPrivateKey } = require('@rsksmart/rif-id-ethr-did')
+const { verifyCredential } = require('did-jwt-vc')
+const { rskDIDFromPrivateKey } = require('@rsksmart/rif-id-ethr-did')
 const { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } = require('@rsksmart/rif-id-mnemonic')
 const { getResolver } = require('ethr-did-resolver')
 const { Resolver } = require('did-resolver')
+const { getLoginJwt } = require('vc-jwt-auth/lib/test-utils')
 
 const getRandomString = () => Math.random().toString(36).substring(3, 11)
 
 const env = {
   rpcUrl: 'https://did.testnet.rsk.co:4444',
   privateKey: 'c0d0bafd577fe198158270925613affc27b7aff9e8b7a7050b2b65f6eefd3083',
-  address: '0x4a795ab98dc3732d1123c6133d3efdc76d4c91f8',
   challengeExpirationInSeconds: 300,
   authExpirationInHours: 10,
   maxRequestsPerToken: 20,
@@ -34,7 +33,7 @@ describe('Express app tests', () => {
   beforeAll(() => {
     app = express()
 
-    convey(app, env, '')
+    convey(app, env)
   })
 
   beforeEach(async () => {
@@ -42,22 +41,8 @@ describe('Express app tests', () => {
     const seed = await mnemonicToSeed(mnemonic)
     const hdKey = seedToRSKHDKey(seed)
     const privateKey = hdKey.derive(0).privateKey.toString('hex')
-    const address = rskAddressFromPrivateKey(privateKey)
-
-    clientIdentity = new EthrDID({ address, privateKey })
+    clientIdentity = rskDIDFromPrivateKey()(privateKey)
   })
-
-  const getLoginJwt = async (claimType, claimValue) => createVerifiableCredentialJwt({
-    vc: {
-      '@context': ['https://www.w3.org/2018/credentials/v1'],
-      type: ['VerifiableCredential'],
-      credentialSubject: {
-        claims: [
-          { claimType, claimValue }
-        ]
-      }
-    }
-  }, clientIdentity)
 
   describe('auth', () => {
     it('returns a challenge when requesting it', async () => {
@@ -78,19 +63,20 @@ describe('Express app tests', () => {
 
       ({ body } = await request(app).post('/request-auth').send({ did }).expect(200))
 
-      const jwt = await getLoginJwt('challenge', body.challenge);
+      const jwt = await getLoginJwt('challenge', body.challenge, clientIdentity);
 
       ({ body } = await request(app).post('/auth').send({ jwt }).expect(200))
 
       const { issuer, payload } = await verifyCredential(body.token, didResolver)
+      const expectedIssuerDid = rskDIDFromPrivateKey()(env.privateKey).did
 
       expect(payload.sub).toEqual(clientIdentity.did)
       expect(payload.exp).toBeLessThan((Date.now() / 1000) + env.authExpirationInHours * 60 * 60 + 10) // added 10 seconds of grace
-      expect(issuer.toLowerCase()).toContain(env.address.toLowerCase())
+      expect(issuer).toContain(expectedIssuerDid)
     })
 
     it('return 401 if not requested the challenge before', async () => {
-      const jwt = await getLoginJwt('another', 'invalid')
+      const jwt = await getLoginJwt('another', 'invalid', clientIdentity)
 
       const { text } = await request(app).post('/auth').send({ jwt }).expect(401)
 
@@ -101,7 +87,7 @@ describe('Express app tests', () => {
       // request for challenge so it bypasses that validation, will not be used
       await request(app).post('/request-auth').send({ did: clientIdentity.did }).expect(200)
 
-      const jwt = await getLoginJwt('challenge', 'invalid')
+      const jwt = await getLoginJwt('challenge', 'invalid', clientIdentity)
 
       const { text } = await request(app).post('/auth').send({ jwt }).expect(401)
 
@@ -112,7 +98,7 @@ describe('Express app tests', () => {
       // request for challenge so it bypasses that validation, will not be used
       await request(app).post('/request-auth').send({ did: clientIdentity.did }).expect(200)
 
-      const jwt = await getLoginJwt('another', 'invalid')
+      const jwt = await getLoginJwt('another', 'invalid', clientIdentity)
 
       const { text } = await request(app).post('/auth').send({ jwt }).expect(401)
 
@@ -129,7 +115,7 @@ describe('Express app tests', () => {
 
       ({ body } = await request(app).post('/request-auth').send({ did }).expect(200))
 
-      const jwt = await getLoginJwt('challenge', body.challenge);
+      const jwt = await getLoginJwt('challenge', body.challenge, clientIdentity);
 
       ({ body } = await request(app).post('/auth').send({ jwt }).expect(200));
 
@@ -203,23 +189,36 @@ describe('Express app tests', () => {
   })
 })
 
-describe('Express app tests - wrong ipfs node', () => {
-  const invalidEnv = {
-    ...env,
-    ipfsOptions: {
-      port: '5001',
-      host: 'NOT-EXISTS',
-      protocol: 'http'
-    }
-  }
-
+describe('Express app tests - wrong env', () => {
   it('returns a 500 error when invalid ipfs api', async () => {
+    const invalidEnv = {
+      ...env,
+      ipfsOptions: {
+        port: '5001',
+        host: 'NOT-EXISTS',
+        protocol: 'http'
+      }
+    }
+
     const app = express()
 
-    convey(app, invalidEnv, '')
+    convey(app, invalidEnv)
 
     const file = getRandomString()
 
     request(app).post('/file').send({ file }).expect(500)
+  })
+
+  it('throws an errr when no private key provided', async () => {
+    const invalidEnv = { ...env }
+    delete env.privateKey
+
+    const app = express()
+
+    try {
+      convey(app, invalidEnv)
+    } catch (err) {
+      expect(err.message).toEqual('Missing privateKey')
+    }
   })
 })

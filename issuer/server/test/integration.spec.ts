@@ -1,4 +1,4 @@
-import { getTestAgent, getTestSdrRequestData, getRandomString } from './utils'
+import { getTestAgent, getTestSdrRequestData, getRandomString, getIdentity } from './utils'
 import request from 'supertest'
 import express from 'express'
 import fs from 'fs'
@@ -9,11 +9,12 @@ import { verifyCredential } from 'did-jwt-vc'
 import { getResolver } from 'ethr-did-resolver'
 import { Resolver } from 'did-resolver'
 import backOffice from '../services/backOffice'
+import { getLoginJwt } from 'vc-jwt-auth/lib/test-utils'
 
 describe('should sync both services under the same thread of requests', () => {
   let 
     agent, connection, database, issuerDid, backOfficePassword, backOfficeApp, credRequestApp,
-    sdr, sdrHash, backOfficeUsername = 'admin', sdrId
+    sdr, sdrHash, backOfficeUsername = 'admin', sdrId, token
   
   beforeAll(async () => {
     // setup apps
@@ -27,8 +28,15 @@ describe('should sync both services under the same thread of requests', () => {
     backOfficeApp = express()
     await backOffice(backOfficeApp, agent, backOfficePassword)
 
+    const identities = await agent.identityManager.getIdentities()
+    const identity = identities[0]
+    const env = {
+      signer: (await identity.keyByType('Secp256k1')).signer(),
+      did: identity.did
+    }
+
     credRequestApp = express()
-    await credentialRequestService(credRequestApp, agent)
+    await credentialRequestService(credRequestApp, agent, env)
 
   })
 
@@ -40,6 +48,19 @@ describe('should sync both services under the same thread of requests', () => {
     else fs.unlinkSync(database)
   })
 
+  it('HOLDER logs in', async () => {
+    const clientIdentity = await getIdentity()
+    let body;
+
+    ({ body } = await request(credRequestApp).post('/request-auth').send({ did: clientIdentity.did }).expect(200))
+
+    const jwt = await getLoginJwt('challenge', body.challenge, clientIdentity);
+
+    ({ body } = await request(credRequestApp).post('/auth').send({ jwt }).expect(200));
+
+    ({ token } = body)
+  })
+
   it('HOLDER requests for a credential', async () => {
     sdr = await getTestSdrRequestData()
     sdrHash = keccak256(sdr.body)
@@ -49,6 +70,7 @@ describe('should sync both services under the same thread of requests', () => {
 
     await request(credRequestApp).post('/requestCredential')
       .set('Content-Type', 'text/plain')
+      .set('Authorization', token)
       .send(data).expect(200)
 
     // check that the request has been saved with pending status
@@ -60,7 +82,10 @@ describe('should sync both services under the same thread of requests', () => {
   })
 
   it('HOLDER requests for the credential that has not been granted yet', async () => {
-    const { body } = await request(credRequestApp).get(`/receiveCredential?hash=${sdrHash}`).expect(200)
+    const { body } = await request(credRequestApp)
+      .get(`/receiveCredential?hash=${sdrHash}`)
+      .set('Authorization', token)
+      .expect(200)
 
     expect(body.status).toEqual('PENDING')
     expect(body.payload.raw).toEqual(sdr.body)
@@ -77,7 +102,7 @@ describe('should sync both services under the same thread of requests', () => {
     expect(reqs[0].fullName).toEqual(sdr.fullName)
 
     sdrId = reqs[0].id
-  }, 7000)
+  })
 
   it('ISSUER grants the SDR', async () => {
     const { text } = await request(backOfficeApp)
@@ -88,10 +113,13 @@ describe('should sync both services under the same thread of requests', () => {
 
     expect(updated.id).toEqual(sdrId)
     expect(updated.status).toEqual('granted')
-  }, 7000)
+  })
 
   it('HOLDER requests for the credential and should receive the VC', async () => {
-    const { body } = await request(credRequestApp).get(`/receiveCredential?hash=${sdrHash}`).expect(200)
+    const { body } = await request(credRequestApp)
+      .get(`/receiveCredential?hash=${sdrHash}`)
+      .set('Authorization', token)
+      .expect(200)
 
     expect(body.status).toEqual('SUCCESS')
 

@@ -12,7 +12,6 @@ app.use(cors())
 const env = {
   rpcUrl: process.env.RPC_URL,
   privateKey: process.env.PRIVATE_KEY,
-  address: process.env.ADDRESS,
   challengeExpirationInSeconds: process.env.CHALLENGE_EXPIRATION_SECONDS || 300,
   authExpirationInHours: process.env.AUTH_EXPIRATION_HOURS || 10,
   maxRequestsPerToken: process.env.MAX_REQUESTS_PER_TOKEN || 30,

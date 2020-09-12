@@ -1,4 +1,3 @@
-import dotenv from 'dotenv'
 import createLogger from './lib/logger'
 
 import setupDb from './setup/db'
@@ -9,7 +8,6 @@ import credentialRequestService from './services/credentialRequests'
 import backOffice from './services/backOffice'
 
 const logger = createLogger('rif-id:main')
-dotenv.config()
 
 logger.info('Setting up')
 
@@ -22,14 +20,28 @@ export async function runIssuer ({
   backOfficePrefix,
   launchCredentialRequestService,
   launchBackOffice,
-  database
+  database,
+  challengeExpirationInSeconds,
+  authExpirationInHours,
+  maxRequestsPerToken
 }) {
   const dbConnection = setupDb(database)
   const agent = setupAgent(dbConnection, secretBoxKey, rpcUrl)
-  await setupIdentity(agent)
+  await setupIdentity(agent);
+
+  const identities = await agent.identityManager.getIdentities()
+  const identity = identities[0]
+
+  const env = {
+    challengeExpirationInSeconds,
+    authExpirationInHours,
+    maxRequestsPerToken,
+    signer: (await identity.keyByType('Secp256k1')).signer(),
+    did: identity.did
+  }
 
   logger.info('Setting up services')
-  if (launchCredentialRequestService) credentialRequestService(apps[0], agent, credentialRequestServicePrefix)
+  if (launchCredentialRequestService) credentialRequestService(apps[0], agent, env, credentialRequestServicePrefix)
   if (launchBackOffice) backOffice(apps.length > 1 ? apps[1] : apps[0], agent, adminPass, backOfficePrefix)
   logger.info('Services set up')
 }

@@ -1,4 +1,4 @@
-const { createVerifiableCredentialJwt, verifyCredential } = require('did-jwt-vc')
+const { createVerifiableCredentialJwt } = require('did-jwt-vc')
 
 const getLoginJwt = async (claimType, claimValue, identity) => createVerifiableCredentialJwt({
   vc: {
