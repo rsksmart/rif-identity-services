@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run test:back",
     "back:build": "tsc",
     "back": "npm run back:build && node server/build/scripts/all.js",
     "back:dev": "concurrently \"tsc --watch\" \"nodemon ./server/build/scripts/all.js\"",

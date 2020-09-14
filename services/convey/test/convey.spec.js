@@ -44,7 +44,7 @@ async function getAuthToken (clientIdentity, app) {
 
   const jwt = await getLoginJwt('challenge', body.challenge, clientIdentity);
 
-  ({ body } = await request(app).post('/auth').send({ jwt }).expect(200));
+  ({ body } = await request(app).post('/auth').send({ jwt }).expect(200))
 
   return body.token
 }
