@@ -27,6 +27,28 @@ const providerConfig = { networks: [{ name: 'rsk:testnet', registry: '0xdca7ef03
 const ethrDidResolver = getResolver(providerConfig)
 const didResolver = new Resolver(ethrDidResolver)
 
+async function createClientIdentity () {
+  const mnemonic = generateMnemonic(12)
+  const seed = await mnemonicToSeed(mnemonic)
+  const hdKey = seedToRSKHDKey(seed)
+  const privateKey = hdKey.derive(0).privateKey.toString('hex')
+  return rskDIDFromPrivateKey()(privateKey)
+}
+
+async function getAuthToken (clientIdentity, app) {
+  const did = clientIdentity.did
+
+  let body;
+
+  ({ body } = await request(app).post('/request-auth').send({ did }).expect(200))
+
+  const jwt = await getLoginJwt('challenge', body.challenge, clientIdentity);
+
+  ({ body } = await request(app).post('/auth').send({ jwt }).expect(200));
+
+  return body.token
+}
+
 describe('Express app tests', () => {
   let app, clientIdentity
 
@@ -37,11 +59,7 @@ describe('Express app tests', () => {
   })
 
   beforeEach(async () => {
-    const mnemonic = generateMnemonic(12)
-    const seed = await mnemonicToSeed(mnemonic)
-    const hdKey = seedToRSKHDKey(seed)
-    const privateKey = hdKey.derive(0).privateKey.toString('hex')
-    clientIdentity = rskDIDFromPrivateKey()(privateKey)
+    clientIdentity = await createClientIdentity()
   })
 
   describe('auth', () => {
@@ -54,20 +72,13 @@ describe('Express app tests', () => {
     })
 
     it('returns a 500 if not did present', async () => {
-      request(app).post('/request-auth').send().expect(200)
+      await request(app).post('/request-auth').send().expect(500)
     })
 
     it('returns a valid token if sending the proper challenge', async () => {
-      const did = clientIdentity.did
-      let body;
+      const token = await getAuthToken(clientIdentity, app)
 
-      ({ body } = await request(app).post('/request-auth').send({ did }).expect(200))
-
-      const jwt = await getLoginJwt('challenge', body.challenge, clientIdentity);
-
-      ({ body } = await request(app).post('/auth').send({ jwt }).expect(200))
-
-      const { issuer, payload } = await verifyCredential(body.token, didResolver)
+      const { issuer, payload } = await verifyCredential(token, didResolver)
       const expectedIssuerDid = rskDIDFromPrivateKey()(env.privateKey).did
 
       expect(payload.sub).toEqual(clientIdentity.did)
@@ -110,16 +121,7 @@ describe('Express app tests', () => {
     let token
 
     beforeEach(async () => {
-      const did = clientIdentity.did
-      let body;
-
-      ({ body } = await request(app).post('/request-auth').send({ did }).expect(200))
-
-      const jwt = await getLoginJwt('challenge', body.challenge, clientIdentity);
-
-      ({ body } = await request(app).post('/auth').send({ jwt }).expect(200));
-
-      ({ token } = body)
+      token = await getAuthToken(clientIdentity, app)
     })
 
     it('returns a valid cid', async () => {
@@ -191,25 +193,25 @@ describe('Express app tests', () => {
 
 describe('Express app tests - wrong env', () => {
   it('returns a 500 error when invalid ipfs api', async () => {
-    const invalidEnv = {
+    const app = express()
+
+    convey(app, {
       ...env,
       ipfsOptions: {
         port: '5001',
         host: 'NOT-EXISTS',
         protocol: 'http'
       }
-    }
+    })
 
-    const app = express()
-
-    convey(app, invalidEnv)
+    const clientIdentity = await createClientIdentity()
+    const token = await getAuthToken(clientIdentity, app)
 
     const file = getRandomString()
-
-    request(app).post('/file').send({ file }).expect(500)
+    await request(app).post('/file').set('Authorization', token).send({ file }).expect(500)
   })
 
-  it('throws an errr when no private key provided', async () => {
+  it('throws an error when no private key provided', async () => {
     const invalidEnv = { ...env }
     delete env.privateKey
 
