@@ -38,7 +38,6 @@
   },
   "devDependencies": {
     "@rsksmart/rif-id-ethr-did": "0.0.1",
-    "@rsksmart/rif-id-mnemonic": "0.0.1",
     "@types/jest": "^26.0.10",
     "@typescript-eslint/eslint-plugin": "^3.10.1",
     "@typescript-eslint/parser": "^3.10.1",

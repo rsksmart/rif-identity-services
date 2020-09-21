@@ -2,7 +2,6 @@ import request from 'supertest'
 import express, { Express } from 'express'
 import { setupCentralizedIPFSPinner, DAFClaim } from '../src/services/centralizedIPFSPinner'
 import { rskDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'
-import { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } from '@rsksmart/rif-id-mnemonic'
 import { verifyJWT, SimpleSigner, createJWT, decodeJWT } from 'did-jwt'
 import { Resolver } from 'did-resolver'
 import { getResolver } from 'ethr-did-resolver'
@@ -36,11 +35,7 @@ describe('Express app tests', () => {
     })
 
   beforeAll(async () => {
-    const mnemonic = generateMnemonic(12)
-    const seed = await mnemonicToSeed(mnemonic)
-    const hdKey = seedToRSKHDKey(seed)
-    privateKey = hdKey.derive(0).privateKey!.toString('hex')
-    did = rskDIDFromPrivateKey()(privateKey).did
+    did = rskDIDFromPrivateKey()(env.privateKey).did
 
     const providerConfig = {
       networks: [
@@ -87,7 +82,7 @@ describe('Express app tests', () => {
   })
 
   describe('POST /testAuth', () => {
-    const getAuthJwt = (token: string) => {
+    const getAuthJwt = (token: string, otherPrivateKey?: string) => {
       const sdrData = {
         issuer: did,
         claims: [{
@@ -95,7 +90,7 @@ describe('Express app tests', () => {
         }]
       }
 
-      const signer = SimpleSigner(privateKey)
+      const signer = SimpleSigner(otherPrivateKey || env.privateKey)
       return createJWT(
         { type: 'sdr', ...sdrData },
         { signer, alg: 'ES256K-R', issuer: did }
@@ -119,6 +114,21 @@ describe('Express app tests', () => {
 
       expect(response.text).toEqual('Authenticated')
     })
+
+    it('empty jwt', async () => {
+      const { text } = await request(app).post('/testAuth').send({ jwt: '' }).expect(200)
+
+      expect(text).toEqual('Not authenticated')
+    })
+
+    it('invalid signer', async () => {
+      const token = await login()
+      const jwt = await getAuthJwt(token, '0c9c4d12e23f7f070dfacee7f870d9b79866f6754ed506968e16c5e09e68b63b')
+
+      const { text } = await request(app).post('/testAuth').send({ jwt }).expect(200)
+
+      expect(text).toEqual('Not authenticated')
+    })
   })
 
   describe('CRD operations', () => {
@@ -132,7 +142,7 @@ describe('Express app tests', () => {
           ]
         }
 
-        const signer = SimpleSigner(privateKey)
+        const signer = SimpleSigner(env.privateKey)
         return createJWT(
           { type: 'sdr', ...sdrData },
           { signer, alg: 'ES256K-R', issuer: did }
