@@ -12,7 +12,7 @@ import fs from 'fs'
 jest.setTimeout(60000)
 
 describe('Express app tests', () => {
-  let app: Express, did: string, privateKey: string, resolver: Resolver
+  let app: Express, did: string, resolver: Resolver
 
   const dbFile = `./api-test-${new Date().getTime()}.sqlite`
 
