@@ -13,7 +13,6 @@
     "front:dev": "cd app && npm run start",
     "all": "concurrently \"npm run back\" \"npm run front\"",
     "all:dev": "concurrently \"npm run back:dev\" \"npm run front:dev\"",
-    "staging:bo": "npm run back:build && node server/build/scripts/staging.js",
     "postinstall": "rm ./node_modules/ethr-did/lib/index.js && cp ./patch/ethrDID-copy.js ./node_modules/ethr-did/lib/index.js",
     "test:back": "cd server && jest test/ --coverage"
   },
