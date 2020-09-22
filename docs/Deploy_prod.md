@@ -6,9 +6,7 @@ This services are expected to be run:
 
 - `rif-identity-ipfs-testnet` (not public - it is accessed only by `rif-identity-datavault-testnet`)
 - `rif-identity-datavault-testnet`
-- `rif-identity-tinyqr-testnet`
 - `rif-identity-issuer-back-testnet`
-- `rif-identity-issuer-front-testnet`
 
 First clone the repo
 
@@ -41,18 +39,6 @@ Now setup the services:
 
 > `IPFS_HOST` and `IPFS_PORT` refer to the IPFS container named `rif-identity-ipfs-testnet`. You should put here the container name that will be run in the same network as this service, or the dns name if running in another machine.
 
-#### Tiny QR
-
-1. Go to `./tiny-qr`
-2. Create a `.env` file with
-
-    ```
-    TINY_QR_PORT=5103
-    TINY_QR_URL=COMPLETE WITH THE DNS SET OF THIS SERVICE
-    ```
-
-> `TINY_QR_URL` must contain the DNS set for the tiny QR service
-
 #### Issuer services
 
 1. Go to `./issuer`
@@ -73,18 +59,6 @@ Now setup the services:
 > `SECRET_BOX_KEY` is used to encypt/decrypt key store.
 
 > `ADMIN_PASS` is the password required to login to the front-end, it is stored raw.
-
-#### Issuer front end
-
-1. Go to `./issuer/app`
-2. Create a `.env` file with
-
-    ```
-    SKIP_PREFLIGHT_CHECK=true
-    REACT_APP_BACKOFFICE=COMPLETE WITH THE DNS SET OF THE ISSUER BACK OFFICE
-    ```
-
-> `REACT_APP_BACKOFFICE` must contain the DNS set for the issuer back office service (started on port 5101)
 
 #### IMPORTANT NOTE:
 
