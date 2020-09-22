@@ -4,17 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "back:build": "tsc",
-    "back": "npm run back:build && node server/build/scripts/all.js",
-    "back:dev": "concurrently \"tsc --watch\" \"nodemon ./server/build/scripts/all.js\"",
-    "front:build": "cd app && npm run build && cd ..",
-    "front": "npm run front:build && serve -s app/build",
-    "front:dev": "cd app && npm run start",
-    "all": "concurrently \"npm run back\" \"npm run front\"",
-    "all:dev": "concurrently \"npm run back:dev\" \"npm run front:dev\"",
-    "postinstall": "rm ./node_modules/ethr-did/lib/index.js && cp ./patch/ethrDID-copy.js ./node_modules/ethr-did/lib/index.js",
-    "test:back": "cd server && jest test/ --coverage"
+    "test": "cd server && jest test/ --coverage",
+    "build": "tsc",
+    "start": "npm run build && node server/build/scripts/all.js",
+    "dev": "concurrently \"tsc --watch\" \"nodemon ./server/build/scripts/all.js\"",
+    "postinstall": "rm ./node_modules/ethr-did/lib/index.js && cp ./patch/ethrDID-copy.js ./node_modules/ethr-did/lib/index.js"
   },
   "author": "",
   "license": "ISC",
