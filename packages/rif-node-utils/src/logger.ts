@@ -43,3 +43,5 @@ export const loggerFactory = (config: { env: string, infoFile: string, errorFile
 
   return logger;
 }
+
+export type Logger = winston.Logger

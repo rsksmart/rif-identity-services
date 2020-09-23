@@ -25,7 +25,7 @@ Logging:
 
 ```typescript
 // myLogger.ts
-import { loggerFactory } from '@rsksmart/rif-node-utils'
+import { loggerFactory, Logger } from '@rsksmart/rif-node-utils'
 import dotenv from 'dotenv'
 
 dotenv.config()
@@ -43,7 +43,7 @@ export default loggerFactory({
 // script.js
 import myLogger from './myLogger'
 
-const logger = myLogger('super-logger')
+const logger: Logger = myLogger('super-logger')
 
 logger.info('Info message')
 logger.error('Error message')
