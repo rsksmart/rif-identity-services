@@ -1,13 +1,9 @@
 const express = require('express')
 const cors = require('cors')
+const { loggerFactory } = require('@rsksmart/rif-node-utils')
 const convey = require('./convey')
-const createLogger = require('./logger')
+
 require('dotenv').config()
-
-const logger = createLogger('rif-id:services:convey:script')
-
-const app = express()
-app.use(cors())
 
 const env = {
   rpcUrl: process.env.RPC_URL,
@@ -22,7 +18,18 @@ const env = {
   }
 }
 
-convey(app, env, '')
+const app = express()
+
+app.use(cors())
+
+const logger = loggerFactory({
+  env: process.env.NODE_ENV || 'dev',
+  infoFile: process.env.LOG_FILE || './log/convey.log',
+  errorFile: process.env.LOG_ERROR_FILE || './log/convey.error.log'
+})('rif-id:services:convey:script')
+
+convey(app, env, logger, '')
 
 const port = process.env.CONVEY_PORT || 5104
+
 app.listen(port, () => logger.info(`Convey service service started on port ${port}`))

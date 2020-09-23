@@ -15,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "@rsksmart/rif-id-ethr-did": "0.0.1",
+    "@rsksmart/rif-node-utils": "0.0.2",
     "@rsksmart/rif-storage": "^0.1.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
