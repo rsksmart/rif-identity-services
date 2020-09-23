@@ -6,8 +6,8 @@
   "scripts": {
     "test": "cd server && jest test/ --coverage",
     "build": "tsc",
-    "start": "npm run build && node server/build/scripts/all.js",
-    "dev": "concurrently \"tsc --watch\" \"nodemon ./server/build/scripts/all.js\"",
+    "start": "npm run build && node ./build/scripts/all.js",
+    "dev": "concurrently \"tsc --watch\" \"nodemon ./build/scripts/all.js\"",
     "postinstall": "rm ./node_modules/ethr-did/lib/index.js && cp ./patch/ethrDID-copy.js ./node_modules/ethr-did/lib/index.js"
   },
   "author": "",

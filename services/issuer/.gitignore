@@ -1,7 +1,7 @@
 node_modules
 *.sqlite
 .env
-server/build/
+build/
 *.log
 log/
 db/
