@@ -18,10 +18,7 @@ import { verifyJWT } from 'did-jwt'
 /* Data vault */
 import { CentralizedIPFSPinnerProvider, Entities } from '../lib/DataVaultProviderIPFS'
 
-import createLogger from '../lib/logger'
-import { Logger } from 'winston'
-
-const logger = createLogger('rif-id:data-vault:services:centralized-pinner')
+import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
 
 interface CentralizedIPFSPinnerEnv {
   privateKey: string;
@@ -47,7 +44,7 @@ function findClaims (claims: DAFClaim[], claimTypes: string[]) {
   return found
 }
 
-export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPinnerEnv, prefix = ''): Promise<void | Logger> {
+export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPinnerEnv, logger: Logger, prefix = ''): Promise<void | Logger> {
   /* setup did resolver */
   const providerConfig = { networks: [{ name: 'rsk:testnet', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: env.rpcUrl }] }
   const ethrDidResolver = getResolver(providerConfig)
@@ -74,7 +71,8 @@ export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPi
     /* setup data vault */
     const dataVaultProvider = new CentralizedIPFSPinnerProvider({
       dbConnection,
-      ipfsOptions: { host: env.ipfsHost, port: env.ipfsPort, protocol: 'http' }
+      ipfsOptions: { host: env.ipfsHost, port: env.ipfsPort, protocol: 'http' },
+      logger
     })
 
     /* authentication */

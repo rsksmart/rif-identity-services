@@ -1,8 +1,6 @@
 import RIFStorage, { Provider } from '@rsksmart/rif-storage'
 import { Entity, PrimaryGeneratedColumn, Column, Connection } from 'typeorm'
-import createLogger from './logger'
-
-const logger = createLogger('rif-id:data-vault:ipfs-provider')
+import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
 
 @Entity()
 class DataVaultEntry {
@@ -33,6 +31,7 @@ type IPFSPinner = { ipfs: { pin: {
 type CentralizedIPFSPinnerProviderConfig = {
   dbConnection: Connection,
   ipfsOptions?: { host: string, port: string, protocol: string },
+  logger: Logger
 }
 
 export interface ICentralizedIPFSPinnerProvider {
@@ -43,7 +42,8 @@ export interface ICentralizedIPFSPinnerProvider {
 
 export const CentralizedIPFSPinnerProvider = (function (this: ICentralizedIPFSPinnerProvider, {
   dbConnection,
-  ipfsOptions
+  ipfsOptions,
+  logger
 }: CentralizedIPFSPinnerProviderConfig) {
   const storage = RIFStorage(Provider.IPFS, ipfsOptions || { host: 'localhost', port: '5001', protocol: 'http' })
 

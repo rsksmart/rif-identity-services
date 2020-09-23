@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:build": "tsc",
-    "start": "npm run start:build && node build/scripts/index.js",
+    "build": "tsc",
+    "start": "npm run build && node build/scripts/index.js",
     "start:dev": "concurrently \"tsc --watch\" \"nodemon ./build/scripts/index.js\"",
     "test": "jest test/ --coverage",
     "test:ci": "npx jest test/ --coverage --coverageDirectory reports",
@@ -17,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@rsksmart/rif-node-utils": "0.0.3",
     "@rsksmart/rif-storage": "^0.1.0",
     "@types/body-parser": "^1.19.0",
     "@types/cors": "^2.8.7",
