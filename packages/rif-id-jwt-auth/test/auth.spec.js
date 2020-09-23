@@ -1,4 +1,4 @@
-const { rskDIDFromPrivateKey } = require('@rsksmart/rif-id-ethr-did')
+const { rskTestnetDIDFromPrivateKey } = require('@rsksmart/rif-id-ethr-did')
 const { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } = require('@rsksmart/rif-id-mnemonic')
 const { authExpressMiddleware, getChallenge, getAuthToken, initializeAuth } = require('../src')
 const { getLoginJwt } = require('../src/test-utils')
@@ -24,10 +24,10 @@ describe('auth tests', () => {
     const hdKey = seedToRSKHDKey(seed)
 
     const privateKey = hdKey.derive(0).privateKey.toString('hex')
-    identity = rskDIDFromPrivateKey()(privateKey)
+    identity = rskTestnetDIDFromPrivateKey()(privateKey)
 
     const privateKey2 = hdKey.derive(1).privateKey.toString('hex')
-    const identity2 = rskDIDFromPrivateKey()(privateKey2)
+    const identity2 = rskTestnetDIDFromPrivateKey()(privateKey2)
     did2 = identity2.did
     signer2 = identity2.signer;
 
