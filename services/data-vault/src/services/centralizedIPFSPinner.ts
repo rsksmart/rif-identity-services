@@ -11,7 +11,7 @@ import { randomBytes } from 'crypto'
 /* W3C */
 import { getResolver } from 'ethr-did-resolver'
 import { Resolver } from 'did-resolver'
-import EthrDID from 'ethr-did'
+import EthrDID from '@rsksmart/ethr-did'
 import { createVerifiableCredentialJwt } from 'did-jwt-vc'
 import { verifyJWT } from 'did-jwt'
 
@@ -52,7 +52,8 @@ export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPi
 
   const identity = new EthrDID({
     privateKey: env.privateKey,
-    address: env.address
+    address: env.address,
+    method: 'ethr:rsk:testnet'
   })
 
   /* setup auth */

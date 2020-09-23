@@ -11,12 +11,12 @@
     "test:ci": "npx jest test/ --coverage --coverageDirectory reports",
     "lint": "eslint src/* test/* --ext .json,.js,.ts",
     "lint:fix": "eslint src/* test/* --ext .json,.js,.ts --fix",
-    "lint:ci": "npx eslint src/* test/* --ext .json,.js,.ts --format junit --output-file ./reports/eslint.xml",
-    "postinstall": "rm ./node_modules/ethr-did/lib/index.js && cp ./patch/ethrDID-copy.js ./node_modules/ethr-did/lib/index.js"
+    "lint:ci": "npx eslint src/* test/* --ext .json,.js,.ts --format junit --output-file ./reports/eslint.xml"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@rsksmart/ethr-did": "^1.1.1-beta.1",
     "@rsksmart/rif-node-utils": "0.0.3",
     "@rsksmart/rif-storage": "^0.1.0",
     "@types/body-parser": "^1.19.0",
@@ -30,12 +30,10 @@
     "did-jwt-vc": "^1.0.4",
     "did-resolver": "^2.0.1",
     "dotenv": "^8.2.0",
-    "ethr-did": "^1.1.0",
     "ethr-did-resolver": "^2.3.2",
     "express": "^4.17.1",
     "sqlite3": "^5.0.0",
-    "typeorm": "^0.2.25",
-    "winston": "^3.3.3"
+    "typeorm": "^0.2.25"
   },
   "devDependencies": {
     "@rsksmart/rif-id-ethr-did": "0.0.1",
