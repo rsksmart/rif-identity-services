@@ -24,15 +24,27 @@ npm i @rsksmart/rif-node-utils
 Logging:
 
 ```typescript
+// myLogger.ts
 import { loggerFactory } from '@rsksmart/rif-node-utils'
 import dotenv from 'dotenv'
 
-const createLogger = loggerFactory({
-  env: env.ENV, // if set to 'dev', logs in console
-  infoFile: env.LOG_INFO_PATH,
-  errorFile: env.LOG_ERROR_PATH
+dotenv.config()
+
+const ENV = process.env.NODE_ENV || 'dev'
+const FILE = process.env.LOG_FILE || './log/issuer-backend.log'
+const ERROR_FILE = process.env.LOG_ERROR_FILE || './log/issuer-backend.error.log'
+
+export default loggerFactory({
+  env: ENV,
+  infoFile: FILE,
+  errorFile: ERROR_FILE
 })
 
-const logger = createLogger('rif-node-utils')
-const logger2 = createLogger('rif-node-utils-2') // will log with a different prefix
+// script.js
+import myLogger from './myLogger'
+
+const logger = myLogger('super-logger')
+
+logger.info('Info message')
+logger.error('Error message')
 ```
