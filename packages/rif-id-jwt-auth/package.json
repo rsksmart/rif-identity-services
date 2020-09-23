@@ -1,0 +1,44 @@
+{
+  "name": "vc-jwt-auth",
+  "version": "0.0.3",
+  "description": "Authentication with Verifiable Credentials",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "jest test/ --coverage --runInBand",
+    "lint": "eslint src/* test/* --ext .json,.js",
+    "lint:fix": "eslint src/* test/* --ext .json,.js --fix",
+    "prepublishOnly": "babel src --out-dir lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rsksmart/rif-identity-services.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rsksmart/rif-identity-services/issues"
+  },
+  "homepage": "https://github.com/rsksmart/rif-identity-services#readme",
+  "dependencies": {
+    "did-jwt": "^4.5.1",
+    "did-jwt-vc": "^1.0.6",
+    "did-resolver": "^2.1.1",
+    "ethr-did-resolver": "^3.0.0",
+    "js-sha3": "^0.8.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.11.6",
+    "@babel/core": "^7.11.6",
+    "@babel/preset-env": "^7.11.5",
+    "@rsksmart/rif-id-ethr-did": "0.0.1",
+    "@rsksmart/rif-id-mnemonic": "0.0.1",
+    "eslint": "^7.7.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jest": "^23.20.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "jest": "^26.4.2"
+  }
+}
