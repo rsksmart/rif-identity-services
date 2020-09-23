@@ -1,4 +1,4 @@
-import { messageToRequest } from '../lib/messageToRequest'
+import { messageToRequest } from '../src/lib/messageToRequest'
 import { getRandomString } from './utils'
 
 describe('messageToRequest tests', () => {

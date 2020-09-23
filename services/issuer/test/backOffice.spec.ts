@@ -4,9 +4,9 @@ import express, { Express } from 'express'
 import { Agent } from 'daf-core'
 import { Connection } from 'typeorm'
 import fs from 'fs'
-import backOffice from '../services/backOffice'
+import backOffice from '../src/services/backOffice'
 import { keccak256 } from 'js-sha3'
-import CredentialRequest from '../lib/CredentialRequest'
+import CredentialRequest from '../src/lib/CredentialRequest'
 
 describe('backOfficeService tests', () => {
   let 

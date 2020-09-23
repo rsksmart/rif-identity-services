@@ -1,9 +1,9 @@
 import { Agent } from 'daf-core'
-import setupDB from '../setup/db'
+import setupDB from '../src/setup/db'
 import { SecretBox } from 'daf-libsodium'
-import setupAgent from '../setup/agent'
+import setupAgent from '../src/setup/agent'
 import { Connection } from 'typeorm'
-import setupIdentity from '../setup/identity'
+import setupIdentity from '../src/setup/identity'
 import { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } from '@rsksmart/rif-id-mnemonic'
 import { createJWT, SimpleSigner } from 'did-jwt';
 import { rskDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'

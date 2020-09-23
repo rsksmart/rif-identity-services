@@ -1,9 +1,9 @@
 import { getRandomString, getTestAgent } from './utils'
-import setupDB from '../setup/db'
-import setupAgent from '../setup/agent'
+import setupDB from '../src/setup/db'
+import setupAgent from '../src/setup/agent'
 import fs from 'fs'
 import { SecretBox } from 'daf-libsodium'
-import setupIdentity from '../setup/identity'
+import setupIdentity from '../src/setup/identity'
 
 
 describe('setup tests', () => {
