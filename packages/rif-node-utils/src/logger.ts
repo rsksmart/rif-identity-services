@@ -8,7 +8,7 @@ const fileErrorFormat = format.printf(
   ({ timestamp, stack, label }) => `${timestamp} [${label}] ${stack}`
 )
 
-const loggerFactory = (config: { env: string, infoFile: string, errorFile: string }) => (label: string) => {
+export const loggerFactory = (config: { env: string, infoFile: string, errorFile: string }) => (label: string) => {
   const logger = winston.createLogger({
     transports: [
       new transports.File({
@@ -43,5 +43,3 @@ const loggerFactory = (config: { env: string, infoFile: string, errorFile: strin
 
   return logger;
 }
-
-export default loggerFactory
