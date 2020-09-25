@@ -220,7 +220,7 @@ describe('Express app tests - wrong env', () => {
 
     const jwt = await getLoginJwt('challenge', body.challenge, clientIdentity);
 
-    ({ body } = await request(app).post('/auth').send({ jwt }).expect(200));
+    ({ body } = await request(app).post('/auth').send({ jwt }).expect(200))
 
     const { token } = body
     const file = getRandomString()

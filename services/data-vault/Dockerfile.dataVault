@@ -3,6 +3,7 @@ FROM node:10
 WORKDIR /app
 
 COPY package.json ./
+COPY package-lock.json ./
 COPY ./patch ./patch
 
 RUN npm i

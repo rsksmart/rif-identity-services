@@ -12,6 +12,7 @@ function convey (app, env, logger, prefix = '') {
     throw Error('Missing privateKey')
   }
   const { did, signer } = rskDIDFromPrivateKey()(env.privateKey)
+  logger.info(`Generated DID: ${did}`)
 
   initializeAuth({
     ...env,
