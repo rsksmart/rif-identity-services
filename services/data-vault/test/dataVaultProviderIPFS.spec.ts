@@ -2,7 +2,7 @@ import { createConnection } from 'typeorm'
 import { Entities, CentralizedIPFSPinnerProvider, ICentralizedIPFSPinnerProvider } from '../src/lib/DataVaultProviderIPFS'
 import { rskDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'
 import { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } from '@rsksmart/rif-id-mnemonic'
-import { getRandomString } from './utils'
+import { getRandomString, mockedLogger } from './utils'
 import fs from 'fs'
 
 describe('DataVaultProviderIPFS tests', () => {
@@ -30,7 +30,9 @@ describe('DataVaultProviderIPFS tests', () => {
     anotherDid = rskDIDFromPrivateKey()(anotherPrivateKey).did
 
     // TODO: Create the IPFS daemon on runtime
-    provider = new CentralizedIPFSPinnerProvider({ dbConnection, ipfsOptions: { host: 'localhost', port: '5001', protocol: 'http' } })
+    provider = new CentralizedIPFSPinnerProvider(
+      { logger: mockedLogger, dbConnection, ipfsOptions: { host: 'localhost', port: '5001', protocol: 'http' } }
+    )
   })
 
   afterAll(() => {

@@ -15,6 +15,24 @@ const expectToThrowErrorMessage = async (fn, message) => {
   }
 }
 
+const getMockedRes = (expectedError) => ({
+  send: function (message) {
+    expect(message).toBe(expectedError)
+  },
+  status: function (responseStatus) {
+    expect(responseStatus).toBe(401)
+    return this
+  }
+})
+
+const getMockedReq = (token) => ({
+  headers: {
+    authorization: token
+  }
+})
+
+const next = jest.fn()
+
 describe('auth tests', () => {
   let identity, did, did2, signer, signer2, env, didResolver
 
@@ -39,7 +57,11 @@ describe('auth tests', () => {
       authExpirationInHours: 4
     }
 
-    const providerConfig = { networks: [{ name: 'rsk:testnet', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: env.rpcUrl }] }
+    const providerConfig = {
+      networks: [
+        { name: 'rsk:testnet', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: env.rpcUrl }
+      ]
+    }
     const ethrDidResolver = getResolver(providerConfig)
     didResolver = new Resolver(ethrDidResolver)
   })
@@ -101,9 +123,7 @@ describe('auth tests', () => {
   })
 
   describe('getAuthToken', () => {
-    beforeEach(() => {
-      initializeAuth(env)
-    })
+    beforeEach(() => initializeAuth(env))
 
     it('should throw an error if no jwt', async () => {
       await expectToThrowErrorMessage(() => getAuthToken(), 'JWT VC is required')
@@ -119,17 +139,6 @@ describe('auth tests', () => {
       const jwt = await getLoginJwt('challenge', 'invalid', identity)
 
       await expectToThrowErrorMessage(() => getAuthToken(jwt), 'Invalid challenge')
-    })
-
-    it('should throw an error when sending a challenge that is expired', async () => {
-      jest.useFakeTimers()
-
-      const challenge = getChallenge(identity.did)
-
-      const jwt = await getLoginJwt('challenge', challenge, identity)
-
-      jest.runAllTimers()
-      await expectToThrowErrorMessage(() => getAuthToken(jwt), 'Request for a challenge before auth')
     })
 
     it('should throw an error when sending an invalid payload', async () => {
@@ -158,29 +167,7 @@ describe('auth tests', () => {
   })
 
   describe('authExpressMiddleware', () => {
-    const getMockedRes = (expectedError) => ({
-      send: function (message) {
-        expect(message).toBe(expectedError)
-      },
-      status: function (responseStatus) {
-        expect(responseStatus).toBe(401)
-        return this
-      }
-    })
-
-    const getMockedReq = (token) => ({
-      headers: {
-        authorization: token
-      }
-    })
-
-    let next
-
-    beforeEach(() => {
-      initializeAuth(env)
-
-      next = jest.fn()
-    })
+    beforeEach(() => initializeAuth(env))
 
     it('should call next() if valid token', async () => {
       const challenge = getChallenge(identity.did)
@@ -229,7 +216,9 @@ describe('auth tests', () => {
 
       await authExpressMiddleware(mockedReq, getMockedRes('Invalid VC issuer'))
     }, 8000)
+  })
 
+  describe('max amount of requests', () => {
     it('should return max amount of requests reached', async () => {
       const newEnv = {
         ...env,
@@ -253,8 +242,12 @@ describe('auth tests', () => {
       await authExpressMiddleware(mockedReq, mockedRes, next)
 
       // the fourth one should return a 401
-      await authExpressMiddleware(mockedReq, getMockedRes('Max amount of requests reached'))
-    }, 12000)
+      await authExpressMiddleware(mockedReq, getMockedRes('Max amount of requests reached'), next)
+    }, 14000)
+  })
+
+  describe('time related', () => {
+    beforeEach(() => initializeAuth(env))
 
     it('should return expired vc message', async () => {
       jest.useFakeTimers()
@@ -276,5 +269,16 @@ describe('auth tests', () => {
       jest.runAllTimers()
       await authExpressMiddleware(mockedReq, getMockedRes('Expired token'))
     }, 12000)
+
+    it('should throw an error when sending a challenge that is expired', async () => {
+      jest.useFakeTimers()
+
+      const challenge = getChallenge(identity.did)
+
+      const jwt = await getLoginJwt('challenge', challenge, identity)
+
+      jest.runAllTimers()
+      await expectToThrowErrorMessage(() => getAuthToken(jwt), 'Request for a challenge before auth')
+    })
   })
 })

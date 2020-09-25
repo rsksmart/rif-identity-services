@@ -6,12 +6,12 @@ COPY package.json ./
 
 RUN npm i
 
-COPY ./server ./server
+COPY ./src ./src
 COPY ./tsconfig.json ./
 
-RUN npm run back:build
+RUN npm run build
 
 EXPOSE 5101
 EXPOSE 5100
 
-CMD [ "node", ".\/server\/build\/scripts\/all.js"]
+CMD [ "node", ".\/build\/scripts\/all.js"]

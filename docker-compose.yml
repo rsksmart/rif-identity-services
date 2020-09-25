@@ -4,48 +4,48 @@ services:
     rif-identity-ipfs-testnet:
         image: rif-identity-ipfs:${DOCKER_TAG:-latest}
         build:
-            context: ./data-vault
+            context: ./services/data-vault
             dockerfile: Dockerfile.ipfs
-        env_file: ./data-vault/.env
+        env_file: ./services/data-vault/.env
         ports:
             - "5001:5001"
             - "8080:8080"
         networks:
-            - rif-identity-service
+            - rif-identity-services
 
     rif-identity-datavault-testnet:
         image: rif-identity-datavault:${DOCKER_TAG:-latest}
         build:
-            context: ./data-vault
+            context: ./services/data-vault
             dockerfile: Dockerfile.dataVault
-        env_file: ./data-vault/.env
+        env_file: ./services/data-vault/.env
         volumes:
             - "/var/db/rif-identity/data-vault:/app/db"
             - "/var/log/rif-identity/data-vault:/app/log"
         ports:
             - "5102:5102"
         networks:
-            - rif-identity-service
+            - rif-identity-services
 
     rif-identity-convey-testnet:
         image: rif-identity-convey:${DOCKER_TAG:-latest}
         build:
-            context: ./convey
+            context: ./services/convey
             dockerfile: Dockerfile.convey
-        env_file: ./convey/.env
+        env_file: ./services/convey/.env
         volumes:
             - "/var/log/rif-identity/convey:/app/log"
         ports:
             - "5104:5104"
         networks:
-            - rif-identity-service
+            - rif-identity-services
 
     rif-identity-issuer-back-testnet:
         image: rif-identity-back:${DOCKER_TAG:-latest}
         build:
-            context: ./issuer
+            context: ./services/issuer
             dockerfile: Dockerfile.issuerBackend
-        env_file: ./issuer/.env
+        env_file: ./services/issuer/.env
         volumes:
             - "/var/db/rif-identity/issuer-server:/app/db"
             - "/var/log/rif-identity/issuer-server:/app/log"
@@ -53,8 +53,8 @@ services:
             - "5100:5100"
             - "5101:5101"
         networks:
-            - rif-identity-service
+            - rif-identity-services
 
 networks:
-    rif-identity-service:
+    rif-identity-services:
         driver: bridge

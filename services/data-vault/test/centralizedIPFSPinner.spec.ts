@@ -6,12 +6,12 @@ import { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } from '@rsksmart/rif-
 import { verifyJWT, SimpleSigner, createJWT, decodeJWT } from 'did-jwt'
 import { Resolver } from 'did-resolver'
 import { getResolver } from 'ethr-did-resolver'
-import { getRandomString, largeText } from './utils'
-import EthrDID from 'ethr-did'
+import { getRandomString, largeText, mockedLogger } from './utils'
+import EthrDID from '@rsksmart/ethr-did'
 import fs from 'fs'
 
 // this test suite is failing
-describe.skip('Express app tests', () => {
+describe('Express app tests', () => {
   let app: Express, did: string, privateKey: string, resolver: Resolver
 
   const dbFile = `./api-test-${new Date().getTime()}.sqlite`
@@ -22,7 +22,7 @@ describe.skip('Express app tests', () => {
     ipfsPort: '5001',
     ipfsHost: 'localhost',
     authExpirationTime: '300000',
-    rpcUrl: 'https://mainnet.infura.io/v3/1e0af90f0e934c88b0f0b6612146e07a',
+    rpcUrl: 'https://did.testnet.rsk.co:4444',
     dbFile
   }
 
@@ -51,7 +51,7 @@ describe.skip('Express app tests', () => {
 
     app = express()
 
-    await setupCentralizedIPFSPinner(app, env)
+    await setupCentralizedIPFSPinner(app, env, mockedLogger)
   })
 
   afterAll(() => {
@@ -76,7 +76,8 @@ describe.skip('Express app tests', () => {
     it('returns DVs did', async () => {
       const identity = new EthrDID({
         privateKey: env.privateKey,
-        address: env.address
+        address: env.address,
+        method: 'ethr:rsk:testnet'
       })
 
       const { text } = await request(app).get('/identity').send().expect(200)

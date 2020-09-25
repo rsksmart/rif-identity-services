@@ -7,7 +7,8 @@
     "test": "jest test/ --coverage --verbose",
     "lint": "eslint src/* test/* --ext .json,.js",
     "lint:fix": "eslint src/* test/* --ext .json,.js --fix",
-    "prepublishOnly": "babel src --out-dir lib"
+    "build": "babel src --out-dir lib",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",

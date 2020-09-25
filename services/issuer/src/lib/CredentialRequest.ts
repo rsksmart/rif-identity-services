@@ -1,4 +1,4 @@
-import { Entity, Column, BaseEntity, PrimaryColumn, OneToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm'
+import { Entity, Column, BaseEntity, OneToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm'
 import { Message } from 'daf-core';
 
 @Entity()

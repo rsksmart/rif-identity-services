@@ -23,9 +23,17 @@ const env = {
   }
 }
 
-const providerConfig = { networks: [{ name: 'rsk:testnet', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: env.rpcUrl }] }
+const mockedLogger = { info: () => {}, error: () => {} }
+
+const providerConfig = {
+  networks: [
+    { name: 'rsk:testnet', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: env.rpcUrl }
+  ]
+}
 const ethrDidResolver = getResolver(providerConfig)
 const didResolver = new Resolver(ethrDidResolver)
+
+jest.setTimeout(8000)
 
 describe('Express app tests', () => {
   let app, clientIdentity
@@ -33,7 +41,7 @@ describe('Express app tests', () => {
   beforeAll(() => {
     app = express()
 
-    convey(app, env)
+    convey(app, env, mockedLogger)
   })
 
   beforeEach(async () => {
@@ -54,7 +62,7 @@ describe('Express app tests', () => {
     })
 
     it('returns a 500 if not did present', async () => {
-      request(app).post('/request-auth').send().expect(200)
+      await request(app).post('/request-auth').send().expect(500)
     })
 
     it('returns a valid token if sending the proper challenge', async () => {
@@ -70,7 +78,7 @@ describe('Express app tests', () => {
       const { issuer, payload } = await verifyCredential(body.token, didResolver)
       const expectedIssuerDid = rskDIDFromPrivateKey()(env.privateKey).did
 
-      expect(payload.sub).toEqual(clientIdentity.did)
+      expect(payload.sub).toEqual(did)
       expect(payload.exp).toBeLessThan((Date.now() / 1000) + env.authExpirationInHours * 60 * 60 + 10) // added 10 seconds of grace
       expect(issuer).toContain(expectedIssuerDid)
     })
@@ -202,11 +210,22 @@ describe('Express app tests - wrong env', () => {
 
     const app = express()
 
-    convey(app, invalidEnv)
+    convey(app, invalidEnv, mockedLogger)
 
+    const clientIdentity = rskDIDFromPrivateKey()('c0d0bafd577fe198158270925613affc27b7aff9e8b7a7050b2b65f6eefd3083')
+    const did = clientIdentity.did
+    let body;
+
+    ({ body } = await request(app).post('/request-auth').send({ did }).expect(200))
+
+    const jwt = await getLoginJwt('challenge', body.challenge, clientIdentity);
+
+    ({ body } = await request(app).post('/auth').send({ jwt }).expect(200));
+
+    const { token } = body
     const file = getRandomString()
 
-    request(app).post('/file').send({ file }).expect(500)
+    await request(app).post('/file').set('Authorization', token).send({ file }).expect(500)
   })
 
   it('throws an errr when no private key provided', async () => {
@@ -216,7 +235,7 @@ describe('Express app tests - wrong env', () => {
     const app = express()
 
     try {
-      convey(app, invalidEnv)
+      convey(app, invalidEnv, mockedLogger)
     } catch (err) {
       expect(err.message).toEqual('Missing privateKey')
     }
