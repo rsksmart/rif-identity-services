@@ -7,6 +7,7 @@
     "start": "node src/index.js",
     "start:dev": "nodemon src/index.js",
     "test": "jest test/ --coverage",
+    "test:ci": "",
     "lint": "eslint src/* test/* --ext .json,.js",
     "lint:fix": "eslint src/* test/* --ext .json,.js --fix",
     "postinstall": "rm ./node_modules/ethr-did/lib/index.js && cp ./patch/ethrDID-copy.js ./node_modules/ethr-did/lib/index.js"

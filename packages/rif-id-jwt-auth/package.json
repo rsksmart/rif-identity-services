@@ -5,6 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "jest test/ --coverage --verbose",
+    "test:ci": "jest test/ --coverage --verbose",
     "lint": "eslint src/* test/* --ext .json,.js",
     "lint:fix": "eslint src/* test/* --ext .json,.js --fix",
     "build": "babel src --out-dir lib",
