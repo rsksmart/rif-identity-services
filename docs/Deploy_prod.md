@@ -4,11 +4,13 @@ Deploy all RIF Identity services using Docker containers and Docker compose.
 
 This services are expected to be run:
 
-- `rif-identity-ipfs-testnet` (not public - it is accessed only by `rif-identity-datavault-testnet`)
+- `rif-identity-ipfs-testnet` 
+    - Two ports opened: 
+        - 5001 not public - it is accessed only by `rif-identity-datavault-testnet`
+        - 8080 is public
 - `rif-identity-datavault-testnet`
-- `rif-identity-tinyqr-testnet`
 - `rif-identity-issuer-back-testnet`
-- `rif-identity-issuer-front-testnet`
+- `rif-identity-convey-testnet`
 
 First clone the repo
 
@@ -21,7 +23,7 @@ Now setup the services:
 
 #### Data vault
 
-1. Go to `./data-vault`
+1. Go to `./services/data-vault`
 2. Create a `.env` file with
 
     ```
@@ -35,27 +37,16 @@ Now setup the services:
     LOG_FILE=./log/data-vault.log
     LOG_ERRORS_FILE=./log/data-vault.error.log
     NODE_ENV=production
+    AUTH_EXPIRATION_TIME=300000
     ```
 
 > The private key is stored raw.
 
 > `IPFS_HOST` and `IPFS_PORT` refer to the IPFS container named `rif-identity-ipfs-testnet`. You should put here the container name that will be run in the same network as this service, or the dns name if running in another machine.
 
-#### Tiny QR
-
-1. Go to `./tiny-qr`
-2. Create a `.env` file with
-
-    ```
-    TINY_QR_PORT=5103
-    TINY_QR_URL=COMPLETE WITH THE DNS SET OF THIS SERVICE
-    ```
-
-> `TINY_QR_URL` must contain the DNS set for the tiny QR service
-
 #### Issuer services
 
-1. Go to `./issuer`
+1. Go to `./services/issuer`
 2. Create a `.env` file with
 
     ```
@@ -68,23 +59,34 @@ Now setup the services:
     LOG_ERRORS_FILE=./log/issuer-backend.error.log
     DB_FILE=./db/issuer.sqlite
     NODE_ENV=production
+    AUTH_EXPIRATION_HOURS=10
+    CHALLENGE_EXPIRATION_SECONDS=300
+    MAX_REQUESTS_PER_TOKEN=20
     ```
 
-> `SECRET_BOX_KEY` is used to encypt/decrypt key store.
 
-> `ADMIN_PASS` is the password required to login to the front-end, it is stored raw.
+#### Convey services
 
-#### Issuer front end
-
-1. Go to `./issuer/app`
+1. Go to `./services/convey`
 2. Create a `.env` file with
 
     ```
-    SKIP_PREFLIGHT_CHECK=true
-    REACT_APP_BACKOFFICE=COMPLETE WITH THE DNS SET OF THE ISSUER BACK OFFICE
+    CONVEY_PORT=5104
+    LOG_FILE=./log/convey.log
+    LOG_ERROR_FILE=./log/convey.error.log
+    IPFS_PORT=5001
+    IPFS_HOST=rif-identity-ipfs-testnet
+    NODE_ENV=dev
+    PRIVATE_KEY=COMPLETE WITH YOUR PRIVATE KEY
+    RPC_URL=https://did.testnet.rsk.co:4444
+    AUTH_EXPIRATION_HOURS=10
+    CHALLENGE_EXPIRATION_SECONDS=300
+    MAX_REQUESTS_PER_TOKEN=20
     ```
 
-> `REACT_APP_BACKOFFICE` must contain the DNS set for the issuer back office service (started on port 5101)
+> The private key is stored raw.
+
+> `IPFS_HOST` and `IPFS_PORT` refer to the IPFS container named `rif-identity-ipfs-testnet`. You should put here the container name that will be run in the same network as this service, or the dns name if running in another machine.
 
 #### IMPORTANT NOTE:
 

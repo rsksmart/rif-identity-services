@@ -32,7 +32,7 @@ commands:
             done
 
 jobs:
-  data-vault-lint-test:
+  install-setup-test:
     executor:
       name: node/default
     steps:
@@ -40,15 +40,13 @@ jobs:
       - install-ipfs
       - spawn-ipfs-node
       - node/with-cache:
-          dir: ~/tmp
           steps:
-            - run: cd data-vault && npm install
-            - run:
-                name: Lint
-                command: cd data-vault && npm run lint:ci
+            - run: npm install
+            - run: npm run setup
+            - run: npm run build
             - run:
                 name: Test
-                command: cd data-vault && npm run test:ci
+                command: npm run test:ci
                 environment:
                   JEST_JUNIT_OUTPUT_DIR: ./reports/
             - store_test_results:
@@ -57,6 +55,6 @@ jobs:
                 path: ./reports/
 
 workflows:
-    data-vault:
+  install-setup-test:
       jobs:
-        - data-vault-lint-test
+        - install-setup-test

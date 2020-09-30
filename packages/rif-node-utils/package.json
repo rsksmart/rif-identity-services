@@ -1,0 +1,28 @@
+{
+  "name": "@rsksmart/rif-node-utils",
+  "version": "0.0.3",
+  "description": "RIF Node.js utils",
+  "main": "lib/index.js",
+  "dependencies": {
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "typescript": "^4.0.3"
+  },
+  "scripts": {
+    "test": "",
+    "test:ci": "",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rif-identity-services"
+  },
+  "keywords": [
+    "rsk",
+    "rif",
+    "node"
+  ],
+  "author": "",
+  "license": "ISC"
+}

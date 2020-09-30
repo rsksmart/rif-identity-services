@@ -1,0 +1,17 @@
+FROM node:10
+
+WORKDIR /app
+
+COPY package.json ./
+COPY package-lock.json ./
+COPY ./patch ./patch
+
+RUN npm i
+COPY ./patch/ethrDID-copy.js ./node_modules/ethr-did/lib/index.js
+
+COPY ./src ./src
+COPY ./tsconfig.json ./
+
+EXPOSE 5102
+
+CMD [ "npm", "run", "start"]
