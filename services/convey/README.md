@@ -1,7 +1,6 @@
 # Convey service
 
-Large contents don't fit in QR codes so this service is designed to receive an encrypted file, store (and pin) it in IPFS and also store the file in memory. It returns the cid of the stored file and a convey-uri that indicates that this kind of files should be gotten from a convey service implementation
-
+Large contents don't fit in QR codes so this service is designed to receive an encrypted file, store it in IPFS and also store the file in memory. It returns the cid of the stored file and a convey-uri that indicates that this kind of files should be gotten from a convey service implementation
 
 **Send a message**
 
