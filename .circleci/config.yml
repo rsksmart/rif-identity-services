@@ -43,6 +43,7 @@ jobs:
           steps:
             - run: npm install
             - run: npm run setup
+            - run: npm run build
             - run:
                 name: Test
                 command: npm run test
