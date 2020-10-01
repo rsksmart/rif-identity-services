@@ -1,7 +1,7 @@
 {
-  "name": "convey-service",
-  "version": "0.0.0",
-  "description": "",
+  "name": "@rsksmart/rif-id-convey-service",
+  "version": "0.1.0",
+  "description": "RIF Identity - Convey service",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
