@@ -5,6 +5,17 @@
 <p align="middle">
     Services enabling RIF Self-sovereign.
 </p>
+<p align="middle">
+    <a href="https://circleci.com/gh/rsksmart/rif-identity-services">
+        <img src="https://img.shields.io/circleci/build/github/rsksmart/rif-identity-services?label=CircleCI" alt="npm" />
+    </a>
+    <a href="https://lgtm.com/projects/g/rsksmart/rif-identity-services/alerts/">
+      <img src="https://img.shields.io/lgtm/alerts/github/rsksmart/rif-identity-services" alt="alerts">
+    </a>
+    <a href="https://lgtm.com/projects/g/rsksmart/rif-identity-services/context:javascript">
+      <img src="https://img.shields.io/lgtm/grade/javascript/github/rsksmart/rif-identity-services">
+    </a>
+</p>
 
 The project has different modules that run together form the RIF Identity main flow:
 
