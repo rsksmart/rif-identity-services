@@ -1,7 +1,7 @@
 {
   "name": "@rsksmart/rif-id-data-vault-service",
-  "version": "0.0.0",
-  "description": "",
+  "version": "0.1.0",
+  "description": "RIF Identity - Data Vault service",
   "main": "index.js",
   "scripts": {
     "build": "tsc",

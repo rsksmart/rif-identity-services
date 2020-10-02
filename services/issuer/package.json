@@ -1,7 +1,7 @@
 {
-  "name": "issuer",
-  "version": "1.0.0",
-  "description": "",
+  "name": "@rsksmart/rif-id-issuer",
+  "version": "0.1.0",
+  "description": "RIF Identity - Issuer service",
   "main": "index.js",
   "scripts": {
     "test": "jest test/ --coverage",
