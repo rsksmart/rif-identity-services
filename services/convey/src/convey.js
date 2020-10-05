@@ -1,12 +1,13 @@
 const bodyParser = require('body-parser')
-const RIFStorage = require('@rsksmart/rif-storage')
+const IPFSHttpClient = require('ipfs-http-client')
 const { rskDIDFromPrivateKey } = require('@rsksmart/rif-id-ethr-did')
 
-const { Provider } = RIFStorage
 const { authExpressMiddleware, getChallenge, getAuthToken, initializeAuth } = require('vc-jwt-auth')
 
 function convey (app, env, logger, prefix = '') {
-  const storage = RIFStorage.default(Provider.IPFS, env.ipfsOptions || { host: 'localhost', port: '5001', protocol: 'http' })
+  const { ipfsOptions } = env
+  const url = ipfsOptions ? `${ipfsOptions.protocol}://${ipfsOptions.host}:${ipfsOptions.port}` : 'http://localhost:5001'
+  const ipfsClient = IPFSHttpClient({ url })
 
   if (!env.privateKey) {
     throw Error('Missing privateKey')
@@ -62,9 +63,15 @@ function convey (app, env, logger, prefix = '') {
   app.post(prefix + '/file', async function (req, res) {
     try {
       const { file } = req.body
+
+      if (!file) {
+        throw new Error('Invalid content')
+      }
+
       logger.info(`Incoming file ${file}`)
 
-      const cid = await storage.put(file)
+      const addedContent = await ipfsClient.add(file)
+      const cid = addedContent.path
       logger.info('Stored hash: ' + cid)
 
       files[cid] = file

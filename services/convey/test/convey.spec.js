@@ -10,6 +10,19 @@ const { getLoginJwt } = require('vc-jwt-auth/lib/test-utils')
 
 const getRandomString = () => Math.random().toString(36).substring(3, 11)
 
+const getAuthTokenWithIdentity = (app) => async (clientIdentity) => {
+  const did = clientIdentity.did
+  let body;
+
+  ({ body } = await request(app).post('/request-auth').send({ did }).expect(200))
+
+  const jwt = await getLoginJwt('challenge', body.challenge, clientIdentity);
+
+  ({ body } = await request(app).post('/auth').send({ jwt }).expect(200))
+
+  return body.token
+}
+
 const env = {
   rpcUrl: 'https://did.testnet.rsk.co:4444',
   privateKey: 'c0d0bafd577fe198158270925613affc27b7aff9e8b7a7050b2b65f6eefd3083',
@@ -33,7 +46,7 @@ const providerConfig = {
 const ethrDidResolver = getResolver(providerConfig)
 const didResolver = new Resolver(ethrDidResolver)
 
-jest.setTimeout(8000)
+jest.setTimeout(10000)
 
 describe('Express app tests', () => {
   let app, clientIdentity
@@ -66,7 +79,7 @@ describe('Express app tests', () => {
     })
 
     it('returns a valid token if sending the proper challenge', async () => {
-      const did = clientIdentity.did
+      const { did } = clientIdentity
       let body;
 
       ({ body } = await request(app).post('/request-auth').send({ did }).expect(200))
@@ -81,7 +94,7 @@ describe('Express app tests', () => {
       expect(payload.sub).toEqual(did)
       expect(payload.exp).toBeLessThan((Date.now() / 1000) + env.authExpirationInHours * 60 * 60 + 10) // added 10 seconds of grace
       expect(issuer).toContain(expectedIssuerDid)
-    })
+    }, 12000)
 
     it('return 401 if not requested the challenge before', async () => {
       const jwt = await getLoginJwt('another', 'invalid', clientIdentity)
@@ -115,23 +128,11 @@ describe('Express app tests', () => {
   })
 
   describe('authenticated requests', () => {
-    let token
-
-    beforeEach(async () => {
-      const did = clientIdentity.did
-      let body;
-
-      ({ body } = await request(app).post('/request-auth').send({ did }).expect(200))
-
-      const jwt = await getLoginJwt('challenge', body.challenge, clientIdentity);
-
-      ({ body } = await request(app).post('/auth').send({ jwt }).expect(200));
-
-      ({ token } = body)
-    })
+    const getAuthToken = async () => await getAuthTokenWithIdentity(app)(clientIdentity)
 
     it('returns a valid cid', async () => {
       const file = getRandomString()
+      const token = await getAuthToken()
 
       const { body } = await request(app)
         .post('/file')
@@ -153,6 +154,7 @@ describe('Express app tests', () => {
 
     it('fails when posting undefined', async () => {
       const file = undefined
+      const token = await getAuthToken()
 
       await request(app)
         .post('/file')
@@ -160,8 +162,18 @@ describe('Express app tests', () => {
         .send({ file }).expect(500)
     })
 
+    it('fails when no file present', async () => {
+      const token = await getAuthToken()
+
+      await request(app)
+        .post('/file')
+        .set('Authorization', token)
+        .expect(500)
+    })
+
     it('gets a saved cid', async () => {
       const expected = getRandomString()
+      const token = await getAuthToken()
 
       const response = await request(app)
         .post('/file').set('Authorization', token)
@@ -178,6 +190,8 @@ describe('Express app tests', () => {
     })
 
     it('not found when getting undefined', async () => {
+      const token = await getAuthToken()
+
       await request(app).get('/file').set('Authorization', token).send().expect(404)
     })
 
@@ -187,6 +201,7 @@ describe('Express app tests', () => {
 
     it('not found a cid that has not been saved in this convey', async () => {
       const cid = 'notExists'
+      const token = await getAuthToken()
 
       await request(app).get(`/file/${cid}`).set('Authorization', token).expect(404)
     })
@@ -213,16 +228,8 @@ describe('Express app tests - wrong env', () => {
     convey(app, invalidEnv, mockedLogger)
 
     const clientIdentity = rskDIDFromPrivateKey()('c0d0bafd577fe198158270925613affc27b7aff9e8b7a7050b2b65f6eefd3083')
-    const did = clientIdentity.did
-    let body;
 
-    ({ body } = await request(app).post('/request-auth').send({ did }).expect(200))
-
-    const jwt = await getLoginJwt('challenge', body.challenge, clientIdentity);
-
-    ({ body } = await request(app).post('/auth').send({ jwt }).expect(200))
-
-    const { token } = body
+    const token = await getAuthTokenWithIdentity(app)(clientIdentity)
     const file = getRandomString()
 
     await request(app).post('/file').set('Authorization', token).send({ file }).expect(500)
