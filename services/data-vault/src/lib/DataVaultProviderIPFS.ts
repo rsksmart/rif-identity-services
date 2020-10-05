@@ -1,6 +1,6 @@
-import RIFStorage, { Provider } from '@rsksmart/rif-storage'
 import { Entity, PrimaryGeneratedColumn, Column, Connection } from 'typeorm'
 import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
+import IPFSHttpClient from 'ipfs-http-client'
 
 @Entity()
 class DataVaultEntry {
@@ -23,10 +23,13 @@ class DataVaultEntry {
   cid!: string;
 }
 
-type IPFSPinner = { ipfs: { pin: {
-  add: (cid: string) => Promise<void>
-  rm: (cid: string) => Promise<void>
-} } }
+type IPFSClient = {
+  add: (content: Buffer) => Promise<{ path: string }>,
+  pin: {
+    add: (cid: string) => Promise<void>
+    rm: (cid: string) => Promise<void>
+  }
+}
 
 type CentralizedIPFSPinnerProviderConfig = {
   dbConnection: Connection,
@@ -45,7 +48,8 @@ export const CentralizedIPFSPinnerProvider = (function (this: ICentralizedIPFSPi
   ipfsOptions,
   logger
 }: CentralizedIPFSPinnerProviderConfig) {
-  const storage = RIFStorage(Provider.IPFS, ipfsOptions || { host: 'localhost', port: '5001', protocol: 'http' })
+  const url = ipfsOptions ? `${ipfsOptions?.protocol}://${ipfsOptions?.host}:${ipfsOptions?.port}` : 'http://localhost:5001'
+  const ipfsClient = IPFSHttpClient({ url }) as IPFSClient
 
   /**
    * Put a file in IPFS and associate it with a DID
@@ -54,10 +58,11 @@ export const CentralizedIPFSPinnerProvider = (function (this: ICentralizedIPFSPi
    * @returns string
    */
   this.put = async function (did: string, key: string, content: Buffer) {
-    const fileHash = await storage.put(content)
+    const addedContent = await ipfsClient.add(content)
+    const fileHash = addedContent.path
     logger.info('Stored hash: ' + fileHash)
 
-    await (storage as IPFSPinner).ipfs.pin.add(fileHash)
+    await ipfsClient.pin.add(fileHash)
     logger.info('Pinned hash: ' + fileHash)
 
     const entry = new DataVaultEntry(did, key, fileHash)
@@ -83,7 +88,7 @@ export const CentralizedIPFSPinnerProvider = (function (this: ICentralizedIPFSPi
       logger.info(`Deleted hash: ${cid}`)
 
       if (!deleteResult.id) {
-        await (storage as IPFSPinner).ipfs.pin.rm(cid)
+        await ipfsClient.pin.rm(cid)
         logger.info(`Unpinned hash: ${cid}`)
 
         return true

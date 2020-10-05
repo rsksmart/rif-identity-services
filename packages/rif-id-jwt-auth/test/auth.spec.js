@@ -243,7 +243,7 @@ describe('auth tests', () => {
 
       // the fourth one should return a 401
       await authExpressMiddleware(mockedReq, getMockedRes('Max amount of requests reached'), next)
-    }, 14000)
+    }, 15000)
   })
 
   describe('time related', () => {
