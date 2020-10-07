@@ -15,10 +15,16 @@ import EthrDID from '@rsksmart/ethr-did'
 import { createVerifiableCredentialJwt } from 'did-jwt-vc'
 import { verifyJWT } from 'did-jwt'
 
-/* Data vault */
-import { CentralizedIPFSPinnerProvider, Entities } from '../lib/DataVaultProviderIPFS'
+import { Entities, IpfsPinnedCid, IpfsSavedContent } from '../lib/entities'
+import IPFSHttpClient from 'ipfs-http-client'
+import { IpfsHttpClient } from '../types'
 
 import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
+import IpfsPinner from '../lib/IpfsPinner'
+import IpfsClient from '../lib/IpfsClient'
+import IpfsStorageProvider from '../lib/IpfsStorageProvider'
+import CentralizedDataVault from '../lib/CentralizedDataVault'
+import MetadataManager from '../lib/MetadataManager'
 
 interface CentralizedIPFSPinnerEnv {
   privateKey: string;
@@ -69,12 +75,15 @@ export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPi
     synchronize: true,
     logging: false
   }).then(dbConnection => {
-    /* setup data vault */
-    const dataVaultProvider = new CentralizedIPFSPinnerProvider({
-      dbConnection,
-      ipfsOptions: { host: env.ipfsHost, port: env.ipfsPort, protocol: 'http' },
-      logger
-    })
+    const { ipfsHost, ipfsPort } = env
+    const url = ipfsHost && ipfsPort ? `http://${ipfsHost}:${ipfsPort}` : 'http://localhost:5001'
+    const ipfsHttpClient = IPFSHttpClient({ url }) as IpfsHttpClient // TODO: Improve naming
+
+    const ipfsPinner = new IpfsPinner(ipfsHttpClient, dbConnection.getRepository(IpfsPinnedCid))
+    const ipfsClient = new IpfsClient(ipfsHttpClient)
+    const metadataManager = new MetadataManager(dbConnection.getRepository(IpfsSavedContent))
+    const ipfsStorageProvider = new IpfsStorageProvider(ipfsClient, metadataManager, ipfsPinner)
+    const centralizedDataVault = new CentralizedDataVault(ipfsStorageProvider)
 
     /* authentication */
     const authenticate = (jwt: string) => verifyJWT(jwt, {
@@ -141,7 +150,7 @@ export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPi
       const { jwt } = req.body
 
       authenticateAndFindClaims(jwt)(['key', 'content'])
-        .then(({ issuer, claims }) => dataVaultProvider.put(issuer, claims.key, Buffer.from(claims.content)))
+        .then(({ issuer, claims }) => centralizedDataVault.put(issuer, claims.key, claims.content))
         .then(cid => res.status(200).send(cid))
         .catch(e => {
           logger.error('Caught error on POST /put', e)
@@ -154,7 +163,7 @@ export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPi
       const { jwt } = req.body
 
       authenticateAndFindClaims(jwt)(['key'])
-        .then(({ issuer, claims }) => dataVaultProvider.get(issuer, claims.key))
+        .then(({ issuer, claims }) => centralizedDataVault.get(issuer, claims.key))
         .then(cids => res.status(200).send(JSON.stringify(cids)))
         .catch(e => {
           logger.error('Caught error on POST /get', e)
@@ -167,7 +176,7 @@ export function setupCentralizedIPFSPinner (app: Express, env: CentralizedIPFSPi
       const { jwt } = req.body
 
       authenticateAndFindClaims(jwt)(['key', 'cid'])
-        .then(({ issuer, claims }) => dataVaultProvider.delete(issuer, claims.key, claims.cid))
+        .then(({ issuer, claims }) => centralizedDataVault.delete(issuer, claims.key, claims.cid))
         .then(() => res.status(204).send())
         .catch(e => {
           logger.error('Caught error on POST /delete', e)

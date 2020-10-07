@@ -23,6 +23,7 @@
         "jest/prefer-to-have-length": "error",
         "jest/valid-expect": "error",
         "no-unused-vars": "off",
+        "no-useless-constructor": "off",
         "@typescript-eslint/no-unused-vars": [
             "error"
         ]
