@@ -1,8 +1,11 @@
 {
-  "name": "vc-jwt-auth",
-  "version": "0.0.3",
-  "description": "Authentication with Verifiable Credentials",
+  "name": "@rsksmart/express-did-auth",
+  "version": "0.0.1",
+  "description": "Authentication with Verifiable Credentials for Express.js",
   "main": "lib/index.js",
+  "files": [
+    "lib/"
+  ],
   "scripts": {
     "test": "jest test/ --coverage --verbose",
     "lint": "eslint src/* test/* --ext .json,.js",
