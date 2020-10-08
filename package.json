@@ -2,7 +2,7 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "setup": "npx lerna bootstrap",
+    "setup": "npx lerna bootstrap --force-local",
     "test": "npx lerna run test",
     "test:ci": "npx lerna run test:ci",
     "build": "npx lerna run build"
