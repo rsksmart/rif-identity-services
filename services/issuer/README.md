@@ -17,14 +17,11 @@ Application that allows receiving credential issuance requests and approving the
 
 ## Run
 
-The issuer has 2 processes running:
+The issuer runs a back end with two express apps, one for the request credential HTTPS service and the other to serve information to the front end.
 
-1. Back end with two express apps, one for the request credential HTTPS service and the other to serve information to the front end
-2. Front end: react app. It connects to the back end and has a list of credential requests - this is WP
+The front end can be run from [`@rsksmart/rif-identity-ui`](https://github.com/rsksmart/rif-identity-ui/tree/develop/apps/issuer-app)
 
 > All commands can be run prepending  `:dev` for watch mode
-
-### Back end
 
 1. Setup: create a `.env` file with
 
@@ -57,50 +54,11 @@ The issuer has 2 processes running:
 
 You should see the terminal running like this
 
-![back](./img/back.png)
+![run](./img/run.png)
 
 Also a database file will be created. `issuer.sqlite`
 
-### Front end
-
-1. It is a react app, browse into it
-
-  ```
-  cd app
-  ```
-
-2. (if the default issuer back office service port was changed) Please fill the back office service port again :/, crate a `.env` file
-
-  ```
-  REACT_APP_BACKOFFICE_PORT=back office service port
-  ```
-
-  or the port you used.
-
-3. Install deps
-
-  ```
-  yarn
-  ```
-
-4. Run the app. It will build the app and start a `serve` server for productive command, or react watch mode for dev
-
-  ```
-  yarn front
-  # npm run front:dev
-  ```
-
-![front](./img/front.png)
-
-### All together
-
-```
-npm run all
-npm run all:dev
-```
-
 ## Optional configuration
-
 
 Choose optionals:
 

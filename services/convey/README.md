@@ -39,6 +39,8 @@ Find the protocol specification [here](https://github.com/rsksmart/rif-identity-
   # or npm run start:dev
   ```
 
+![](./img/convey.png)
+
 ## Test
 
 1. Install deps
@@ -46,12 +48,6 @@ Find the protocol specification [here](https://github.com/rsksmart/rif-identity-
   ```
   npm i
   ```
-
-  `postinstall` is running a script to append `"rsk:testnet"` to `"did:ethr:"` methods name
-
-  To do it manually, remove `postinstall` script before running installing, then find this in `node_modules/ethr-did/lib/index.js`
-
-  ![fix](./img/fix.png)
 
 2. Install IPFS CLI. Find your option: https://docs.ipfs.io/how-to/command-line-quick-start/.
 

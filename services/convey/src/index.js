@@ -13,8 +13,8 @@ const env = {
   authExpirationInHours: process.env.AUTH_EXPIRATION_HOURS || 10,
   maxRequestsPerToken: process.env.MAX_REQUESTS_PER_TOKEN || 30,
   ipfsOptions: {
-    host: process.env.IPFS_HOST,
-    port: process.env.IPFS_PORT,
+    host: process.env.IPFS_HOST || 'localhost',
+    port: process.env.IPFS_PORT || 5001,
     protocol: 'http'
   }
 }

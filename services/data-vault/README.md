@@ -62,7 +62,7 @@ Read the service documentation [here](https://github.com/rsksmart/rif-identity-d
 
 You should now see
 
-![dv](dv.png)
+![dv](img/dv.png)
 
 ## Test
 
@@ -71,12 +71,6 @@ You should now see
   ```
   npm i
   ```
-
-  `postinstall` is running a script to append `"rsk:testnet"` to `"did:ethr:"` methods name
-
-  To do it manually, remove `postinstall` script before running installing, then find this in `node_modules/ethr-did/lib//index.js`
-
-  ![fix](./img/fix.png)
 
 2. Install IPFS CLI. Find your option: https://docs.ipfs.io/how-to/command-line-quick-start/.
 
