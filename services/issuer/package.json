@@ -7,12 +7,12 @@
     "test": "jest test/ --coverage",
     "build": "tsc",
     "start": "npm run build && node ./build/scripts/all.js",
-    "dev": "concurrently \"tsc --watch\" \"nodemon ./build/scripts/all.js\"",
-    "postinstall": "rm ./node_modules/ethr-did/lib/index.js && cp ./patch/ethrDID-copy.js ./node_modules/ethr-did/lib/index.js"
+    "dev": "concurrently \"tsc --watch\" \"nodemon ./build/scripts/all.js\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@rsksmart/express-did-auth": "0.0.1",
     "@rsksmart/rif-node-utils": "0.0.2",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
@@ -40,12 +40,11 @@
     "sqlite3": "^5.0.0",
     "typeorm": "^0.2.25",
     "typescript": "^3.9.7",
-    "vc-jwt-auth": "0.0.3",
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "@rsksmart/rif-id-ethr-did": "0.0.1",
-    "@rsksmart/rif-id-mnemonic": "0.0.1",
+    "@rsksmart/rif-id-ethr-did": "0.1.0",
+    "@rsksmart/rif-id-mnemonic": "0.1.0",
     "@types/jest": "^26.0.13",
     "concurrently": "^5.3.0",
     "did-jwt": "^4.5.1",

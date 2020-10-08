@@ -14,6 +14,7 @@ logger.info('Setting up')
 export async function runIssuer ({
   secretBoxKey,
   rpcUrl,
+  networkName,
   adminPass,
   apps,
   credentialRequestServicePrefix,
@@ -26,7 +27,7 @@ export async function runIssuer ({
   maxRequestsPerToken
 }) {
   const dbConnection = setupDb(database)
-  const agent = setupAgent(dbConnection, secretBoxKey, rpcUrl)
+  const agent = setupAgent(dbConnection, secretBoxKey, rpcUrl, networkName)
   await setupIdentity(agent);
 
   const identities = await agent.identityManager.getIdentities()
@@ -37,7 +38,9 @@ export async function runIssuer ({
     authExpirationInHours,
     maxRequestsPerToken,
     signer: (await identity.keyByType('Secp256k1')).signer(),
-    did: identity.did
+    did: identity.did,
+    rpcUrl,
+    networkName
   }
 
   logger.info('Setting up services')

@@ -1,7 +1,7 @@
 import request from 'supertest'
 import express, { Express } from 'express'
 import { setupCentralizedIPFSPinner, DAFClaim } from '../src/services/centralizedIPFSPinner'
-import { rskDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'
+import { rskTestnetDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'
 import { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } from '@rsksmart/rif-id-mnemonic'
 import { verifyJWT, SimpleSigner, createJWT, decodeJWT } from 'did-jwt'
 import { Resolver } from 'did-resolver'
@@ -23,6 +23,7 @@ describe('Express app tests', () => {
     ipfsHost: 'localhost',
     authExpirationTime: '300000',
     rpcUrl: 'https://did.testnet.rsk.co:4444',
+    networkName: 'rsk:testnet',
     dbFile
   }
 
@@ -39,7 +40,7 @@ describe('Express app tests', () => {
     const seed = await mnemonicToSeed(mnemonic)
     const hdKey = seedToRSKHDKey(seed)
     privateKey = hdKey.derive(0).privateKey!.toString('hex')
-    did = rskDIDFromPrivateKey()(privateKey).did
+    did = rskTestnetDIDFromPrivateKey()(privateKey).did
 
     const providerConfig = {
       networks: [

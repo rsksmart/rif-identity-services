@@ -32,14 +32,14 @@ describe('setup tests', () => {
     const secretBoxKey = await SecretBox.createSecretKey()
     const rpcUrl = 'https://did.testnet.rsk.co:4444'
 
-    const agent = setupAgent(connection, secretBoxKey, rpcUrl)
+    const agent = setupAgent(connection, secretBoxKey, rpcUrl, 'rsk:testnet')
     const identities = await agent.identityManager.getIdentities()
 
     expect(agent).toBeTruthy()
     expect(identities).toHaveLength(0)
     expect(agent.dbConnection).toEqual(connection)
 
-    await connection.close()    
+    await connection.close()
   })
 
   it('setup identity should set an rsk did based identity', async () => {

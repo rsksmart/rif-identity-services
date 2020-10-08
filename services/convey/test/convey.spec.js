@@ -2,11 +2,11 @@ const request = require('supertest')
 const express = require('express')
 const convey = require('../src/convey')
 const { verifyCredential } = require('did-jwt-vc')
-const { rskDIDFromPrivateKey } = require('@rsksmart/rif-id-ethr-did')
+const { rskTestnetDIDFromPrivateKey } = require('@rsksmart/rif-id-ethr-did')
 const { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } = require('@rsksmart/rif-id-mnemonic')
 const { getResolver } = require('ethr-did-resolver')
 const { Resolver } = require('did-resolver')
-const { getLoginJwt } = require('vc-jwt-auth/lib/test-utils')
+const { getLoginJwt } = require('@rsksmart/express-did-auth/lib/test-utils')
 
 const getRandomString = () => Math.random().toString(36).substring(3, 11)
 
@@ -25,6 +25,7 @@ const getAuthTokenWithIdentity = (app) => async (clientIdentity) => {
 
 const env = {
   rpcUrl: 'https://did.testnet.rsk.co:4444',
+  networkName: 'rsk:testnet',
   privateKey: 'c0d0bafd577fe198158270925613affc27b7aff9e8b7a7050b2b65f6eefd3083',
   challengeExpirationInSeconds: 300,
   authExpirationInHours: 10,
@@ -40,7 +41,7 @@ const mockedLogger = { info: () => {}, error: () => {} }
 
 const providerConfig = {
   networks: [
-    { name: 'rsk:testnet', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: env.rpcUrl }
+    { name: env.networkName, registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: env.rpcUrl }
   ]
 }
 const ethrDidResolver = getResolver(providerConfig)
@@ -62,7 +63,7 @@ describe('Express app tests', () => {
     const seed = await mnemonicToSeed(mnemonic)
     const hdKey = seedToRSKHDKey(seed)
     const privateKey = hdKey.derive(0).privateKey.toString('hex')
-    clientIdentity = rskDIDFromPrivateKey()(privateKey)
+    clientIdentity = rskTestnetDIDFromPrivateKey()(privateKey)
   })
 
   describe('auth', () => {
@@ -89,7 +90,7 @@ describe('Express app tests', () => {
       ({ body } = await request(app).post('/auth').send({ jwt }).expect(200))
 
       const { issuer, payload } = await verifyCredential(body.token, didResolver)
-      const expectedIssuerDid = rskDIDFromPrivateKey()(env.privateKey).did
+      const expectedIssuerDid = rskTestnetDIDFromPrivateKey()(env.privateKey).did
 
       expect(payload.sub).toEqual(did)
       expect(payload.exp).toBeLessThan((Date.now() / 1000) + env.authExpirationInHours * 60 * 60 + 10) // added 10 seconds of grace
@@ -227,7 +228,7 @@ describe('Express app tests - wrong env', () => {
 
     convey(app, invalidEnv, mockedLogger)
 
-    const clientIdentity = rskDIDFromPrivateKey()('c0d0bafd577fe198158270925613affc27b7aff9e8b7a7050b2b65f6eefd3083')
+    const clientIdentity = rskTestnetDIDFromPrivateKey()('c0d0bafd577fe198158270925613affc27b7aff9e8b7a7050b2b65f6eefd3083')
 
     const token = await getAuthTokenWithIdentity(app)(clientIdentity)
     const file = getRandomString()

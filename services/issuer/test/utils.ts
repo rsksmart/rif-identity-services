@@ -5,9 +5,8 @@ import setupAgent from '../src/setup/agent'
 import { Connection } from 'typeorm'
 import setupIdentity from '../src/setup/identity'
 import { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } from '@rsksmart/rif-id-mnemonic'
-import { createJWT, SimpleSigner } from 'did-jwt';
-import { rskDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'
-
+import { createJWT } from 'did-jwt';
+import { rskTestnetDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'
 
 // return an 8 characters random string
 export const getRandomString = (): string => Math.random().toString(36).substring(3, 11)
@@ -21,7 +20,7 @@ export const getTestAgent = async (setIdentity = true, db?: string): Promise<{
   const secretBoxKey = await SecretBox.createSecretKey()
   const rpcUrl = 'https://did.testnet.rsk.co:4444'
 
-  const agent = setupAgent(connectionPromise, secretBoxKey, rpcUrl)
+  const agent = setupAgent(connectionPromise, secretBoxKey, rpcUrl, 'rsk:testnet')
 
   if (setIdentity) {
     await setupIdentity(agent)
@@ -37,8 +36,8 @@ export const getIdentity = async () => {
   const seed = await mnemonicToSeed(mnemonic)
   const hdKey = seedToRSKHDKey(seed)
   const privateKey = hdKey.derive(0).privateKey!.toString('hex')
-  
-  return rskDIDFromPrivateKey()(privateKey)
+
+  return rskTestnetDIDFromPrivateKey()(privateKey)
 }
 
 export const getTestSdrRequestData = async () => {

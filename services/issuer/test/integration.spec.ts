@@ -9,7 +9,7 @@ import { verifyCredential } from 'did-jwt-vc'
 import { getResolver } from 'ethr-did-resolver'
 import { Resolver } from 'did-resolver'
 import backOffice from '../src/services/backOffice'
-import { getLoginJwt } from 'vc-jwt-auth/lib/test-utils'
+import { getLoginJwt } from '@rsksmart/express-did-auth/lib/test-utils'
 
 describe('should sync both services under the same thread of requests', () => {
   let 
