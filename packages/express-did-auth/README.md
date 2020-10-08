@@ -41,12 +41,12 @@ initializeAuth(env)
 ```
 
 `env` is an `object` that contains the following keys:
-- `did` (REQUIRED) - did that will be used to sign auth tokens
-- `signer` (REQUIRED) - [`Signer`](https://github.com/decentralized-identity/did-jwt/blob/master/src/JWT.ts#L6) object associated with the did, will be used to sign auth tokens.
-- `rpcUrl`: rsk rpc url used to validate credentials - Default: `https://did.testnet.rsk.co:4444`
-- `authExpirationInHours` - Default: 10
-- `challengeExpirationInSeconds` - Default: 300
-- `maxRequestsPerToken` - Default: 20
+- `did: string` (REQUIRED) - did that will be used to sign auth tokens
+- `signer: Signer` (REQUIRED) - [`Signer`](https://github.com/decentralized-identity/did-jwt/blob/master/src/JWT.ts#L6) object associated with the did, will be used to sign auth tokens.
+- `rpcUrl: string`, `networkName: string` and `registry: string`: rpc url, network name, and registry contract address used to validate Ethr DIDs - Default supports rsk testnet and rsk mainnet
+- `authExpirationInHours: number` - Default: 10
+- `challengeExpirationInSeconds: number` - Default: 300
+- `maxRequestsPerToken: number` - Default: 20
 
 ### `getChallenge`
 
