@@ -34,11 +34,12 @@ const initializeAuth = (env) => {
   authExpirationInHours = env.authExpirationInHours || 10
   maxRequestsPerToken = env.maxRequestsPerToken || 20
 
+  const registry = env.registry || '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b'
   const networks = !!env.rpcUrl ? [
-    { name: env.networkName || 'rsk', registry: env.registry || '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: env.rpcUrl },
+    { name: env.networkName || 'rsk', registry, rpcUrl: env.rpcUrl },
   ] : [
-    { name: 'rsk:testnet', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: 'https://did.testnet.rsk.co:4444' },
-    { name: 'rsk', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: 'https://did.rsk.co:4444' },
+    { name: 'rsk:testnet', registry, rpcUrl: 'https://did.testnet.rsk.co:4444' },
+    { name: 'rsk', registry, rpcUrl: 'https://did.rsk.co:4444' },
   ]
 
   const { did, signer } = env
