@@ -11,7 +11,7 @@ After the _store_ process the holder can verify the file was uploaded accessing 
 
 Read the service documentation [here](https://github.com/rsksmart/rif-identity-docs/tree/master/data-vault)
 
-> Alert: anyone in possession of a DID can used the server to upload files, now it has now file-size restrictions
+> Alert: anyone in possession of a DID can used the server to upload files, now it has just file-size restrictions
 
 ## Run
 
