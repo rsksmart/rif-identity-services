@@ -17,14 +17,11 @@ Application that allows receiving credential issuance requests and approving the
 
 ## Run
 
-The issuer has 2 processes running:
+The issuer runs a back end with two express apps, one for the request credential HTTPS service and the other to serve information to the front end.
 
-1. Back end with two express apps, one for the request credential HTTPS service and the other to serve information to the front end
-2. Front end: react app. It connects to the back end and has a list of credential requests - this is WP
+The front end can be run from [`@rsksmart/rif-identity-ui`](https://github.com/rsksmart/rif-identity-ui/tree/develop/apps/issuer-app)
 
 > All commands can be run prepending  `:dev` for watch mode
-
-### Back end
 
 1. Setup: create a `.env` file with
 
@@ -33,65 +30,20 @@ The issuer has 2 processes running:
   ADMIN_PASS= a secure password for admin user - used for basic http auth
   ```
 
-  Or choose more parameters:
-
-  ```
-  DEBUG= rif-id:* for app logging - * for all logs
-  CREDENTIAL_REQUESTS_PORT= port to run credential requests service
-  SECRET_BOX_KEY= 32 random bytes in hex representation - encryption key
-  RPC_URL= rsk testnet rpc url - the one in the example was tested and works
-  LOG_FILE=relative path to the logs
-  LOG_ERRORS_FILE=relative path to the error logs
-  DB_FILE=relative path to the sqlite db
-  NODE_ENV=current environment
-  AUTH_EXPIRATION_HOURS=auth token expiration time in hours
-  CHALLENGE_EXPIRATION_SECONDS=auth challenge expiration time in seconds
-  MAX_REQUESTS_PER_TOKEN=max amount of requests allowed per token
-  ```
-
-  Example
+  Example:
 
   ```
   SECRET_BOX_KEY=29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c
-  CREDENTIAL_REQUESTS_PORT=5100
-  REACT_APP_BACKOFFICE_PORT=5101
-  RPC_URL=https://did.testnet.rsk.co:4444
-  ADMIN_PASS=admin
-  LOG_FILE=./log/issuer-backend.log
-  LOG_ERRORS_FILE=./log/issuer-backend.error.log
-  DB_FILE=./db/issuer.sqlite
-  NODE_ENV=dev
-  AUTH_EXPIRATION_HOURS=10
-  CHALLENGE_EXPIRATION_SECONDS=300
-  MAX_REQUESTS_PER_TOKEN=20
+  ADMIN_PASS=Sup3r_4dm1N
   ```
 
-  Defaults
-
-  ```
-  CREDENTIAL_REQUESTS_PORT=5100
-  REACT_APP_BACKOFFICE_PORT=5101
-  RPC_URL=https://did.testnet.rsk.co:4444
-  LOG_FILE=./log/issuer-backend.log
-  LOG_ERRORS_FILE=./log/issuer-backend.error.log
-  DB_FILE=./db/issuer.sqlite
-  NODE_ENV=dev
-  AUTH_EXPIRATION_HOURS=10
-  CHALLENGE_EXPIRATION_SECONDS=300
-  MAX_REQUESTS_PER_TOKEN=20
-  ```
+  > See [optional configuration](#optional-configuration) to set service internals.
 
 2. Install:
 
   ```
   npm i
   ```
-  
-  `postinstall` is running a script to append `"rsk:testnet"` to `"did:ethr:"` methods name
-
-  To do it manually, remove `postinstall` script before running installing, then find this in `node_modules/ethr-did/lib//index.js`
-
-  ![fix](./img/fix.png)
 
 3. Start
 
@@ -102,44 +54,57 @@ The issuer has 2 processes running:
 
 You should see the terminal running like this
 
-![back](./img/back.png)
+![run](./img/run.png)
 
 Also a database file will be created. `issuer.sqlite`
 
-### Front end
+## Optional configuration
 
-1. It is a react app, browse into it
-
-  ```
-  cd app
-  ```
-
-2. (if the default issuer back office service port was changed) Please fill the back office service port again :/, crate a `.env` file
-
-  ```
-  REACT_APP_BACKOFFICE_PORT=back office service port
-  ```
-
-  or the port you used.
-
-3. Install deps
-
-  ```
-  yarn
-  ```
-
-4. Run the app. It will build the app and start a `serve` server for productive command, or react watch mode for dev
-
-  ```
-  yarn front
-  # npm run front:dev
-  ```
-
-![front](./img/front.png)
-
-### All together
+Choose optionals:
 
 ```
-npm run all
-npm run all:dev
+DEBUG= rif-id:* for app logging - * for all logs
+CREDENTIAL_REQUESTS_PORT= port to run credential requests service
+SECRET_BOX_KEY= 32 random bytes in hex representation - encryption key
+RPC_URL= rsk testnet rpc url - the one in the example was tested and works
+LOG_FILE=relative path to the logs
+LOG_ERRORS_FILE=relative path to the error logs
+DB_FILE=relative path to the sqlite db
+NODE_ENV=current environment
+AUTH_EXPIRATION_HOURS=auth token expiration time in hours
+CHALLENGE_EXPIRATION_SECONDS=auth challenge expiration time in seconds
+MAX_REQUESTS_PER_TOKEN=max amount of requests allowed per token
+NETWORK_NAME=network of the RPC url if set
+```
+
+Example
+
+```
+SECRET_BOX_KEY=29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c
+CREDENTIAL_REQUESTS_PORT=5100
+REACT_APP_BACKOFFICE_PORT=5101
+RPC_URL=https://did.testnet.rsk.co:4444
+ADMIN_PASS=admin
+LOG_FILE=./log/issuer-backend.log
+LOG_ERRORS_FILE=./log/issuer-backend.error.log
+DB_FILE=./db/issuer.sqlite
+NODE_ENV=dev
+AUTH_EXPIRATION_HOURS=10
+CHALLENGE_EXPIRATION_SECONDS=300
+MAX_REQUESTS_PER_TOKEN=20
+```
+
+Defaults
+
+```
+CREDENTIAL_REQUESTS_PORT=5100
+REACT_APP_BACKOFFICE_PORT=5101
+RPC_URL=https://did.testnet.rsk.co:4444
+LOG_FILE=./log/issuer-backend.log
+LOG_ERRORS_FILE=./log/issuer-backend.error.log
+DB_FILE=./db/issuer.sqlite
+NODE_ENV=dev
+AUTH_EXPIRATION_HOURS=10
+CHALLENGE_EXPIRATION_SECONDS=300
+MAX_REQUESTS_PER_TOKEN=20
 ```

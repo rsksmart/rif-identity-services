@@ -11,7 +11,7 @@ import { verifyCredential } from 'did-jwt-vc'
 import { getResolver } from 'ethr-did-resolver'
 import { Resolver } from 'did-resolver'
 import { Signer } from 'did-jwt'
-import { getLoginJwt } from 'vc-jwt-auth/lib/test-utils'
+import { getLoginJwt } from '@rsksmart/express-did-auth/lib/test-utils'
 
 interface TestIdentity { did: string, signer: Signer}
 

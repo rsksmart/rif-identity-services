@@ -1,18 +1,22 @@
 const bodyParser = require('body-parser')
 const IPFSHttpClient = require('ipfs-http-client')
-const { rskDIDFromPrivateKey } = require('@rsksmart/rif-id-ethr-did')
+const { rskDIDFromPrivateKey, rskTestnetDIDFromPrivateKey } = require('@rsksmart/rif-id-ethr-did')
 
-const { authExpressMiddleware, getChallenge, getAuthToken, initializeAuth } = require('vc-jwt-auth')
+const { authExpressMiddleware, getChallenge, getAuthToken, initializeAuth } = require('@rsksmart/express-did-auth')
+
+
 
 function convey (app, env, logger, prefix = '') {
   const { ipfsOptions } = env
   const url = ipfsOptions ? `${ipfsOptions.protocol}://${ipfsOptions.host}:${ipfsOptions.port}` : 'http://localhost:5001'
   const ipfsClient = IPFSHttpClient({ url })
 
+  const didFromPrivateKey = env.networkName === 'rsk:testnet' ? rskTestnetDIDFromPrivateKey() : rskDIDFromPrivateKey()
+
   if (!env.privateKey) {
     throw Error('Missing privateKey')
   }
-  const { did, signer } = rskDIDFromPrivateKey()(env.privateKey)
+  const { did, signer } = didFromPrivateKey(env.privateKey)
   logger.info(`Generated DID: ${did}`)
 
   initializeAuth({

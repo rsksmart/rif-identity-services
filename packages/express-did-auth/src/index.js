@@ -9,18 +9,38 @@ const challenges = {}
 const tokenRequestCounter = {}
 
 let
-  providerConfig, ethrDidResolver, didResolver, identity,
-  challengeExpirationInSeconds, maxRequestsPerToken, rpcUrl, authExpirationInHours
+  ethrDidResolver, didResolver, identity,
+  challengeExpirationInSeconds, maxRequestsPerToken, authExpirationInHours
+
+/**
+ * env: {
+ *   did: string
+ *   signer: Signer
+ *   challengeExpirationInSeconds?: number
+ *   authExpirationInHours?: number
+ *   maxRequestsPerToken?: number
+ *   rpcUrl?: string
+ *   networkName?: string
+ *   registry?: string
+ * }
+ */
 
 const initializeAuth = (env) => {
   if (!env) {
     throw new Error('Missing env object')
   }
 
-  rpcUrl = env.rpcUrl || 'https://did.testnet.rsk.co:4444'
   challengeExpirationInSeconds = env.challengeExpirationInSeconds || 300
   authExpirationInHours = env.authExpirationInHours || 10
   maxRequestsPerToken = env.maxRequestsPerToken || 20
+
+  const registry = env.registry || '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b'
+  const networks = !!env.rpcUrl ? [
+    { name: env.networkName || 'rsk', registry, rpcUrl: env.rpcUrl },
+  ] : [
+    { name: 'rsk:testnet', registry, rpcUrl: 'https://did.testnet.rsk.co:4444' },
+    { name: 'rsk', registry, rpcUrl: 'https://did.rsk.co:4444' },
+  ]
 
   const { did, signer } = env
 
@@ -32,10 +52,7 @@ const initializeAuth = (env) => {
     throw new Error('Missing env variable: signer')
   }
 
-  providerConfig = {
-    networks: [{ name: 'rsk:testnet', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl }]
-  }
-  ethrDidResolver = getResolver(providerConfig)
+  ethrDidResolver = getResolver({ networks })
   didResolver = new Resolver(ethrDidResolver)
 
   identity = { signer, did }

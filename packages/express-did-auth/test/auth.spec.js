@@ -1,4 +1,4 @@
-const { rskTestnetDIDFromPrivateKey } = require('@rsksmart/rif-id-ethr-did')
+const { rskDIDFromPrivateKey, rskTestnetDIDFromPrivateKey } = require('@rsksmart/rif-id-ethr-did')
 const { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } = require('@rsksmart/rif-id-mnemonic')
 const { authExpressMiddleware, getChallenge, getAuthToken, initializeAuth } = require('../src')
 const { getLoginJwt } = require('../src/test-utils')
@@ -33,19 +33,26 @@ const getMockedReq = (token) => ({
 
 const next = jest.fn()
 
-describe('auth tests', () => {
-  let identity, did, did2, signer, signer2, env, didResolver
+// now the lib is dependant on other instances...
+// this runs ok separately
+describe.each([
+  ['rsk:testnet', 'https://did.testnet.rsk.co:4444'],
+  // ['rsk', 'https://did.rsk.co:4444'],
+  //[null, null],
+])('auth tests - network %s', (networkName, rpcUrl) => {
+  let identity, did, did2, signer, signer2, env, didResolver, didFromPrivateKey
 
   beforeAll(async () => {
+    didFromPrivateKey = networkName === 'rsk:testnet' ? rskTestnetDIDFromPrivateKey : rskDIDFromPrivateKey
     const mnemonic = generateMnemonic(12)
     const seed = await mnemonicToSeed(mnemonic)
     const hdKey = seedToRSKHDKey(seed)
 
     const privateKey = hdKey.derive(0).privateKey.toString('hex')
-    identity = rskTestnetDIDFromPrivateKey()(privateKey)
+    identity = didFromPrivateKey()(privateKey)
 
     const privateKey2 = hdKey.derive(1).privateKey.toString('hex')
-    const identity2 = rskTestnetDIDFromPrivateKey()(privateKey2)
+    const identity2 = didFromPrivateKey()(privateKey2)
     did2 = identity2.did
     signer2 = identity2.signer;
 
@@ -53,13 +60,14 @@ describe('auth tests', () => {
     env = {
       did,
       signer,
-      rpcUrl: 'https://did.testnet.rsk.co:4444',
+      rpcUrl,
+      networkName,
       authExpirationInHours: 4
     }
 
     const providerConfig = {
       networks: [
-        { name: 'rsk:testnet', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: env.rpcUrl }
+        { name: env.networkName || 'rsk', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: env.rpcUrl || 'https://did.rsk.co:4444' }
       ]
     }
     const ethrDidResolver = getResolver(providerConfig)
@@ -67,16 +75,16 @@ describe('auth tests', () => {
   })
 
   describe('non initialized validations', () => {
-    it('getChallenge', () => {
-      expectToThrowErrorMessage(() => getChallenge(), 'Library not initialized')
+    it('getChallenge', async () => {
+      await expectToThrowErrorMessage(() => getChallenge(), 'Library not initialized')
     })
 
-    it('getAuthToken', () => {
-      expectToThrowErrorMessage(() => getAuthToken(), 'Library not initialized')
+    it('getAuthToken', async () => {
+      await expectToThrowErrorMessage(() => getAuthToken(), 'Library not initialized')
     })
 
-    it('authExpressMiddleware', () => {
-      expectToThrowErrorMessage(() => authExpressMiddleware(), 'Library not initialized')
+    it('authExpressMiddleware', async () => {
+      await expectToThrowErrorMessage(() => authExpressMiddleware(), 'Library not initialized')
     })
 
     it('should throw an error if the challenge has not been asked before', async () => {
@@ -89,19 +97,19 @@ describe('auth tests', () => {
   })
 
   describe('initialize', () => {
-    it('should throw an error if not env provided', () => {
-      expectToThrowErrorMessage(() => initializeAuth(), 'Missing env object')
+    it('should throw an error if not env provided', async () => {
+      await expectToThrowErrorMessage(() => initializeAuth(), 'Missing env object')
     })
 
-    it('should throw an error if not did provided', () => {
-      expectToThrowErrorMessage(() => initializeAuth({}), 'Missing env variable: did')
+    it('should throw an error if not did provided', async () => {
+      await expectToThrowErrorMessage(() => initializeAuth({}), 'Missing env variable: did')
     })
 
-    it('should throw an error if not signer provided', () => {
-      expectToThrowErrorMessage(() => initializeAuth({ did }), 'Missing env variable: signer')
+    it('should throw an error if not signer provided', async () => {
+      await expectToThrowErrorMessage(() => initializeAuth({ did }), 'Missing env variable: signer')
     })
 
-    it('should initialize the library and do not throw errors', () => {
+    it('should initialize the library and do not throw errors', async () => {
       initializeAuth({ did, signer })
     })
   })
@@ -116,9 +124,9 @@ describe('auth tests', () => {
       expect(challenge).toHaveLength(128)
     })
 
-    it('should throw an error if no did', () => {
+    it('should throw an error if no did', async () => {
       initializeAuth(env)
-      expectToThrowErrorMessage(() => getChallenge(), 'Invalid did')
+      await expectToThrowErrorMessage(() => getChallenge(), 'Invalid did')
     })
   })
 

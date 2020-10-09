@@ -12,7 +12,7 @@ import { Resolver } from 'did-resolver'
 
 const logger = createLogger('rif-id:setup:agent')
 
-function createIdentityProviders(dbConnection, secretBoxKey ,rpcUrl) {
+function createIdentityProviders(dbConnection, secretBoxKey ,rpcUrl, networkName) {
   const secretBox = new SecretBox(secretBoxKey)
   const keyStore = new KeyStore(dbConnection, secretBox)
 
@@ -23,7 +23,7 @@ function createIdentityProviders(dbConnection, secretBoxKey ,rpcUrl) {
   const identityProvider = new IdentityProvider({
     kms,
     identityStore,
-    network,
+    network: networkName,
     rpcUrl
   })
 
@@ -34,9 +34,9 @@ function createServiceControllers() {
   return []
 }
 
-function createResolver(rpcUrl) {
+function createResolver(rpcUrl, networkName) {
   return new DafResolver({ networks: [
-    { name: "rsk:testnet", registry: "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", rpcUrl },
+    { name: networkName, registry: "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", rpcUrl },
   ]})
 }
 
@@ -57,10 +57,10 @@ function createActionHandler() {
   return actionHandler
 }
 
-export default function setupAgent(dbConnection, secreBoxKey, rpcUrl) {
-  const identityProviders = createIdentityProviders(dbConnection, secreBoxKey, rpcUrl)
+export default function setupAgent(dbConnection, secreBoxKey, rpcUrl, networkName) {
+  const identityProviders = createIdentityProviders(dbConnection, secreBoxKey, rpcUrl, networkName)
   const serviceControllers = createServiceControllers()
-  const didResolver = createResolver(rpcUrl)
+  const didResolver = createResolver(rpcUrl, networkName)
   const messageHandler = createMessageHandler()
   const actionHandler = createActionHandler()
 

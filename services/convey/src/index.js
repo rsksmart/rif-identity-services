@@ -6,14 +6,15 @@ const convey = require('./convey')
 require('dotenv').config()
 
 const env = {
-  rpcUrl: process.env.RPC_URL,
   privateKey: process.env.PRIVATE_KEY,
+  rpcUrl: process.env.RPC_URL || 'https://did.testnet.rsk.co:4444',
+  networkName: process.env.NETWORK_NAME || 'rsk:testnet',
   challengeExpirationInSeconds: process.env.CHALLENGE_EXPIRATION_SECONDS || 300,
   authExpirationInHours: process.env.AUTH_EXPIRATION_HOURS || 10,
   maxRequestsPerToken: process.env.MAX_REQUESTS_PER_TOKEN || 30,
   ipfsOptions: {
-    host: process.env.IPFS_HOST,
-    port: process.env.IPFS_PORT,
+    host: process.env.IPFS_HOST || 'localhost',
+    port: process.env.IPFS_PORT || 5001,
     protocol: 'http'
   }
 }
