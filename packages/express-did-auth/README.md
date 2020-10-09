@@ -17,7 +17,7 @@ npm i @rsksmart/express-did-auth
 
 This package exposes a set of functions to authenticate users using [DIDs](https://w3c.github.io/did-core/) and [Verifiable Credentials](https://w3c.github.io/vc-data-model/) in an Express.js server.
 
-The specification of this modules is in [this article](https://github.com/rsksmart/rif-identity-docs/blob/master/ssi/specs/did-auth.markdown). This modules is a WIP.
+The specification of this modules is in [this article](https://github.com/rsksmart/rif-identity-docs/blob/master/ssi/specs/did-auth.markdown). This module is a WIP.
 
 ## How it works
 
