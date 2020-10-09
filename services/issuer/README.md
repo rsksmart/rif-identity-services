@@ -74,6 +74,7 @@ NODE_ENV=current environment
 AUTH_EXPIRATION_HOURS=auth token expiration time in hours
 CHALLENGE_EXPIRATION_SECONDS=auth challenge expiration time in seconds
 MAX_REQUESTS_PER_TOKEN=max amount of requests allowed per token
+NETWORK_NAME=network of the RPC url if set
 ```
 
 Example
