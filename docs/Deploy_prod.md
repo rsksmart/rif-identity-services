@@ -54,6 +54,7 @@ Now setup the services:
     CREDENTIAL_REQUESTS_PORT=5100
     REACT_APP_BACKOFFICE_PORT=5101
     RPC_URL=https://did.testnet.rsk.co:4444
+    ADMIN_USER=COMPLETE WITH YOUR ADMIN USER
     ADMIN_PASS=COMPLETE WITH YOUR ADMIN PASS
     LOG_FILE=./log/issuer-backend.log
     LOG_ERRORS_FILE=./log/issuer-backend.error.log

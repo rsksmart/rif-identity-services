@@ -7,7 +7,7 @@ import createLogger from '../lib/logger'
 const logger = createLogger('rif-id:services:backOffice')
 const trace = v => { logger.info(JSON.stringify(v)); return v }
 
-export default function backOffice(app, agent, adminPass, backOfficePrefix = '') {
+export default function backOffice(app, agent, adminUser, adminPass, backOfficePrefix = '') {
 
   function logIfError(fn, req, res) {
     try {
@@ -79,9 +79,9 @@ export default function backOffice(app, agent, adminPass, backOfficePrefix = '')
     res.status(200).end('OK')
   })
 
-  app.use(basicAuth({
-    users: { 'admin': adminPass }
-  }))
+  const users = {}
+  users[adminUser] = adminPass
+  app.use(basicAuth({ users }))
 
   app.post(backOfficePrefix + '/auth', function (req, res) {
     res.status(200).send()

@@ -27,6 +27,7 @@ The front end can be run from [`@rsksmart/rif-identity-ui`](https://github.com/r
 
   ```
   SECRET_BOX_KEY= 32 random bytes in hex representation - encryption key
+  ADMIN_USER=the admin username - used for basic http auth
   ADMIN_PASS= a secure password for admin user - used for basic http auth
   ```
 
@@ -34,6 +35,7 @@ The front end can be run from [`@rsksmart/rif-identity-ui`](https://github.com/r
 
   ```
   SECRET_BOX_KEY=29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c
+  ADMIN_USER=admin
   ADMIN_PASS=Sup3r_4dm1N
   ```
 

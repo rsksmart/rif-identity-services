@@ -15,6 +15,7 @@ export async function runIssuer ({
   secretBoxKey,
   rpcUrl,
   networkName,
+  adminUser,
   adminPass,
   apps,
   credentialRequestServicePrefix,
@@ -45,6 +46,6 @@ export async function runIssuer ({
 
   logger.info('Setting up services')
   if (launchCredentialRequestService) credentialRequestService(apps[0], agent, env, credentialRequestServicePrefix)
-  if (launchBackOffice) backOffice(apps.length > 1 ? apps[1] : apps[0], agent, adminPass, backOfficePrefix)
+  if (launchBackOffice) backOffice(apps.length > 1 ? apps[1] : apps[0], agent, adminUser, adminPass, backOfficePrefix)
   logger.info('Services set up')
 }

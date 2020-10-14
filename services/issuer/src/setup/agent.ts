@@ -18,7 +18,6 @@ function createIdentityProviders(dbConnection, secretBoxKey ,rpcUrl, networkName
 
   const kms = new KeyManagementSystem(keyStore)
   const identityStore = new IdentityStore('issuer-ethr', dbConnection)
-  const network = 'rsk:testnet'
 
   const identityProvider = new IdentityProvider({
     kms,
