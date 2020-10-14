@@ -11,9 +11,7 @@ import CredentialRequest from '../src/lib/CredentialRequest'
 describe('backOfficeService tests', () => {
   let 
     app: Express, agent: Agent, connection: Connection,
-    database: string, password: string, issuerDid: string
-
-  const user = 'admin'
+    database: string, user: string, password: string, issuerDid: string
 
   const generateAndSaveSdr = async () => {
     const sdr = await getTestSdrRequestData()
@@ -33,10 +31,11 @@ describe('backOfficeService tests', () => {
     issuerDid = (await agent.identityManager.getIdentities())[0].did
     expect(issuerDid).toContain('rsk:testnet')
 
+    user = getRandomString()
     password = getRandomString()
     app = express()
 
-    await backOffice(app, agent, password)
+    await backOffice(app, agent, user, password)
   })
 
   afterEach(async () => {
@@ -76,7 +75,7 @@ describe('backOfficeService tests', () => {
       await connection.close();
 
       ({ agent, connection } = await getTestAgent(false, database))
-      await backOffice(app, agent, password)
+      await backOffice(app, agent, user, password)
 
       await request(app).get('/identity').auth(user, password).expect(500)
     })

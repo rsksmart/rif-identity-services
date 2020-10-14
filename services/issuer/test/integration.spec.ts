@@ -14,7 +14,7 @@ import { getLoginJwt } from '@rsksmart/express-did-auth/lib/test-utils'
 describe('should sync both services under the same thread of requests', () => {
   let 
     agent, connection, database, issuerDid, backOfficePassword, backOfficeApp, credRequestApp,
-    sdr, sdrHash, backOfficeUsername = 'admin', sdrId, token
+    sdr, sdrHash, backOfficeUsername, sdrId, token
   
   beforeAll(async () => {
     // setup apps
@@ -23,10 +23,11 @@ describe('should sync both services under the same thread of requests', () => {
     issuerDid = (await agent.identityManager.getIdentities())[0].did
     expect(issuerDid).toContain('rsk:testnet')
 
+    backOfficeUsername = getRandomString()
     backOfficePassword = getRandomString()
 
     backOfficeApp = express()
-    await backOffice(backOfficeApp, agent, backOfficePassword)
+    await backOffice(backOfficeApp, agent,backOfficeUsername, backOfficePassword)
 
     const identities = await agent.identityManager.getIdentities()
     const identity = identities[0]
