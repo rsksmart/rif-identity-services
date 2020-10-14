@@ -21,7 +21,7 @@ async function main () {
     secretBoxKey: process.env.SECRET_BOX_KEY,
     rpcUrl: process.env.RPC_URL || 'https://did.testnet.rsk.co:4444',
     networkName: process.env.NETWORK_NAME || 'rsk:testnet',
-    adminUser: process.env.ADMIN_USER || 'admin',
+    adminUser: process.env.ADMIN_USER,
     adminPass: process.env.ADMIN_PASS,
     apps: [appCredentialRequests, appBackOffice],
     backOfficePrefix: '',

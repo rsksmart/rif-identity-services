@@ -4,8 +4,6 @@ const { rskDIDFromPrivateKey, rskTestnetDIDFromPrivateKey } = require('@rsksmart
 
 const { authExpressMiddleware, getChallenge, getAuthToken, initializeAuth } = require('@rsksmart/express-did-auth')
 
-
-
 function convey (app, env, logger, prefix = '') {
   const { ipfsOptions } = env
   const url = ipfsOptions ? `${ipfsOptions.protocol}://${ipfsOptions.host}:${ipfsOptions.port}` : 'http://localhost:5001'
