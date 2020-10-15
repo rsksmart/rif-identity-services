@@ -1,0 +1,9 @@
+node_modules
+*.sqlite
+.env
+build/
+*.log
+log/
+db/
+junit.xml
+coverage/

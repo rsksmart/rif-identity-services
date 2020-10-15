@@ -1,0 +1,13 @@
+FROM node:10
+
+WORKDIR /app
+
+COPY package.json ./
+COPY package-lock.json ./
+
+RUN npm i
+
+COPY ./src ./src
+
+EXPOSE 5104
+CMD [ "npm", "run", "start"]

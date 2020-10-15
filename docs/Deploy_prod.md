@@ -4,11 +4,13 @@ Deploy all RIF Identity services using Docker containers and Docker compose.
 
 This services are expected to be run:
 
-- `rif-identity-ipfs-testnet` (not public - it is accessed only by `rif-identity-datavault-testnet`)
+- `rif-identity-ipfs-testnet` 
+    - Two ports opened: 
+        - 5001 not public - it is accessed only by `rif-identity-datavault-testnet`
+        - 8080 is public
 - `rif-identity-datavault-testnet`
-- `rif-identity-tinyqr-testnet`
 - `rif-identity-issuer-back-testnet`
-- `rif-identity-issuer-front-testnet`
+- `rif-identity-convey-testnet`
 
 First clone the repo
 
@@ -21,82 +23,110 @@ Now setup the services:
 
 #### Data vault
 
-1. Go to `./data-vault`
+1. Go to `./services/data-vault`
 2. Create a `.env` file with
 
     ```
-    PRIVATE_KEY=c0d0bafd577fe198158270925613affc27b7aff9e8b7a7050b2b65f6eefd3083
-    ADDRESS=0x4a795ab98dc3732d1123c6133d3efdc76d4c91f8
+    PRIVATE_KEY=COMPLETE WITH YOUR PRIVATE KEY
+    ADDRESS=COMPLETE WITH YOUR ADDRESS
     RPC_URL=https://did.testnet.rsk.co:4444
     IPFS_PORT=5001
     IPFS_HOST=rif-identity-ipfs-testnet
     PORT=5102
+    DATABASE_FILE=./db/data-vault-mapper.sqlite
+    LOG_FILE=./log/data-vault.log
+    LOG_ERRORS_FILE=./log/data-vault.error.log
+    NODE_ENV=production
+    AUTH_EXPIRATION_TIME=300000
     ```
 
-> Two concerns about the private key:
-> 1. It is stored raw.
-> 2. Don't use the example, please generate a new one
+> The private key is stored raw.
 
 > `IPFS_HOST` and `IPFS_PORT` refer to the IPFS container named `rif-identity-ipfs-testnet`. You should put here the container name that will be run in the same network as this service, or the dns name if running in another machine.
 
-#### Tiny QR
-
-1. Go to `./tiny-qr`
-2. Create a `.env` file with
-
-    ```
-    TINY_QR_PORT=5103
-    TINY_QR_URL=http://localhost:5103
-    ```
-
-> `TINY_QR_URL` must contain the DNS set for the tiny QR service
-
 #### Issuer services
 
-1. Go to `./issuer`
+1. Go to `./services/issuer`
 2. Create a `.env` file with
 
     ```
-    SECRET_BOX_KEY=29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c
+    SECRET_BOX_KEY=COMPLETE WITH YOUR SECRET BOX KEY
     CREDENTIAL_REQUESTS_PORT=5100
     REACT_APP_BACKOFFICE_PORT=5101
     RPC_URL=https://did.testnet.rsk.co:4444
-    DEBUG=rif-id:*
-    ADMIN_PASS=admin
+    ADMIN_USER=COMPLETE WITH YOUR ADMIN USER
+    ADMIN_PASS=COMPLETE WITH YOUR ADMIN PASS
+    LOG_FILE=./log/issuer-backend.log
+    LOG_ERRORS_FILE=./log/issuer-backend.error.log
+    DB_FILE=./db/issuer.sqlite
+    NODE_ENV=production
+    AUTH_EXPIRATION_HOURS=10
+    CHALLENGE_EXPIRATION_SECONDS=300
+    MAX_REQUESTS_PER_TOKEN=20
     ```
 
-> `SECRET_BOX_KEY` is used to encypt/decrypt key store, please change it.
 
-> `ADMIN_PASS` is the password required to login to the front-end. Please change it.
+#### Convey services
 
-#### Issuer front end
-
-1. Go to `./issuer/app`
+1. Go to `./services/convey`
 2. Create a `.env` file with
 
     ```
-    SKIP_PREFLIGHT_CHECK=true
-    REACT_APP_BACKOFFICE=http://localhost:5101
+    CONVEY_PORT=5104
+    LOG_FILE=./log/convey.log
+    LOG_ERROR_FILE=./log/convey.error.log
+    IPFS_PORT=5001
+    IPFS_HOST=rif-identity-ipfs-testnet
+    NODE_ENV=dev
+    PRIVATE_KEY=COMPLETE WITH YOUR PRIVATE KEY
+    RPC_URL=https://did.testnet.rsk.co:4444
+    AUTH_EXPIRATION_HOURS=10
+    CHALLENGE_EXPIRATION_SECONDS=300
+    MAX_REQUESTS_PER_TOKEN=20
     ```
 
-> `REACT_APP_BACKOFFICE` must contain the DNS set for the issuer back office service (started on port 5101)
+> The private key is stored raw.
+
+> `IPFS_HOST` and `IPFS_PORT` refer to the IPFS container named `rif-identity-ipfs-testnet`. You should put here the container name that will be run in the same network as this service, or the dns name if running in another machine.
+
+#### IMPORTANT NOTE:
+
+If you don't use the default values provided for the `DB` and `LOGS` paths, please make sure to update also the right hand of `docker-compose.yml`'s `volumes` lines. They must be kept in sync
 
 ## Run docker
 
-1. Go to `./` (root folder)
-2. Build the containers
+1. Create dirs where the logs and dbs will be saved:
+
+```
+mkdir /var/db/rif-identity # you may need sudo
+mkdir /var/log/rif-identity
+```
+
+2. Give permissions for everyone to write in those created folders
+
+```
+chmod -R 777 /var/db/rif-identity/  # you may need sudo
+chmod -R 777 /var/log/rif-identity/
+```
+
+3. Open Docker Preferences -> File Sharing and add just created dirs to the list of available directories
+
+4. Click on `Apply & Restart`
+
+5. Go to `./` (root folder)
+6. Build the containers
 
     ```
     docker-compose build
     ```
   
-3. Compose
+7. Compose
 
     ```
     docker-compose up -d
     ```
   
-4. Enable access to IPFS node container port 5001
+8. Enable access to IPFS node container port 5001
 
     ```
     docker container ls
@@ -109,6 +139,8 @@ Now setup the services:
     ```
 
     Update `“Addresses” -> “API”` and open ip4 port. Set `“API”: “/ipv4/0.0.0.0/tcp/5001"`
+
+    Update `“Addresses” -> Gateway` and open ip4 port. Set `“API”: “/ipv4/0.0.0.0/tcp/8080"`
 
     Before the update
     
@@ -129,5 +161,13 @@ Now setup the services:
     ```
     docker restart COPIED-ID
     ```
+
+    **IMPORTANT NOTE**
+    
+    This container will expose two ports:
+
+    Port 5001 should accesible only from `rif-identity-datavault-testnet` and from `rif-identity-convey-testnet` _(this service is not merged yet, will be merged during these days)_
+
+    Port 8080 should be open to everyone, is our IPFS gateway and will be accessed by the mobile app, would be great if it is routed through the port 80. 
     
 Done!
