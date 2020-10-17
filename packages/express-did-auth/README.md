@@ -1,13 +1,13 @@
 <p align="middle">
     <img src="https://www.rifos.org/assets/img/logo.svg" alt="logo" height="100" >
 </p>
-<h3 align="middle"><code>@rsksmart/express-w3c-auth</code></h3>
+<h3 align="middle"><code>@rsksmart/express-did-auth</code></h3>
 <p align="middle">
     Express middleware to authenticate users using DIDs and VCs
 </p>
 <p align="middle">
-    <a href="https://badge.fury.io/js/%40rsksmart%express-did-auth">
-        <img src="https://badge.fury.io/js/%40rsksmart%express-did-auth.svg" alt="npm" />
+    <a href="https://www.npmjs.com/package/@rsksmart/express-did-auth">
+        <img src="https://badge.fury.io/js/%40rsksmart%2Fexpress-did-auth.svg" alt="npm" />
     </a>
 </p>
 
