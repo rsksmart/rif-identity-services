@@ -13,7 +13,7 @@
     "lint:ci": "npx eslint src/* test/* --ext .json,.js,.ts --format junit --output-file ./reports/eslint.xml"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@rsksmart/ethr-did": "^1.1.1-beta.1",
     "@rsksmart/rif-node-utils": "0.0.3",
