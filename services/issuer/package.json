@@ -10,7 +10,7 @@
     "dev": "concurrently \"tsc --watch\" \"nodemon ./build/scripts/all.js\""
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@rsksmart/express-did-auth": "0.0.1",
     "@rsksmart/rif-node-utils": "0.0.2",

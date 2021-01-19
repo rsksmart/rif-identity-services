@@ -11,7 +11,7 @@
     "lint:fix": "eslint src/* test/* --ext .json,.js --fix"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@rsksmart/express-did-auth": "0.0.1",
     "@rsksmart/rif-id-ethr-did": "0.1.0",

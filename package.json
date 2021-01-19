@@ -1,6 +1,7 @@
 {
   "name": "root",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "setup": "npx lerna bootstrap",
     "test": "npx lerna run test",
