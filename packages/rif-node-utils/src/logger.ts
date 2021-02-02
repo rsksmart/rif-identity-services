@@ -17,6 +17,7 @@ export const loggerFactory = (config: { env: string, infoFile: string, errorFile
         format: format.combine(
           format.label({ label }),
           format.timestamp(),
+          format.json(),
           fileFormat
         )
       }),
@@ -26,6 +27,7 @@ export const loggerFactory = (config: { env: string, infoFile: string, errorFile
         format: format.combine(
           format.label({ label }),
           format.timestamp(),
+          format.json(),
           format.errors({ stack: true }),
           fileErrorFormat
         )
