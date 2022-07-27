@@ -2,16 +2,9 @@ version: "3"
 
 services:
     rif-identity-ipfs-testnet:
-        image: rif-identity-ipfs:${DOCKER_TAG:-latest}
-        build:
-            context: ./services/data-vault
-            dockerfile: Dockerfile.ipfs
-        env_file: ./services/data-vault/.env
-        ports:
-            - "5001:5001"
-            - "8080:8080"
-        networks:
-            - rif-identity-services
+        platform: linux/x86_64
+        image: ipfs/kubo
+        network_mode: "host"
 
     rif-identity-datavault-testnet:
         image: rif-identity-datavault:${DOCKER_TAG:-latest}
@@ -28,6 +21,7 @@ services:
             - rif-identity-services
 
     rif-identity-convey-testnet:
+        platform: linux/x86_64
         image: rif-identity-convey:${DOCKER_TAG:-latest}
         build:
             context: ./services/convey

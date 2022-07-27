@@ -122,6 +122,8 @@ export default function credentialRequestService(app, agent, env, credentialRequ
 
   function receiveCredential(req, res) {
     logger.info(`Incoming credential request`)
+    console.log("holis 👀 que mierda tengo aca: ", req.query);
+    console.log("esta cosa rara que tiene? 🤔:", messageHashDictionary);
 
     const { hash } = req.query
     const id = messageHashDictionary[hash as string]
@@ -133,6 +135,7 @@ export default function credentialRequestService(app, agent, env, credentialRequ
         where: { id }
       })
       .then((cr: CredentialRequest) => {
+        console.log(" la credencial de la db fue: ", cr);
         if (cr.status === 'denied') {
           res.status(200).send(credentialRequestResponsePayload('DENIED', cr.message.raw))
         } else if (cr.status === 'pending') {

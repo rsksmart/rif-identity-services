@@ -81,6 +81,7 @@ export default function backOffice(app, agent, adminUser, adminPass, backOfficeP
 
   const users = {}
   users[adminUser] = adminPass
+  console.log(users)
   app.use(basicAuth({ users }))
 
   app.post(backOfficePrefix + '/auth', function (req, res) {
