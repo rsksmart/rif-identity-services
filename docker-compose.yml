@@ -4,7 +4,11 @@ services:
     rif-identity-ipfs-testnet:
         platform: linux/x86_64
         image: ipfs/kubo
-        network_mode: "host"
+        ports:
+            - "5001:5001"
+            - "8080:8080"
+        networks:
+            - rif-identity-services
 
     rif-identity-datavault-testnet:
         image: rif-identity-datavault:${DOCKER_TAG:-latest}
@@ -33,6 +37,8 @@ services:
             - "5104:5104"
         networks:
             - rif-identity-services
+        depends_on:
+            - rif-identity-ipfs-testnet
 
     rif-identity-issuer-back-testnet:
         image: rif-identity-back:${DOCKER_TAG:-latest}
