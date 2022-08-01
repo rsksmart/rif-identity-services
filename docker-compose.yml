@@ -2,11 +2,7 @@ version: "3"
 
 services:
     rif-identity-ipfs-testnet:
-        image: rif-identity-ipfs:${DOCKER_TAG:-latest}
-        build:
-            context: ./services/data-vault
-            dockerfile: Dockerfile.ipfs
-        env_file: ./services/data-vault/.env
+        image: ipfs/kubo
         ports:
             - "5001:5001"
             - "8080:8080"
@@ -39,6 +35,8 @@ services:
             - "5104:5104"
         networks:
             - rif-identity-services
+        depends_on:
+            - rif-identity-ipfs-testnet
 
     rif-identity-issuer-back-testnet:
         image: rif-identity-back:${DOCKER_TAG:-latest}
