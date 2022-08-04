@@ -2,7 +2,7 @@ version: "3"
 
 services:
     rif-identity-ipfs-testnet:
-        image: ipfs/kubo
+        image: ipfs/kubo:master-2022-07-28-7ec0c24
         ports:
             - "5001:5001"
             - "8080:8080"
@@ -22,6 +22,8 @@ services:
             - "5102:5102"
         networks:
             - rif-identity-services
+        depends_on:
+            - rif-identity-ipfs-testnet
 
     rif-identity-convey-testnet:
         image: rif-identity-convey:${DOCKER_TAG:-latest}
@@ -35,8 +37,6 @@ services:
             - "5104:5104"
         networks:
             - rif-identity-services
-        depends_on:
-            - rif-identity-ipfs-testnet
 
     rif-identity-issuer-back-testnet:
         image: rif-identity-back:${DOCKER_TAG:-latest}
