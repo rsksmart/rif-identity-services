@@ -1,5 +1,5 @@
 import { Entity, Column, BaseEntity, OneToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm'
-import { Message } from 'daf-core';
+import { Message } from '@veramo/data-store'
 
 @Entity()
 export default class CredentialRequest extends BaseEntity {

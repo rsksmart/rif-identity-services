@@ -1,18 +1,20 @@
-import { Agent } from 'daf-core'
+
 import setupDB from '../src/setup/db'
-import { SecretBox } from 'daf-libsodium'
 import setupAgent from '../src/setup/agent'
 import { Connection } from 'typeorm'
 import setupIdentity from '../src/setup/identity'
 import { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } from '@rsksmart/rif-id-mnemonic'
 import { createJWT } from 'did-jwt';
 import { rskTestnetDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'
+import { IDataStore, IDIDManager, IKeyManager, IResolver, TAgent } from '@veramo/core'
+import { IDataStoreORM } from '@veramo/data-store'
+import { SecretBox } from '@veramo/kms-local'
 
 // return an 8 characters random string
 export const getRandomString = (): string => Math.random().toString(36).substring(3, 11)
 
 export const getTestAgent = async (setIdentity = true, db?: string): Promise<{ 
-  database: string, agent: Agent, connection: Connection
+  database: string, agent: TAgent<IDIDManager & IKeyManager & IDataStore & IDataStoreORM & IResolver> , connection: Connection
 }> => {
   const database = db || `${getRandomString()}.sqlite`
   const connectionPromise = setupDB(database)
@@ -20,7 +22,7 @@ export const getTestAgent = async (setIdentity = true, db?: string): Promise<{
   const secretBoxKey = await SecretBox.createSecretKey()
   const rpcUrl = 'https://did.testnet.rsk.co:4444'
 
-  const agent = setupAgent(connectionPromise, secretBoxKey, rpcUrl, 'rsk:testnet')
+  const agent = setupAgent(connectionPromise, secretBoxKey, rpcUrl, 'rskTestnet')
 
   if (setIdentity) {
     await setupIdentity(agent)

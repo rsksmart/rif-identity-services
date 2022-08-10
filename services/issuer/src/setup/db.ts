@@ -1,5 +1,6 @@
+import { Entities, migrations } from '@veramo/data-store'
 import { createConnection } from 'typeorm'
-import { Entities } from 'daf-core'
+
 import CredentialRequest from '../lib/CredentialRequest'
 import createLogger from '../lib/logger'
 
@@ -9,8 +10,9 @@ export default function setupDB(database) {
   const connection = createConnection({
     type: 'sqlite',
     database,
-    synchronize: true,
-    logging: false,
+    synchronize: false,
+    migrations,
+    migrationsRun: true,
     entities: [...Entities, CredentialRequest],
   })
 

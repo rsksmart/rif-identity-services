@@ -1,78 +1,69 @@
-import { KeyStore, IdentityStore, Agent } from 'daf-core'
-import { SecretBox, KeyManagementSystem } from 'daf-libsodium'
-import { IdentityProvider } from 'daf-ethr-did'
-import { DafResolver } from 'daf-resolver'
-
-import * as DIDComm from 'daf-did-comm'
-import * as DidJwt from 'daf-did-jwt'
-import * as W3c from 'daf-w3c'
-import * as Sdr from 'daf-selective-disclosure'
 import createLogger from '../lib/logger'
 import { Resolver } from 'did-resolver'
+import { KeyManager } from '@veramo/key-manager'
+
+import { EthrDIDProvider } from '@veramo/did-provider-ethr';
+import { createAgent, IDataStore, IDIDManager, IKeyManager, IResolver, TAgent } from '@veramo/core';
+import { DIDStore, IDataStoreORM, KeyStore, PrivateKeyStore } from '@veramo/data-store'
+import { KeyManagementSystem, SecretBox } from '@veramo/kms-local'
+import { DIDManager } from '@veramo/did-manager'
+import { DIDResolverPlugin } from '@veramo/did-resolver';
+import { getResolver as ethrDidResolver } from 'ethr-did-resolver'
+import { Connection } from 'typeorm';
+import { JsonRpcProvider } from '@ethersproject/providers';
 
 const logger = createLogger('rif-id:setup:agent')
 
-function createIdentityProviders(dbConnection, secretBoxKey ,rpcUrl, networkName) {
-  const secretBox = new SecretBox(secretBoxKey)
-  const keyStore = new KeyStore(dbConnection, secretBox)
 
-  const kms = new KeyManagementSystem(keyStore)
-  const identityStore = new IdentityStore('issuer-ethr', dbConnection)
-
-  const identityProvider = new IdentityProvider({
-    kms,
-    identityStore,
-    network: networkName,
-    rpcUrl
-  })
-
-  return [identityProvider]
+export default function setupAgent(dbConnection: Promise<Connection>, secretBoxKey: string, rpcUrl: string, networkName: string): TAgent<IDIDManager & IKeyManager & IDataStore & IDataStoreORM & IResolver> {
+  logger.info("👀")
+  try {
+    const agent = createAgent<IDIDManager & IKeyManager & IDataStore & IDataStoreORM & IResolver>({
+      plugins: [
+        setupKeyManagerPlugin(dbConnection, secretBoxKey),
+        setupDidManagerPlugin(dbConnection, networkName, rpcUrl),
+        setupDIDResolverPlugin(rpcUrl, networkName),
+      ],
+    });
+    logger.info('Agent created')
+    return agent;
+  }
+  catch(err) {
+    logger.error(err)
+    logger.error(console.trace());
+    throw err
+  }
+  
+}
+function setupDIDResolverPlugin(rpcUrl: string, networkName: string) {
+  return new DIDResolverPlugin({
+    resolver: new Resolver({
+      ...ethrDidResolver({ rpcUrl, networkName })
+    }),
+  });
 }
 
-function createServiceControllers() {
-  return []
+function setupDidManagerPlugin(dbConnection: Promise<Connection>, networkName: string, rpcUrl: string) {
+  const provider = new JsonRpcProvider(rpcUrl);
+  return new DIDManager({
+    store: new DIDStore(dbConnection),
+    defaultProvider: 'did:ethr:rskTestnet',
+    providers: {
+      'did:ethr:rskTestnet': new EthrDIDProvider({
+        defaultKms: 'local',
+        network: networkName,
+        web3Provider: provider,
+      })
+    },
+  });
 }
 
-function createResolver(rpcUrl, networkName) {
-  return new DafResolver({ networks: [
-    { name: networkName, registry: "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", rpcUrl },
-  ]})
+function setupKeyManagerPlugin(dbConnection: Promise<Connection>, secretBoxKey: string) {
+  return new KeyManager({
+    store: new KeyStore(dbConnection),
+    kms: {
+      local: new KeyManagementSystem(new PrivateKeyStore(dbConnection, new SecretBox(secretBoxKey))),
+    },
+  });
 }
 
-function createMessageHandler() {
-  const messageHandler = new DIDComm.DIDCommMessageHandler()
-  messageHandler
-    .setNext(new DidJwt.JwtMessageHandler())
-    .setNext(new W3c.W3cMessageHandler())
-    .setNext(new Sdr.SdrMessageHandler())
-  return messageHandler
-}
-
-function createActionHandler() {
-  const actionHandler = new W3c.W3cActionHandler()
-  actionHandler
-    .setNext(new Sdr.SdrActionHandler())
-    .setNext(new DIDComm.DIDCommActionHandler())
-  return actionHandler
-}
-
-export default function setupAgent(dbConnection, secreBoxKey, rpcUrl, networkName) {
-  const identityProviders = createIdentityProviders(dbConnection, secreBoxKey, rpcUrl, networkName)
-  const serviceControllers = createServiceControllers()
-  const didResolver = createResolver(rpcUrl, networkName)
-  const messageHandler = createMessageHandler()
-  const actionHandler = createActionHandler()
-
-  const agent = new Agent({
-    dbConnection,
-    identityProviders,
-    serviceControllers,
-    didResolver: (didResolver as unknown as Resolver),
-    messageHandler,
-    actionHandler
-  })
-
-  logger.info('Agent created')
-
-  return agent
-}

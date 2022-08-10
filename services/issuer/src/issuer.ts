@@ -31,15 +31,16 @@ export async function runIssuer ({
   const agent = setupAgent(dbConnection, secretBoxKey, rpcUrl, networkName)
   await setupIdentity(agent);
 
-  const identities = await agent.identityManager.getIdentities()
+  const identities =  await agent.didManagerFind()
+  
   const identity = identities[0]
-
+ 
   const env = {
     challengeExpirationInSeconds,
     authExpirationInHours,
     maxRequestsPerToken,
-    signer: (await identity.keyByType('Secp256k1')).signer(),
     did: identity.did,
+    signer: identity.signer,
     rpcUrl,
     networkName
   }
