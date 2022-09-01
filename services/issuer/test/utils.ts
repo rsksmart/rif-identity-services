@@ -1,6 +1,6 @@
 
 import setupDB from '../src/setup/db'
-import setupAgent from '../src/setup/agent'
+import setupAgent, { IssuerAgent } from '../src/setup/agent'
 import { Connection } from 'typeorm'
 import setupIdentity from '../src/setup/identity'
 import { mnemonicToSeed, seedToRSKHDKey, generateMnemonic } from '@rsksmart/rif-id-mnemonic'
@@ -14,7 +14,7 @@ import { SecretBox } from '@veramo/kms-local'
 export const getRandomString = (): string => Math.random().toString(36).substring(3, 11)
 
 export const getTestAgent = async (setIdentity = true, db?: string): Promise<{ 
-  database: string, agent: TAgent<IDIDManager & IKeyManager & IDataStore & IDataStoreORM & IResolver> , connection: Connection
+  database: string, agent: IssuerAgent , connection: Connection
 }> => {
   const database = db || `${getRandomString()}.sqlite`
   const connectionPromise = setupDB(database)

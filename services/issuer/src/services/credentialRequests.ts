@@ -4,16 +4,14 @@ import { messageToRequest } from '../lib/messageToRequest'
 import CredentialRequest from '../lib/CredentialRequest'
 import createLogger from '../lib/logger'
 import dotenv from 'dotenv'
-import {
-  getChallenge, getAuthToken, authExpressMiddleware, initializeAuth
-} from '@rsksmart/express-did-auth'
+import setupAuth from '../../../../../express-did-auth/lib'
 
 dotenv.config()
 
 const logger = createLogger('rif-id:services:credentialRequests')
 
 const serverCredentialMetadata = (type: string) => {
-  switch(type) {
+  switch (type) {
     case 'PARKING_PERMIT':
       return [
         { claimType: 'parkingPermitId', claimValue: '999999' },
@@ -60,34 +58,25 @@ type CredentialRequestResponseStatus = 'PENDING' | 'DENIED' | 'SUCCESS' | 'ISSUE
 
 const credentialRequestResponsePayload = (status: CredentialRequestResponseStatus, raw: string) => ({ status, payload: { raw } })
 
-export default function credentialRequestService(app, agent, env, credentialRequestServicePrefix = '') {
-  initializeAuth(env)
+export default async function credentialRequestService(app, agent, env, credentialRequestServicePrefix = '') {
+  const authMiddleware = await setupAuth({
+    serviceDid: env.did,
+    serviceSigner: env.signer,
+    serviceUrl: env.serviceUrl,
+    challengeSecret: env.challengeSecret,
+    loginMessageHeader: env.loginMessageHeader,
+    useCookies: true
+  })(app)
+
+  app.use(authMiddleware)
 
   function logIfError(fn, req, res) {
     try {
       fn(req, res)
-    } catch(err) {
+    } catch (err) {
       logger.error('Caught error', err)
       res.status(500).send('Unhandled error')
     }
-  }
-
-  function requestAuth(req, res) {
-    const { did } = req.body
-
-    logger.info(`${did} requested auth`)
-
-    const challenge = getChallenge(did)
-
-    res.status(200).send({ challenge })
-  }
-
-  function auth(req, res) { 
-    const { jwt } = req.body
-
-    getAuthToken(jwt)
-      .then(token => res.status(200).send({ token }))
-      .catch(err => res.status(401).send(err.message))
   }
 
   function requestCredential(req, res) {
@@ -113,11 +102,11 @@ export default function credentialRequestService(app, agent, env, credentialRequ
             logger.info(`Credential request stored`)
             res.status(200).send()
           })
-    })
-    .catch(error => {
-      logger.error('Caught error on /requestCredential', error)
-      res.status(500).send('Unhandled error')
-    });
+      })
+      .catch(error => {
+        logger.error('Caught error on /requestCredential', error)
+        res.status(500).send('Unhandled error')
+      });
   }
 
   function receiveCredential(req, res) {
@@ -128,39 +117,39 @@ export default function credentialRequestService(app, agent, env, credentialRequ
 
     agent.dbConnection.then(connection => {
       connection.getRepository(CredentialRequest).findOne(
-      { 
-        relations: ['message'],
-        where: { id }
-      })
-      .then((cr: CredentialRequest) => {
-        if (cr.status === 'denied') {
-          res.status(200).send(credentialRequestResponsePayload('DENIED', cr.message.raw))
-        } else if (cr.status === 'pending') {
-          res.status(200).send(credentialRequestResponsePayload('PENDING', cr.message.raw))
-        } else if (cr.status === 'issued') {
-          res.status(200).send(credentialRequestResponsePayload('ISSUED', cr.message.raw))
-        } else {
-          const request = messageToRequest(cr)
+        {
+          relations: ['message'],
+          where: { id }
+        })
+        .then((cr: CredentialRequest) => {
+          if (cr.status === 'denied') {
+            res.status(200).send(credentialRequestResponsePayload('DENIED', cr.message.raw))
+          } else if (cr.status === 'pending') {
+            res.status(200).send(credentialRequestResponsePayload('PENDING', cr.message.raw))
+          } else if (cr.status === 'issued') {
+            res.status(200).send(credentialRequestResponsePayload('ISSUED', cr.message.raw))
+          } else {
+            const request = messageToRequest(cr)
 
-          // save issued status to db:
-          cr.status = 'issued';
-          connection.getRepository(CredentialRequest).save(cr).then(() => {
+            // save issued status to db:
+            cr.status = 'issued';
+            connection.getRepository(CredentialRequest).save(cr).then(() => {
 
-          agent.identityManager.getIdentities()
-            .then(identities => {
-              agent.handleAction({
-                type: 'sign.w3c.vc.jwt',
-                save: true,
-                data: makeCredential(identities[0].did, request),
-              }).then(vc => res.status(200).send(credentialRequestResponsePayload('SUCCESS', vc.raw)))
+              agent.identityManager.getIdentities()
+                .then(identities => {
+                  agent.handleAction({
+                    type: 'sign.w3c.vc.jwt',
+                    save: true,
+                    data: makeCredential(identities[0].did, request),
+                  }).then(vc => res.status(200).send(credentialRequestResponsePayload('SUCCESS', vc.raw)))
+                })
             })
-          })
-        }
-      })
-      .catch(e => {
-        logger.error('Caught error on /receiveCredential', e)
-        res.status(500).send()
-      })
+          }
+        })
+        .catch(e => {
+          logger.error('Caught error on /receiveCredential', e)
+          res.status(500).send()
+        })
     })
   }
 
@@ -168,11 +157,7 @@ export default function credentialRequestService(app, agent, env, credentialRequ
     res.status(200).end('OK')
   })
 
-  app.post(credentialRequestServicePrefix + '/request-auth', bodyParser.json(), (req, res) => logIfError(requestAuth, req, res))
 
-  app.post(credentialRequestServicePrefix + '/auth', bodyParser.json(), (req, res) => logIfError(auth, req, res))
-
-  app.use(authExpressMiddleware)
 
   app.post(credentialRequestServicePrefix + '/requestCredential', bodyParser.text(), (req, res) => logIfError(requestCredential, req, res))
 

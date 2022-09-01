@@ -77,6 +77,9 @@ AUTH_EXPIRATION_HOURS=auth token expiration time in hours
 CHALLENGE_EXPIRATION_SECONDS=auth challenge expiration time in seconds
 MAX_REQUESTS_PER_TOKEN=max amount of requests allowed per token
 NETWORK_NAME=network of the RPC url if set
+SERVICE_URL=will be used as the `aud` file for JWTs. It expects this value to be present in the challenge response sent by the client and is part of the acces token emitted by the service
+CHALLENGE_SECRET=secret used to create deterministic challenges
+LOGIN_MESSAGE_HEADER=custom login message header to be signed by the user in the login process
 ```
 
 Example
@@ -94,6 +97,9 @@ NODE_ENV=dev
 AUTH_EXPIRATION_HOURS=10
 CHALLENGE_EXPIRATION_SECONDS=300
 MAX_REQUESTS_PER_TOKEN=20
+SERVICE_URL=http://datavault.com
+CHALLENGE_SECRET=aSecret
+LOGIN_MESSAGE_HEADER=Are you sure you want to login to the RIF Data Vault?
 ```
 
 Defaults

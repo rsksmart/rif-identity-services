@@ -10,7 +10,7 @@ dotenv.config()
 
 logger.info('Setting up')
 
-async function main () {
+async function main() {
   const appCredentialRequests = express()
   appCredentialRequests.use(cors())
 
@@ -31,7 +31,10 @@ async function main () {
     database: process.env.DB_FILE || './db/issuer.sqlite',
     challengeExpirationInSeconds: process.env.CHALLENGE_EXPIRATION_SECONDS || 300,
     authExpirationInHours: process.env.AUTH_EXPIRATION_HOURS || 10,
-    maxRequestsPerToken: process.env.MAX_REQUESTS_PER_TOKEN || 30
+    maxRequestsPerToken: process.env.MAX_REQUESTS_PER_TOKEN || 30,
+    serviceUrl: process.env.SERVICE_URL,
+    challengeSecret: process.env.CHALLENGE_SECRET,
+    loginMessageHeader: process.env.LOGIN_MESSAGE_HEADER,
   })
 
   const credentialRequestsPort = process.env.CREDENTIAL_REQUESTS_PORT || 5100

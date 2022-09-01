@@ -12,7 +12,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@rsksmart/express-did-auth": "0.0.1",
     "@rsksmart/rif-node-utils": "0.0.2",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/user-event": "^7.1.2",
@@ -34,6 +33,7 @@
     "ethr-did-resolver": "^6.1.0",
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
+    "express-did-auth": "https://github.com/rsksmart/express-did-auth#fix/libs-update",
     "node-gyp": "^7.1.0",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^5.0.11",
@@ -41,7 +41,7 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "@rsksmart/rif-id-ethr-did": "0.1.0",
+    "@rsksmart/rif-id-ethr-did": "^0.1.0",
     "@rsksmart/rif-id-mnemonic": "0.1.0",
     "@types/jest": "^26.0.13",
     "concurrently": "^5.3.0",
@@ -51,7 +51,8 @@
     "js-sha3": "^0.8.0",
     "nodemon": "^2.0.19",
     "serve": "^11.3.2",
-    "supertest": "^4.0.2",
+    "supertest": "^6.2.4",
+    "@types/supertest": "^2.0.12",
     "ts-jest": "^26.3.0"
   }
 }

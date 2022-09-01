@@ -29,6 +29,7 @@ export default function backOffice(app, agent, adminUser, adminPass, backOfficeP
 
     agent.identityManager.getIdentities()
       .then(identities => {
+        console.log("👀 Identities: ", identities)
         if (!identities) return res.status(500).send('No identity')
         res.status(200).send(identities[0].did)
       })
@@ -52,7 +53,7 @@ export default function backOffice(app, agent, adminUser, adminPass, backOfficeP
   function updateRequestById(req, res) {
     const { id } = req.params
     const { status } = req.body
-
+``
     logger.info(`PUT status ${status} for credential request ${id}`)
 
     if (status !== 'granted' && status !== 'denied') return res.status(400).send('Invalid action')

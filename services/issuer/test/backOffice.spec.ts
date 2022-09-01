@@ -1,24 +1,39 @@
 import { getRandomString, getTestAgent, getTestSdrRequestData } from './utils'
 import request from 'supertest'
 import express, { Express } from 'express'
-import { Agent } from 'daf-core'
+
 import { Connection } from 'typeorm'
 import fs from 'fs'
 import backOffice from '../src/services/backOffice'
 import { keccak256 } from 'js-sha3'
 import CredentialRequest from '../src/lib/CredentialRequest'
-
+import { IssuerAgent } from '../src/setup/agent'
+import { Identifier, Message as DBMessage } from '@veramo/data-store'
 describe('backOfficeService tests', () => {
-  let 
-    app: Express, agent: Agent, connection: Connection,
+  let
+    app: Express, agent: IssuerAgent, connection: Connection,
     database: string, user: string, password: string, issuerDid: string
 
   const generateAndSaveSdr = async () => {
     const sdr = await getTestSdrRequestData()
-
     const message = await agent.handleMessage({ raw: sdr.body, metaData: [] })
-    const hash = (keccak256(message.raw) as any).toString('hex')
-    const credRequest = { status: 'pending', message, hash }
+    console.log(message)
+    const hash = (keccak256(message.raw!) as any).toString('hex')
+
+    const dbMessage = new DBMessage();
+    dbMessage.raw = message.raw;
+    dbMessage.createdAt = new Date(message.createdAt!);
+    dbMessage.type = message.type;
+    dbMessage.expiresAt = new Date(message.expiresAt!);
+    dbMessage.threadId = message.threadId;
+    dbMessage.data = message.data;
+    dbMessage.replyTo = message.replyTo;
+    dbMessage.replyUrl = message.replyUrl;
+
+    const credRequest = new CredentialRequest();
+    credRequest.status = 'pending'
+    credRequest.hash = hash
+    credRequest.message = dbMessage
 
     const createdRequest = await connection.getRepository(CredentialRequest).save(credRequest)
 
@@ -26,16 +41,24 @@ describe('backOfficeService tests', () => {
   }
 
   beforeEach(async () => {
-    ({ agent, connection, database } = await getTestAgent())
+    try {
+      const agentResult = await getTestAgent()
+      database = agentResult.database;
+      agent = agentResult.agent;
+      connection = agentResult.connection;
 
-    issuerDid = (await agent.identityManager.getIdentities())[0].did
-    expect(issuerDid).toContain('rsk:testnet')
+      issuerDid = (await agent.didManagerFind())[0].did
+      expect(issuerDid).toContain('ethr:rskTestnet')
 
-    user = getRandomString()
-    password = getRandomString()
-    app = express()
+      user = getRandomString()
+      password = getRandomString()
+      app = express()
 
-    await backOffice(app, agent, user, password)
+      await backOffice(app, agent, user, password)
+    } catch (error) {
+      console.log(error)
+    }
+
   })
 
   afterEach(async () => {
@@ -94,7 +117,7 @@ describe('backOfficeService tests', () => {
 
     it('should return empty list if no requests', async () => {
       const { text } = await request(app).get('/requests').auth(user, password).expect(200)
-      
+
       const reqs = JSON.parse(text)
 
       expect(reqs).toHaveLength(0)
@@ -105,7 +128,7 @@ describe('backOfficeService tests', () => {
       const { from, fullName } = sdr
 
       const { text } = await request(app).get('/requests').auth(user, password).expect(200)
-      
+
       const reqs = JSON.parse(text)
 
       expect(reqs).toHaveLength(1)
@@ -116,32 +139,37 @@ describe('backOfficeService tests', () => {
   })
 
   describe('PUT /request/:id/status', () => {
-    let path, createdRequest
-    
-    beforeEach(async () => {
-      ({ createdRequest } = await generateAndSaveSdr())
-      
-      path = `/request/${createdRequest.id}/status`
-    })
-  
+
+
+    const setupInitialState = async () => {
+      const { createdRequest } = await generateAndSaveSdr()
+
+      const path = `/request/${createdRequest.id}/status`
+
+      return { path, createdRequest }
+    }
+
     it('should return 401 if no auth sent', async () => {
+      const { path } = await setupInitialState()
       await request(app).put(path).expect(401)
     })
 
     it('should return 400 if invalid status', async () => {
-        const status = getRandomString()
+      const { path } = await setupInitialState()
+      const status = getRandomString()
 
-        const { text } = await request(app)
-          .put(path).set('Content-Type', 'application/json')
-          .auth(user, password).send({ status }).expect(400)
+      const { text } = await request(app)
+        .put(path).set('Content-Type', 'application/json')
+        .auth(user, password).send({ status }).expect(400)
 
-        expect(text).toEqual('Invalid action')
+      expect(text).toEqual('Invalid action')
     })
 
     describe
       .each([['granted'], ['denied']])
       ('should update the status', (status) => {
         it('should update the credential request status', async () => {
+          const { path, createdRequest } = await setupInitialState()
           const { text } = await request(app)
             .put(path).set('Content-Type', 'application/json')
             .auth(user, password).send({ status }).expect(200)
@@ -154,7 +182,7 @@ describe('backOfficeService tests', () => {
           // verify that the db is updated as well
           const retrieved = await connection.getRepository(CredentialRequest).findOneOrFail({ id: updated.id })
           expect(retrieved.status).toEqual(status)
+        })
       })
-    })
   })
 })
