@@ -37,7 +37,7 @@
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
     "reflect-metadata": "^0.1.13",
-    "sqlite3": "^5.0.0",
+    "sqlite3": "^5.1.5",
     "typeorm": "^0.2.25",
     "typescript": "^3.9.7",
     "winston": "^3.3.3"
